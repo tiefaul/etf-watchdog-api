@@ -5,6 +5,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [Why would I use pydantic in my Item class when I can just put name: str, price: float, etc without it?](#why-use-pydantic)
 - [What does typing.union do? In reference to Union[str, None] = None?](#what-does-typing-union-do)
 - [What is the enum library in Python?](#what-is-the-enum-library-in-python)
+- [Explain this line of code for me: async def read_items(q: str | None = None):](#explain-this-line-of-code-for-me-async-def-read_itemsq-str--none--none)
 
 ---
 
@@ -38,3 +39,23 @@ print(today)           # Output: Day.WEDNESDAY
 print(today.value)     # Output: 3
 print(today.name)      # Output: 'WEDNESDAY'
 ```
+
+### Explain this line of code for me: async def read_items(q: str | None = None):
+
+- This line defines an asynchronous function named read_items with one optional parameter:
+    - async def: Declares the function as asynchronous, allowing you to use await inside it for non-blocking operations (like database or network calls).
+    - read_items: The function name.
+    - q: str | None = None: The parameter q can be a string or None (optional). The default value is None, so if no argument is provided, q will be None.
+- In summary, this function can be called with or without a string argument for q, and it can perform asynchronous operations.
+
+
+### What does Annotated do in the typing library?
+- On its own Annotated does not do anything other than assigning extra information (metadata) to a reference. It is up to another code, which can be a library, framework or your own code, to interpret the metadata and make use of it.
+
+- For example, FastAPI uses Annotated for data validation:
+
+``` python
+def read_items(q: Annotated[str, Query(max_length=50)])
+```
+
+- Here the parameter q is of type str with a maximum length of 50. This information was communicated to FastAPI (or any other underlying library) using the Annotated keyword.
