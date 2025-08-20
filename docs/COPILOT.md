@@ -1,11 +1,14 @@
 # Introduction
-This doc is meant to track my conversations with VsCode's Copilot feature. I use this AI to answer questions that I may have and it helps me learn along the way.
+
+This doc is meant to track my conversations with VsCode's Copilot feature. I use this AI to answer questions that I may have and it helps me learn along the way. Think of it as a tutor, while you go through a course.
 
 ## Table of contents
+
 - [Why would I use pydantic in my Item class when I can just put name: str, price: float, etc without it?](#why-use-pydantic)
 - [What does typing.union do? In reference to Union[str, None] = None?](#what-does-typing-union-do)
-- [What is the enum library in Python?](#what-is-the-enum-library-in-python)
+- [What is the enum module in Python?](#what-is-the-enum-module-in-python)
 - [Explain this line of code for me: async def read_items(q: str | None = None):](#explain-this-line-of-code-for-me-async-def-read_itemsq-str--none--none)
+- [What does Annotated do in the typing library?](#what-does-annotated-do-in-the-typing-library)
 
 ---
 
@@ -21,6 +24,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 ### What is the enum library in Python?
 
 - An enum (short for "enumeration") is a special data type that defines a set of named, constant values. In Python, you use the Enum class from the enum module to create enums. Enums are useful for representing a fixed set of related options, such as days of the week, user roles, or status codes, making your code more readable and less error-prone. Example:
+
 ```python
 from enum import Enum
 
@@ -50,6 +54,7 @@ print(today.name)      # Output: 'WEDNESDAY'
 
 
 ### What does Annotated do in the typing library?
+
 - On its own Annotated does not do anything other than assigning extra information (metadata) to a reference. It is up to another code, which can be a library, framework or your own code, to interpret the metadata and make use of it.
 
 - For example, FastAPI uses Annotated for data validation:
