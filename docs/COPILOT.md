@@ -9,6 +9,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [What is the enum module in Python?](#what-is-the-enum-module-in-python)
 - [Explain this line of code for me: async def read_items(q: str | None = None):](#explain-this-line-of-code-for-me-async-def-read_itemsq-str--none--none)
 - [What does Annotated do in the typing library?](#what-does-annotated-do-in-the-typing-library)
+- [Can I write != instead of is not? Example: `if item.tax != None`](#can-i-write--instead-of-is-not-example-if-itemtax--none)
 
 ---
 
@@ -64,3 +65,29 @@ def read_items(q: Annotated[str, Query(max_length=50)])
 ```
 
 - Here the parameter q is of type str with a maximum length of 50. This information was communicated to FastAPI (or any other underlying library) using the Annotated keyword.
+
+### Can I write != instead of is not? Example: `if item.tax != None`
+
+- For most value comparisons in Python, you can use `!=` instead of `is not`, but for checking against None, it is best practice to use is not None rather than != None.
+    - Use `is not None` for identity checks (recommended for None).
+    - Use `!=` for value comparisons (e.g., numbers, strings).
+
+- Some other identity checks include:
+    - Checking if two variables refer to the exact same object:
+    ```python
+    if a is b:
+    # a and b are the same object in memory
+    ```
+    - Checking if a variable is not a specific singleton (like `None`, `True`, or `False`)
+    ```python
+    if flag is True:
+    # flag is exactly the singleton True
+    if result is not False:
+    # result is not the singleton False
+    ```
+    - Example of using !=
+    ```python
+    if x != "hello":
+    # or
+    if x != 2:
+    ```

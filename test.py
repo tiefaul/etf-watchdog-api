@@ -4,8 +4,4 @@ data = {
     "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
 }
 
-key, value = list(data.items())[0]
-example = list(data.items())
-print(key)
-print(value)
-print(example)
+print(data)
