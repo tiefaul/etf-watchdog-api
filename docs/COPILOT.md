@@ -10,6 +10,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [Explain this line of code for me: async def read_items(q: str | None = None):](#explain-this-line-of-code-for-me-async-def-read_itemsq-str--none--none)
 - [What does Annotated do in the typing library?](#what-does-annotated-do-in-the-typing-library)
 - [Can I write != instead of is not? Example: `if item.tax != None`](#can-i-write--instead-of-is-not-example-if-itemtax--none)
+- [Does the order of the default values matter?](#does-the-order-of-the-default-values-matter)
 
 ---
 
@@ -91,3 +92,17 @@ def read_items(q: Annotated[str, Query(max_length=50)])
     # or
     if x != 2:
     ```
+
+### Does the order of the default values matter?
+
+- Yes, the order of default values matters in Python function definitions, including FastAPI endpoints.
+- All parameters without default values (i.e., required parameters) must come before any parameters with default values (i.e., optional parameters). If you put a required parameter after an optional one, Python will raise a SyntaxError.
+- For example, this is correct:
+```python
+def update_item(item_id: int, item: Item, q: str | None = None, user: User | None = None):
+```
+- But this will cause an error:
+```python
+def update_item(q: str | None = None, item: Item):  # ❌ Not allowed
+```
+- So, always list required parameters first, then optional ones with default values.
