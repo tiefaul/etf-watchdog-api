@@ -2,6 +2,8 @@
 
 This doc is meant to track my conversations with VsCode's Copilot feature. I use this AI to answer questions that I may have and it helps me learn along the way. Think of it as a tutor, while you go through a course.
 
+---
+
 ## Table of contents
 
 - [Why would I use pydantic in my Item class when I can just put name: str, price: float, etc without it?](#why-use-pydantic)
