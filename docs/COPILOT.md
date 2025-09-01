@@ -11,8 +11,10 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [What is the enum module in Python?](#what-is-the-enum-module-in-python)
 - [Explain this line of code for me: async def read_items(q: str | None = None):](#explain-this-line-of-code-for-me-async-def-read_itemsq-str--none--none)
 - [What does Annotated do in the typing library?](#what-does-annotated-do-in-the-typing-library)
-- [Can I write != instead of is not? Example: `if item.tax != None`](#can-i-write--instead-of-is-not-example-if-itemtax--none)
+- [Can I write `!=` instead of `is not`? Example: `if item.tax != None`](#can-i-write--instead-of-is-not-example-if-itemtax--none)
 - [Does the order of the default values matter?](#does-the-order-of-the-default-values-matter)
+- [What are headers in an API call?](#what-are-headers-in-an-api-call)
+- [What are cookies in relation to FastAPI?](#what-are-cookies-in-relation-to-fastapi)
 
 ---
 
@@ -69,7 +71,7 @@ def read_items(q: Annotated[str, Query(max_length=50)])
 
 - Here the parameter q is of type str with a maximum length of 50. This information was communicated to FastAPI (or any other underlying library) using the Annotated keyword.
 
-### Can I write != instead of is not? Example: `if item.tax != None`
+### Can I write `!=` instead of `is not`? Example: `if item.tax != None`
 
 - For most value comparisons in Python, you can use `!=` instead of `is not`, but for checking against None, it is best practice to use is not None rather than != None.
     - Use `is not None` for identity checks (recommended for None).
@@ -108,3 +110,16 @@ def update_item(item_id: int, item: Item, q: str | None = None, user: User | Non
 def update_item(q: str | None = None, item: Item):  # ❌ Not allowed
 ```
 - So, always list required parameters first, then optional ones with default values.
+
+### What are headers in an API call?
+- Headers in an API call are key-value pairs sent as part of the HTTP request or response. They provide metadata about the request or response, such as content type, authentication tokens, user agent, and more. Headers help the server and client understand how to process the data being sent or received.
+
+- Example of common headers:
+    - Content-Type: Specifies the format of the data (e.g., application/json).
+    - Authorization: Contains credentials for authentication (e.g., Bearer token).
+    - User-Agent: Identifies the client making the request.
+
+- Headers are not part of the main body or URL—they are additional information sent with every HTTP request or response.
+
+### What are cookies in relation to FastAPI?
+- Cookies are used to store and retrieve small pieces of data on the client side (usually in the user's browser) and send them with each request to the server. 
