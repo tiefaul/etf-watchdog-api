@@ -1,10 +1,19 @@
-class Cat:
-    def __init__(self, name: str, breed: str):
-        self.name = name
-        self.breed = breed
-    
-    def CatName(self, lastname: str):
-        return f"This is {self.name} {lastname}"
+fake_users_db = {
+    "johndoe": {
+        "username": "johndoe",
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": "fakehashedsecret",
+        "disabled": False,
+    },
+    "alice": {
+        "username": "alice",
+        "full_name": "Alice Wonderson",
+        "email": "alice@example.com",
+        "hashed_password": "fakehashedsecret2",
+        "disabled": True,
+    },
+}
 
-naming = Cat(name="Tyler", breed="Random")
-print(naming.name)
+test = fake_users_db["johndoe"]["username"]
+print(test)
