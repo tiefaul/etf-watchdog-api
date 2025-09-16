@@ -15,7 +15,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [Does the order of the default values matter?](#does-the-order-of-the-default-values-matter)
 - [What are headers in an API call?](#what-are-headers-in-an-api-call)
 - [What are cookies in relation to FastAPI?](#what-are-cookies-in-relation-to-fastapi)
-- [### Can you explain this code to me? `current_user: Annotated[User, Depends(get_current_user)]`](#current-user-annotated-depends)
+- [Can you explain this code to me? `current_user: Annotated[User, Depends(get_current_user)]`](#current-user-annotated-depends)
 
 ---
 
@@ -26,7 +26,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 
 ---
 
-### what does typing.union do? In reference to Union[str, None] = None?
+### What does typing.union do? In reference to Union[str, None] = None?
 
 - typing.Union allows you to specify that a variable or parameter can be more than one type. In your example, Union[str, None] means the value can be either a string or None (i.e., it’s optional). = None means that the parameter or attribute defaults to None if no value is provided.
 
