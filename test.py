@@ -1,19 +1,4 @@
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "fakehashedsecret",
-        "disabled": False,
-    },
-    "alice": {
-        "username": "alice",
-        "full_name": "Alice Wonderson",
-        "email": "alice@example.com",
-        "hashed_password": "fakehashedsecret2",
-        "disabled": True,
-    },
-}
+from passlib.context import CryptContext
 
-test = fake_users_db["johndoe"]["username"]
-print(test)
+pwd_content = CryptContext(schemes=["bcrypt"], deprecated="auto")
+print(pwd_content.hash("secret"))
