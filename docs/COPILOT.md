@@ -6,18 +6,18 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 
 ## Table of contents
 
-- [Why would I use pydantic in my Item class when I can just put name: str, price: float, etc without it?](#why-use-pydantic)
-- [What does typing.union do? In reference to Union[str, None] = None?](#what-does-typing-union-do)
-- [What is the enum module in Python?](#what-is-the-enum-module-in-python)
+- [Why would I use pydantic in my Item class when I can just put name: str, price: float, etc without it?](#why-would-i-use-pydantic-in-my-item-class-when-i-can-just-put-namestr-price-float-etc-without-it)
+- [What does typing.union do? In reference to Union[str, None] = None?](#what-does-typingunion-do-in-reference-to-unionstr-none--none)
+- [What is the enum module in Python?](#what-is-the-enum-library-in-python)
 - [Explain this line of code for me: async def read_items(q: str | None = None):](#explain-this-line-of-code-for-me-async-def-read_itemsq-str--none--none)
 - [What does Annotated do in the typing library?](#what-does-annotated-do-in-the-typing-library)
 - [Can I write `!=` instead of `is not`? Example: `if item.tax != None`](#can-i-write--instead-of-is-not-example-if-itemtax--none)
 - [Does the order of the default values matter?](#does-the-order-of-the-default-values-matter)
 - [What are headers in an API call?](#what-are-headers-in-an-api-call)
 - [What are cookies in relation to FastAPI?](#what-are-cookies-in-relation-to-fastapi)
-- [Can you explain this code to me? `current_user: Annotated[User, Depends(get_current_user)]`](#current-user-annotated-depends)
+- [Can you explain this code to me? `current_user: Annotated[User, Depends(get_current_user)]`](#can-you-explain-this-code-to-me-current_user-annotateduser-dependsget_current_user)
 - [What does `yield` do in Python?](#what-does-yield-do-in-python)
-- [What is the difference betwee a `PUT` and a `PATCH` request?](#what-is-put-request)
+- [What is the difference betwee a `PUT` and a `PATCH` request?](#what-is-the-difference-betwee-a-put-and-a-patch-request)
 
 ---
 
