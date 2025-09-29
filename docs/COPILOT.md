@@ -16,6 +16,8 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [What are headers in an API call?](#what-are-headers-in-an-api-call)
 - [What are cookies in relation to FastAPI?](#what-are-cookies-in-relation-to-fastapi)
 - [Can you explain this code to me? `current_user: Annotated[User, Depends(get_current_user)]`](#current-user-annotated-depends)
+- [What does `yield` do in Python?](#what-does-yield-do-in-python)
+- [What is the difference betwee a `PUT` and a `PATCH` request?](#what-is-put-request)
 
 ---
 
@@ -169,3 +171,45 @@ def update_item(q: str | None = None, item: Item):  # ❌ Not allowed
 - That result gets passed as the `current_user` argument into `get_current_active_user`.
 
 - Then `get_current_active_user` runs its own logic (checking `.disabled` etc.).
+
+---
+
+### What does `yield` do in Python?
+
+- In Python, `yield` is used inside a function to make it a generator function. Instead of returning a single value and exiting like `return`, a function with `yield` produces a sequence of values, one at a time, and can be resumed where it left off.
+
+How it works:
+- When Python sees a `yield` in a function, it treats the function as a generator.
+
+- Calling the function doesn’t run it immediately; instead, it returns a generator object.
+
+- Each time you iterate over the generator (e.g., with `for` or `next()`), the function runs until the next `yield`, produces a value, and then pauses (saving its state).
+
+- The next call resumes right after the last `yield`.
+
+Example with a simple generator:
+```python
+def count_up_to(n):
+    count = 1
+    while count <= n:
+        yield count
+        count += 1
+
+for num in count_up_to(5):
+    print(num)
+
+# Output:
+# 1
+# 2
+# 3
+# 4
+# 5
+```
+Here, instead of returning a full list, `count_up_to` yields numbers one by one.
+
+---
+
+### What is the difference betwee a `PUT` and a `PATCH` request?
+
+- `PUT` is used to replace and update the entire resource or document, while the `PATCH` request only updates the specific parts of that document.
+- For a `PUT` request, if the resource doesn't exist, it may create a new one (depending on implementation). `PATCH` request may fail if the resource doesn't exist.
