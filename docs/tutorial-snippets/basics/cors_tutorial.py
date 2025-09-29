@@ -10,12 +10,13 @@ origins = [
     "http://localhost:8000"
 ]
 
+# Allow CORS for the specified origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=True, # Allow cookies and authentication headers
     allow_methods=["*"], # Example: GET, POST, PUT
-    allow_headers=["*"]
+    allow_headers=["*"] # Example: Authorization, Content-Type
 )
 
 @app.get("/")
