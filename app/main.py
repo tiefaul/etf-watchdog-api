@@ -1,51 +1,57 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from .dependencies.database import Item, SessionDep, init_db
-from contextlib import asynccontextmanager
-from sqlmodel import select
+from textwrap import indent
+from dotenv import load_dotenv
+import requests
+import os
+import json
+from pprint import pprint
+import time
 
-# FastAPI app with lifespan event to initialize the database
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    init_db()
-    yield
+load_dotenv()
 
-app = FastAPI(lifespan=lifespan)
+class Stocks:
+    def __init__(self, base_url: str, api_key: str):
+        self.api_key = os.getenv("API_KEY")
+        self.base_url = "https://www.alphavantage.co"
 
-class ItemCreate(BaseModel):
-    name: str
-    description: str
+    def IYW(self):
+        response = requests.get(url=f'{self.url}/query?function=TIME_SERIES_DAILY&symbol=IYW&outputsize=compact&apikey={self.api_key}')
+        output = response.json()
+        # return json.dumps(output, indent=2)
+        return output["Time Series (Daily)"]["2025-10-06"]["1. open"] # todo: make a variable for the daily open and then daily close
 
-class ItemResponse(BaseModel):
-    id: int
-    name: str
-    description: str
+stock = Stocks()
+print(stock.IYW())
 
-# Create a new item
-@app.post("/items/", response_model=ItemResponse)
-def create_item(item: ItemCreate, db: SessionDep):
-    db_item = Item.model_validate(item)
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
-# Find item based off of the item name
-@app.get("/items/{name}", response_model=ItemResponse)
-def read_item(name: str, db: SessionDep):
-    item_name = select(Item).where(Item.name == name) # Query to find item by name
-    item = db.exec(item_name).first() # Get the first result from the query
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
-
-# Delete item based off of the item id
-@app.delete("/items/{item_id}")
-def delete_item(item_id: int, db: SessionDep):
-    db_item = db.get(Item, item_id) # Get item by primary key (item_id)
-    if db_item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    else:
-        db.delete(db_item)
-        db.commit()
-    return {"message": f"{item_id} has been removed"}
+# The best way to structure an API call in Python is to encapsulate the logic in a class or function that accepts the URL, API key, query parameters, and payload as arguments. Use the requests library for HTTP calls. Here’s a recommended structure:
+#
+# 1. **Configuration**: Store API URL and key in environment variables or a config file.
+# 2. **Function or Class**: Create a reusable function or class method for making requests.
+# 3. **Parameters**: Accept URL, headers (with API key), query params, and payload as arguments.
+# 4. **Error Handling**: Handle exceptions and check response status codes.
+#
+# Example using a class:
+#
+# ```python
+# import requests
+#
+# class APIClient:
+#     def __init__(self, base_url, api_key):
+#         self.base_url = base_url
+#         self.headers = {"Authorization": f"Bearer {api_key}"}
+#
+#     def make_request(self, endpoint, method="GET", params=None, data=None, json=None):
+#         url = f"{self.base_url}/{endpoint}"
+#         response = requests.request(
+#             method,
+#             url,
+#             headers=self.headers,
+#             params=params,
+#             data=data,
+#             json=json,
+#             timeout=10
+#         )
+#         response.raise_for_status()
+#         return response.json()
+# ```
+#
+# This structure is flexible, reusable, and easy to test.
