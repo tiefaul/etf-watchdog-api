@@ -1,25 +1,26 @@
-from textwrap import indent
 from dotenv import load_dotenv
 import requests
 import os
-import json
-from pprint import pprint
-import time
+from datetime import datetime
 
 load_dotenv()
 
+url = "https://www.alphavantage.co"
+api_key = os.getenv("API_KEY")
+
 class Stocks:
-    def __init__(self, base_url: str, api_key: str):
+    def __init__(self, base_url: str, api_key: str | None = None):
         self.api_key = os.getenv("API_KEY")
         self.base_url = "https://www.alphavantage.co"
 
     def IYW(self):
-        response = requests.get(url=f'{self.url}/query?function=TIME_SERIES_DAILY&symbol=IYW&outputsize=compact&apikey={self.api_key}')
+        today_date = str(datetime.now().strftime("%Y-%m-%d")) # TODO: Make this a string somehow
+        response = requests.get(url=f'{self.base_url}/query?function=TIME_SERIES_DAILY&symbol=IYW&outputsize=compact&apikey={self.api_key}')
         output = response.json()
         # return json.dumps(output, indent=2)
-        return output["Time Series (Daily)"]["2025-10-06"]["1. open"] # todo: make a variable for the daily open and then daily close
+        return output["Time Series (Daily)"]["2025-10-10"]["1. open"] # todo: make a variable for the daily open and then daily close
 
-stock = Stocks()
+stock = Stocks(base_url=url, api_key=api_key)
 print(stock.IYW())
 
 # The best way to structure an API call in Python is to encapsulate the logic in a class or function that accepts the URL, API key, query parameters, and payload as arguments. Use the requests library for HTTP calls. Here’s a recommended structure:
