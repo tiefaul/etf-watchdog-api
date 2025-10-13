@@ -1,3 +1,4 @@
+```bash
 stock_api/
 │
 ├── app/
@@ -25,3 +26,4 @@ stock_api/
 │
 ├── requirements.txt
 └── README.md
+```
