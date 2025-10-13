@@ -14,11 +14,11 @@ class Stocks:
         self.base_url = "https://www.alphavantage.co"
 
     def IYW(self):
-        today_date = str(datetime.now().strftime("%Y-%m-%d")) # TODO: Make this a string somehow
+        date = str(datetime.now().strftime("%Y-%m-%d")) # TODO: Make this a string somehow
         response = requests.get(url=f'{self.base_url}/query?function=TIME_SERIES_DAILY&symbol=IYW&outputsize=compact&apikey={self.api_key}')
         output = response.json()
         # return json.dumps(output, indent=2)
-        return output["Time Series (Daily)"]["2025-10-10"]["1. open"] # todo: make a variable for the daily open and then daily close
+        return output["Time Series (Daily)"][date]["1. open"] # todo: make a variable for the daily open and then daily close
 
 stock = Stocks(base_url=url, api_key=api_key)
 print(stock.IYW())
