@@ -1,3 +1,3 @@
 # etf-watchdog
 
-Personal project to track ETF (This project is not finished)
+Personal project to track ETFs (This project is not finished)
