@@ -19,7 +19,7 @@ class IYW:
 
         # Create a async request
         try:
-            async with aiohttp.ClientSession() as request:
+            async with aiohttp.ClientSession(timeout=60) as request:
                 async with request.get(url=f'{url}/eod?symbol=IYW&date={date}&apikey={api_key}') as response:
                     output = await response.json()
                     return output["close"]
@@ -28,7 +28,7 @@ class IYW:
             return f"This date does not appear in the stock data: {date}"
 
     async def get_current_price(self, url: str, api_key: str | None):
-        async with aiohttp.ClientSession() as request:
+        async with aiohttp.ClientSession(timeout=60) as request:
             async with request.get(url=f'{url}/price?symbol=IYW&apikey={api_key}') as response:
                 output = await response.json()
                 return output["price"]
@@ -42,7 +42,7 @@ class SMH:
             return f"Incorrect date format: {e}"
 
         try:
-            async with aiohttp.ClientSession() as request:
+            async with aiohttp.ClientSession(timeout=60) as request:
                 async with request.get(url=f'{url}/eod?symbol=SMH&date={date}&apikey={api_key}') as response:
                     output = await response.json()
                     return output["close"]
@@ -51,7 +51,7 @@ class SMH:
             return f"This date does not appear in the stock data: {date}"
 
     async def get_current_price(self, url: str, api_key: str | None):
-        async with aiohttp.ClientSession() as request:
+        async with aiohttp.ClientSession(timeout=60) as request:
             async with request.get(url=f'{url}/price?symbol=SMH&apikey={api_key}') as response:
                 output = await response.json()
                 return output["price"]
@@ -65,7 +65,7 @@ class SPY:
             return f"Incorrect date format: {e}"
 
         try:
-            async with aiohttp.ClientSession() as request:
+            async with aiohttp.ClientSession(timeout=60) as request:
                 async with request.get(url=f'{url}/eod?symbol=SPY&date={date}&apikey={api_key}') as response:
                     output = await response.json()
                     return output["close"]
@@ -74,7 +74,7 @@ class SPY:
             return f"This date does not appear in the stock data: {date}"
 
     async def get_current_price(self, url: str, api_key: str | None):
-        async with aiohttp.ClientSession() as request:
+        async with aiohttp.ClientSession(timeout=60) as request:
             async with request.get(url=f'{url}/price?symbol=SPY&apikey={api_key}') as response:
                 output = await response.json()
                 return output["price"]
@@ -88,7 +88,7 @@ class DRIV:
             return f"Incorrect date format: {e}"
 
         try:
-            async with aiohttp.ClientSession() as request:
+            async with aiohttp.ClientSession(timeout=60) as request:
                 async with request.get(url=f'{url}/eod?symbol=DRIV&date={date}&apikey={api_key}') as response:
                     output = await response.json()
                     return output["close"]
@@ -97,7 +97,7 @@ class DRIV:
             return f"This date does not appear in the stock data: {date}"
 
     async def get_current_price(self, url: str, api_key: str | None):
-        async with aiohttp.ClientSession() as request:
+        async with aiohttp.ClientSession(timeout=60) as request:
             async with request.get(url=f'{url}/price?symbol=DRIV&apikey={api_key}') as response:
                 output = await response.json()
                 return output["price"]
@@ -111,7 +111,7 @@ class IGV:
             return f"Incorrect date format: {e}"
 
         try:
-            async with aiohttp.ClientSession() as request:
+            async with aiohttp.ClientSession(timeout=60) as request:
                 async with request.get(url=f'{url}/eod?symbol=IGV&date={date}&apikey={api_key}') as response:
                     output = await response.json()
                     return output["close"]
@@ -120,7 +120,7 @@ class IGV:
             return f"This date does not appear in the stock data: {date}"
 
     async def get_current_price(self, url: str, api_key: str | None):
-        async with aiohttp.ClientSession() as request:
+        async with aiohttp.ClientSession(timeout=60) as request:
             async with request.get(url=f'{url}/price?symbol=IGV&apikey={api_key}') as response:
                 output = await response.json()
                 return output["price"]
@@ -134,7 +134,7 @@ class CIBR:
             return f"Incorrect date format: {e}"
 
         try:
-            async with aiohttp.ClientSession() as request:
+            async with aiohttp.ClientSession(timeout=60) as request:
                 async with request.get(url=f'{url}/eod?symbol=CIBR&date={date}&apikey={api_key}') as response:
                     output = await response.json()
                     return output["close"]
@@ -143,7 +143,7 @@ class CIBR:
             return f"This date does not appear in the stock data: {date}"
 
     async def get_current_price(self, url: str, api_key: str | None):
-        async with aiohttp.ClientSession() as request:
+        async with aiohttp.ClientSession(timeout=60) as request:
             async with request.get(url=f'{url}/price?symbol=CIBR&apikey={api_key}') as response:
                 output = await response.json()
                 return output["price"]
@@ -157,7 +157,7 @@ class SHY:
             return f"Incorrect date format: {e}"
 
         try:
-            async with aiohttp.ClientSession() as request:
+            async with aiohttp.ClientSession(timeout=60) as request:
                 async with request.get(url=f'{url}/eod?symbol=SHY&date={date}&apikey={api_key}') as response:
                     output = await response.json()
                     return output["close"]
@@ -166,7 +166,7 @@ class SHY:
             return f"This date does not appear in the stock data: {date}"
 
     async def get_current_price(self, url: str, api_key: str | None):
-        async with aiohttp.ClientSession() as request:
+        async with aiohttp.ClientSession(timeout=60) as request:
             async with request.get(url=f'{url}/price?symbol=SHY&apikey={api_key}') as response:
                 output = await response.json()
                 return output["price"]
