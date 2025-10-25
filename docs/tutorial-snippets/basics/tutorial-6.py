@@ -20,6 +20,6 @@ async def read_items(
     results = {"item_id": item_id}
     # If a query parameter was provided, add it to the results
     if q:
-        results.update({"q": q}) # type:ignore --- or results["q"] = q
+        results.update({"q": q}) # type:ignore -- or results["q"] = q
     # Return the results as a JSON response
     return results

@@ -21,7 +21,8 @@ class Item(BaseModel):
 # Define a PUT endpoint at /items/{item_id}
 # - item_id is a path parameter (int)
 # - item is a required request body, validated as Item model
-# - Body(embed=True) means the body will be wrapped in a key (e.g., {"item": {...}}). item is the function param i.e update_item function in the lines below.
+# - Body(embed=True) means the body will be wrapped in a key (e.g., {"item": {...}}). item is in the function param i.e update_item function in the lines below.
+
 @app.put("/items/{item_id}")
 async def update_item(item_id: int, item: Annotated[Item, Body(embed=True)]):
     # Build the response as a dictionary

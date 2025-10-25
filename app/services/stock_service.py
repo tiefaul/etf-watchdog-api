@@ -171,6 +171,9 @@ class SHY:
                 output = await response.json()
                 return output["price"]
 
+def get_all_stocks():
+    return ["SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW"]
+
 if __name__ == "__main__":
     shy = SHY()
     print(asyncio.run(shy.get_current_price(url=url, api_key=api_key)))
