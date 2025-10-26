@@ -17,6 +17,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [Can you explain this code to me? `current_user: Annotated[User, Depends(get_current_user)]`](#can-you-explain-this-code-to-me-current_user-annotateduser-dependsget_current_user)
 - [What does `yield` do in Python?](#what-does-yield-do-in-python)
 - [What is the difference betwee a `PUT` and a `PATCH` request?](#what-is-the-difference-betwee-a-put-and-a-patch-request)
+- [What does `asyncio` do in the following example `print(asyncio.run(stock.get_current_price()`](#what-does-asyncio-do-in-the-following-example-printasynciiorunstocketget_current_price)
 
 ## Questions for Copilot
 
@@ -212,3 +213,7 @@ Here, instead of returning a full list, `count_up_to` yields numbers one by one.
 
 - `PUT` is used to replace and update the entire resource or document, while the `PATCH` request only updates the specific parts of that document.
 - For a `PUT` request, if the resource doesn't exist, it may create a new one (depending on implementation). `PATCH` request may fail if the resource doesn't exist.
+
+### What does `asyncio` do in the following example `print(asyncio.run(stock.get_current_price()`?
+
+- asyncio.run is used to execute the asynchronous method stock.get_current_price. Since get_current_price is defined with async def, it returns a coroutine and must be run inside an event loop. asyncio.run creates an event loop, runs the coroutine until it completes, and returns the result, which is then printed. This allows asynchronous code to be executed in a synchronous context (like a script's main block).
