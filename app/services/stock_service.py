@@ -171,8 +171,8 @@ class SHY:
                 output = await response.json()
                 return output["price"]
 
-def get_all_stocks():
-    return ["SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW"]
+async def get_all_stocks():
+    return {"stocks": ["SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW"]}
 
 if __name__ == "__main__":
     shy = SHY()
