@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from .internal.database import Stock, SessionDep, init_db
+from .internal.database import Item, SessionDep, init_db
 from contextlib import asynccontextmanager
 from sqlmodel import select
 

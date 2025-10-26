@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException
-from ..services import stock_service
+from ..services.stock_service import Stock
 from typing import Annotated
 
 router = APIRouter(
@@ -11,13 +11,14 @@ router = APIRouter(
         )
 
 @router.get("/")
-async def get_all_stocks(stock: Annotated[str | None, Query(description="Retrieve stock by the stock's ticker symbol", min_length=1, max_length=5)] = None):
-    stocks_dict = await stock_service.get_all_stocks()
+async def get_all_stocks(symbol: Annotated[str | None, Query(description="Retrieve stock by the stock's ticker symbol", min_length=1, max_length=5)] = None):
+    stock = Stock()
+    stocks_dict = await stock.get_stocks()
     # If query is given
-    if stock is not None:
-        if stock in stocks_dict["stocks"]:
-            return stock
+    if symbol is not None:
+        if symbol in stocks_dict["stocks"]:
+            return symbol
         else:
-            raise HTTPException(status_code=404, detail=f"{stock} symbol not found.")
+            raise HTTPException(status_code=404, detail=f"{symbol} symbol not found.")
     # Else return all stocks
     return stocks_dict

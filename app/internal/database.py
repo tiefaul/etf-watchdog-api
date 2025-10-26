@@ -8,7 +8,8 @@ DATABASE_URL = f"sqlite:///{DATABASE_NAME}"
 connect_args = {"check_same_thread": False}
 engine = create_engine(DATABASE_URL, echo=True, connect_args=connect_args)
 
-class Stock(SQLModel, table=True):
+# TODO: Create my own db for my project
+class Item(SQLModel, table=True):
     # __tablename__ = "items"
     id: int | None = Field(primary_key=True, default=None)
     name: str | None = None
