@@ -3,7 +3,7 @@ name = "etf-watchdog"
 version = "0.1.0"
 description = "Personal ETF tracker"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "aiohttp>=3.13.0",
     "alpaca-py>=0.42.1",
