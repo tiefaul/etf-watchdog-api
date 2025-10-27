@@ -209,3 +209,8 @@ __marimo__/
 # FastAPI Database
 sqlitedb.db
 app/sqlitedb.db
+
+# Examples
+example_app/
+docs/DESIGN_EXAMPLE.md
+app/db_example.py

@@ -1,29 +1,23 @@
 ```bash
-stock_api/
-│
-├── app/
-│   ├── __init__.py
-│   ├── main.py               # Entry point of your FastAPI app
-│   ├── core/
-│   │   ├── config.py         # Configuration (API keys, settings, env variables)
-│   │   └── logger.py         # Optional logging setup
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── router.py         # Combines all routes together
-│   │   └── endpoints/
-│   │       ├── __init__.py
-│   │       ├── stocks.py     # Routes for getting stock data
-│   │       └── health.py     # Health check or testing route
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── stock_service.py  # Logic for fetching stock info (e.g., using yfinance)
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── stock_model.py    # Pydantic models (schemas)
-│   └── utils/
-│       ├── __init__.py
-│       └── helpers.py        # Optional helpers like date validation
-│
-├── requirements.txt
-└── README.md
+etf-watchdog-api/
+├── app/        # Main application package
+│   ├── __init__.py
+│   ├── dependencies/
+│   ├── internal/        # Internal modules not exposed to external users
+│   │   ├── __init__.py
+│   │   └── database.py     # Database connection and session management
+│   ├── main.py         # Main application entry point
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   └── stocks.py       # Router for stock-related endpoints
+│   └── services/
+│       ├── __init__.py
+│       └── stock_service.py        # Service layer for stock-related operations
+├── docs/
+│   ├── COPILOT.md      # Documentation for GitHub Copilot usage
+│   ├── DESIGN.md      # Design documentation
+│   └── tutorial-snippets/
+│       ├── REFERENCES.md    # Reference links for tutorials
+│       └── basics      # Basic tutorial snippets
+├── pyproject.toml
 ```
