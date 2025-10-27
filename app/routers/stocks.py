@@ -40,5 +40,6 @@ async def get_stock(
             results.update({f"price_{date}": stock_price_by_date})
 
         return results
+
     else:
         raise HTTPException(status_code=404, detail="404 not found")
