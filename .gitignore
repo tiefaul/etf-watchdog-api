@@ -213,3 +213,4 @@ app/sqlitedb.db
 # Examples
 example_app/
 docs/DESIGN_EXAMPLE.md
+docs/tutorial-snippets
