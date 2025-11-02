@@ -11,7 +11,7 @@ def setup_logging():
             config = json.load(f)
         logging.config.dictConfig(config)
     else:
-        raise FileNotFoundError("Cannot find the logger config. Did you change the logging config file name?")
+        raise FileNotFoundError("Cannot find the logger config. Did you change the name of the loggging config file?")
 
     # # Create logger
     # logger = logging.getLogger(__name__)

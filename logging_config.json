@@ -18,7 +18,7 @@
 
     "file_handler": {
       "class": "logging.handlers.RotatingFileHandler",
-      "level": "INFO",
+      "level": "DEBUG",
       "formatter": "simple",
       "filename": "logs/etf-watchdog.log",
       "maxBytes": 10485760,
@@ -29,7 +29,6 @@
 
   "loggers": {
     "my_module": {
-      "_comment": "This logger gets called with logging.getLogger('my_module') in your python code.",
       "level": "ERROR",
       "handlers": ["console"],
       "propagate": false
