@@ -4,12 +4,18 @@ from datetime import datetime
 import asyncio
 import aiohttp
 from fastapi import HTTPException
+from logger_service import setup_logging
+import logging
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
+setup_logging()
 
 class Stock:
     # Retrieve all monitored stocks
     async def get_stocks(self):
+        logger.info("Successfully obtained all stocks.")
         return {"stocks": ["SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW"]}
 
     # Get price for stock by date
@@ -49,4 +55,4 @@ if __name__ == "__main__":
     url = "https://api.twelvedata.com"
     api_key = os.getenv("API_KEY")
     stock = Stock()
-    print(asyncio.run(stock.get_current_price(url=url, symbol="IYW", api_key=api_key)))
+    print(asyncio.run(stock.get_stocks()))
