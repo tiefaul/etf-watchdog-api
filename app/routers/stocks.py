@@ -42,4 +42,4 @@ async def get_stock(
         return results
 
     else:
-        raise HTTPException(status_code=404, detail="404 not found")
+        raise HTTPException(status_code=404, detail=f"Symbol: {symbol} not found in the database.")
