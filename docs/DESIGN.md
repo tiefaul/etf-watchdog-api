@@ -1,5 +1,6 @@
 ```bash
 etf-watchdog-api/
+├── LICENSE
 ├── app/        # Main application package
 │   ├── __init__.py
 │   ├── dependencies/
@@ -14,10 +15,12 @@ etf-watchdog-api/
 │       ├── __init__.py
 │       └── stock_service.py        # Service layer for stock-related operations
 ├── docs/
+│   │── LOGGER.md       # Documentation for the logger service
 │   ├── COPILOT.md      # Documentation for GitHub Copilot usage
 │   ├── DESIGN.md      # Design documentation
 │   └── tutorial-snippets/
 │       ├── REFERENCES.md    # Reference links for tutorials
 │       └── basics      # Basic tutorial snippets
+│── logs/       # Directory for log placement
 ├── pyproject.toml
 ```
