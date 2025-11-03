@@ -1,7 +1,5 @@
 from dotenv import load_dotenv
-import os
 from datetime import datetime
-import asyncio
 import aiohttp
 from fastapi import HTTPException
 from .logger_service import setup_logging
@@ -56,9 +54,3 @@ class Stock:
                 output = await response.json()
                 logger.info("Successfully ran get current price function.")
                 return output["price"]
-
-if __name__ == "__main__":
-    url = "https://api.twelvedata.com"
-    api_key = os.getenv("API_KEY")
-    stock = Stock()
-    print(asyncio.run(stock.get_stocks()))

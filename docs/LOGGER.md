@@ -43,7 +43,7 @@ Console handler:
       "level": "DEBUG",
       "formatter": "simple",
       "stream": "ext://sys.stdout"
-    },
+    }
 ```
 
 - Outputs logs in the terminal (stdout).
