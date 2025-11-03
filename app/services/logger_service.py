@@ -1,10 +1,12 @@
 import json
 import logging.config
 import os
+from pathlib import Path
 
 # TODO: Add a logfile name param
 def setup_logging():
-    os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    new_cwd = Path(__file__).resolve().parents[2] # os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    os.chdir(new_cwd)
     path = os.getcwd() + "/logging_config.json"
     if os.path.exists(path):
         with open(path, 'rt') as f:
