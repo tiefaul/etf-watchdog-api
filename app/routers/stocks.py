@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Query, HTTPException, Path
 from ..services.stock_service import Stock
+from ..services.logger_service import setup_logging
 from typing import Annotated
 import os
-from ..services.logger_service import setup_logging
 import logging
 from datetime import datetime
 
@@ -36,6 +36,7 @@ async def get_stock(
     stock_dict = await stock.get_stocks()
     if symbol.upper() in stock_dict["stocks"]:
         results = {"symbol": symbol.upper()}
+
         if price is True:
             stock_price = await stock.get_current_price(url=url, symbol=symbol.upper(), api_key=api_key) #type: ignore
             results.update({"price_current": stock_price})

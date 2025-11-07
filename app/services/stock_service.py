@@ -22,7 +22,7 @@ class Stock:
     async def get_price_by_date(self, url: str, date: str, symbol: str, api_key: str | None):
         stock = await self.get_stocks()
         if symbol not in stock["stocks"]:
-            logger.error(f"Symbol: {symbol} not in the database.", exc_info=True)
+            logger.error(f"Symbol: {symbol} not in the database.")
         try:
             datetime.strptime(date, "%Y-%m-%d") # Validate the date format
             # today_date = str(datetime.now().strftime("%Y-%m-%d")) # Outputs a string
@@ -35,7 +35,7 @@ class Stock:
                 logger.debug("Running api call to get stock price by date.")
                 async with request.get(url=f'{url}/eod?symbol={symbol}&date={date}&apikey={api_key}') as response:
                     output = await response.json()
-                    logger.info("Successfully ran price by date function.")
+                    logger.info("Successfully ran get_price_by_date function.")
                     return output["close"]
 
         except KeyError as e:
@@ -52,5 +52,5 @@ class Stock:
             logger.debug("Running api call to get current stock price.")
             async with request.get(url=f'{url}/price?symbol={symbol}&apikey={api_key}') as response:
                 output = await response.json()
-                logger.info("Successfully ran get current price function.")
+                logger.info("Successfully ran get_current_price function.")
                 return output["price"]
