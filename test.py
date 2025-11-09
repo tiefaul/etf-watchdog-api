@@ -4,7 +4,7 @@ import os
 
 load_dotenv()
 
-url = f"https://api.twelvedata.com/eod?symbol=AAPL&date=2025-10-23&apikey={os.getenv('API_KEY')}"
+url = f"https://api.twelvedata.com/etfs/world/summary?symbol=IYW&apikey={os.getenv('TWELVE_DATA_API_KEY')}"
 
 response = requests.get(url)
 

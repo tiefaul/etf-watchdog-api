@@ -14,7 +14,7 @@ class Stock:
     # Retrieve all monitored stocks
     async def get_stocks(self):
         logger.debug("Running get_stocks function...")
-        stocks =  {"stocks": ["SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW"]}
+        stocks =  {"stocks": set(("SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW", "XLE", "AMLP", "ICLN"))}
         logger.info("Successfully ran get_stocks function.")
         return stocks
 

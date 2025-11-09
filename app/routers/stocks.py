@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 
 url = "https://api.twelvedata.com"
-api_key = os.getenv("API_KEY")
+api_key = os.getenv("TWELVE_DATA_API_KEY")
 logger = logging.getLogger(__name__)
 setup_logging()
 
@@ -19,7 +19,7 @@ router = APIRouter(
             }
         )
 
-@router.get("/")
+@router.get("/", description="List all available stocks to track.")
 async def get_all_stocks():
     stock = Stock()
     stocks_dict = await stock.get_stocks()
