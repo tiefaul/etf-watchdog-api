@@ -33,4 +33,6 @@ ENTRYPOINT []
 # Uses `--host 0.0.0.0` to allow access from outside the container
 # In production, you should use `fastapi run` and not `fastapi dev`
 # References: https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
-CMD ["fastapi", "dev", "--host", "0.0.0.0", "app/main.py"] 
+CMD ["fastapi", "dev", "--host", "0.0.0.0", "app/main.py"]
+
+test
