@@ -17,7 +17,7 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 - [Can you explain this code to me? `current_user: Annotated[User, Depends(get_current_user)]`](#can-you-explain-this-code-to-me-current_user-annotateduser-dependsget_current_user)
 - [What does `yield` do in Python?](#what-does-yield-do-in-python)
 - [What is the difference betwee a `PUT` and a `PATCH` request?](#what-is-the-difference-betwee-a-put-and-a-patch-request)
-- [What does `asyncio` do in the following example `print(asyncio.run(stock.get_current_price()`](#what-does-asyncio-do-in-the-following-example-printasynciiorunstocketget_current_price)
+- [What does `asyncio` do in the following example `print(asyncio.run(stock.get_current_price()`](#what-does-asyncio-do-in-the-following-example-printasynciorunstocketcurrent_price)
 
 ## Questions for Copilot
 
