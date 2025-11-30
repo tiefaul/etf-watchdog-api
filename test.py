@@ -1,11 +1,17 @@
 import requests
 from dotenv import load_dotenv
 import os
+import json
 
 load_dotenv()
 
-url = f"https://api.twelvedata.com/etfs/world/summary?symbol=IYW&apikey={os.getenv('TWELVE_DATA_API_KEY')}"
+parameters = {
+    "qInMeta": "IYW",
+    "apikey": os.getenv("NEWS_DATA_API_KEY"),
+    "language": "en"
+        }
 
+url = "https://newsdata.io/api/1/market?apikey=pub_b5bccfae5ae44288aa661ebb96994b5b&q=IYW"
 response = requests.get(url)
-
-print(response.json())
+data = response.json()
+print(json.dumps(data, indent=4))

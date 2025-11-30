@@ -5,8 +5,10 @@ from typing import Annotated
 import os
 import logging
 from datetime import datetime
+from dotenv import load_dotenv
 
-url = "https://api.twelvedata.com"
+load_dotenv()
+
 api_key = os.getenv("TWELVE_DATA_API_KEY")
 logger = logging.getLogger(__name__)
 setup_logging()
@@ -38,13 +40,13 @@ async def get_stock(
         results = {"symbol": symbol.upper()}
 
         if price is True:
-            stock_price = await stock.get_current_price(url=url, symbol=symbol.upper(), api_key=api_key) #type: ignore
-            results.update({"price_current": stock_price})
+            stock_price = await stock.get_current_price(symbol=symbol.upper(), api_key=api_key) #type: ignore
+            results.update({"price_current": stock_price}) #type: ignore
 
         if date:
             try:
                 datetime.strptime(date, "%Y-%m-%d")
-                stock_price_by_date = await stock.get_price_by_date(url=url, symbol=symbol.upper(), date=date, api_key=api_key) #type: ignore
+                stock_price_by_date = await stock.get_price_by_date(symbol=symbol.upper(), date=date, api_key=api_key) #type: ignore
                 results.update({f"price_{date}": stock_price_by_date})
 
             except ValueError as e:
