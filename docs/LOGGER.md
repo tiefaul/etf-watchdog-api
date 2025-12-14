@@ -52,7 +52,7 @@ Console handler:
 Info file handler:
 
 ```json
-    "file_handler": {
+    "info_file_handler": {
       "class": "logging.handlers.RotatingFileHandler",
       "level": "INFO",
       "formatter": "simple",
@@ -106,7 +106,7 @@ logger = logging.getLogger("my_module")
 ```
 
 - In this example, messages logged through the console will only display `ERROR` or higher.
-- This will not `propagate` to the root logger because it is set to false
+- This will not `propagate` to the root logger because it is set to false.
 
 What is `propagate`?
 

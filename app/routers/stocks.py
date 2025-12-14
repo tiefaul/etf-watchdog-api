@@ -50,7 +50,7 @@ async def get_stock(
                 results.update({f"price_{date}": stock_price_by_date})
 
             except ValueError as e:
-                logger.error(f"Incorrect date format: {e}", exc_info=True)
+                logger.error(f"Incorrect date format: {e}", exc_info=False)
                 raise HTTPException(status_code=404, detail=f"Incorrect date format ({date}): {e}")
 
         return results

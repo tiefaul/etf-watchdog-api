@@ -48,7 +48,7 @@ class Stock:
             datetime.strptime(date, "%Y-%m-%d")
             # today_date = str(datetime.now().strftime("%Y-%m-%d")) # Outputs a string
         except ValueError as e:
-            logger.error(f"Incorrect date format ({date}): {e}", exc_info=True)
+            logger.error(f"Incorrect date format ({date}): {e}", exc_info=False)
 
         # Make request to the api
         logger.debug("Running api call to get stock price by date.")
@@ -68,6 +68,9 @@ class Stock:
         output = await self.stock_data_requests(symbol=symbol, api_key=api_key)
         logger.debug("Successfully ran get_current_price function.")
         return output
+
+    async def get_stock_name(self):
+        pass
 
     async def get_news(self,):
         pass
