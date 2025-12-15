@@ -21,9 +21,10 @@ router = APIRouter(
             }
         )
 
+stock = Stock()
+
 @router.get("/", description="List all available stocks to track.")
 async def get_all_stocks():
-    stock = Stock()
     stocks_dict = await stock.get_stocks()
     return stocks_dict
 
@@ -34,7 +35,6 @@ async def get_stock(
         date: Annotated[str | None, Query(description="Retrieve price by date. Must be in 'year-month-day' format.")] = None
         ):
 
-    stock = Stock()
     stock_dict = await stock.get_stocks()
     if symbol.upper() in stock_dict["stocks"]:
         results = {"symbol": symbol.upper()}
