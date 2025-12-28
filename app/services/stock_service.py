@@ -33,57 +33,44 @@ class Stock:
     # Retrieve all monitored stocks
     async def get_stocks(self):
         logger.debug("Running get_stocks function...")
-        stocks =  {"stocks": set(("SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW", "XLE", "AMLP", "ICLN"))}
+        stocks =  {"stocks": {"SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW", "XLE", "AMLP", "ICLN"}}
         logger.debug("Successfully ran get_stocks function.")
         return stocks
 
+    # Get current price of stock
     async def fetch_price(self, symbol: str, api_key: str):
-        parameters = {"symbol": symbol, "apikey": api_key}
+        parameters = {
+            "symbol": symbol,
+            "apikey": api_key
+        }
         session = self.get_stock_client()
         async with session.get("/price", params=parameters) as resp:
+            logger.debug(f"Attempting to find {symbol} current stock price.")
             response = await resp.json()
             price = response['price']
+            logger.info(f"Successfully obtained {symbol} current stock price.")
         return price
-        # response = await req.json()
-        # price = response['price']
-        # return price
+
+    # Get stock price by a certain date
+    async def fetch_date(self, symbol: str, date: str, api_key: str):
+        try:
+            logger.debug(f"Attempting to obtain {symbol} price by date: {date}.")
+            parameters = {
+                "symbol": symbol,
+                "date": date,
+                "apikey": api_key,
+            }
+            session = self.get_stock_client()
+            async with session.get("/eod", params=parameters) as resp:
+                response = await resp.json()
+                close_date = response["close"]
+                logger.info(f"Successfully obtained {symbol} price by date: {date}")
+            return close_date
+
+        except KeyError as e:
+            logger.warning(f"{date} for {symbol} does not appear in the stock data: {e}")
+            raise HTTPException(status_code=404, detail= f"{date} does not appear in the stock data: {e}")
+
+# /quote for stock name
 
 
-    # Create handler function for stock api calls
-    # async def stock_data_requests(self,
-    #                               symbol: str,
-    #                               api_key: str,
-    #                               date: str | None = None
-    #                               ):
-    #
-    #     parameters = {"symbol": symbol, "apikey": api_key}
-        # async with aiohttp.ClientSession(base_url="https://api.twelvedata.com") as request:
-        #     if date:
-        #         try:
-        #             date_parameters = parameters.copy()
-        #             date_parameters["date"] = date
-        #             # Get end of day price by date
-        #             logger.debug(f"Running api call to get {symbol} price by date.")
-        #             async with request.get('/eod', params=date_parameters) as response:
-        #                 close_date = await response.json()
-        #                 logger.info(f"Successfully obtain {symbol} price on {date}.")
-        #                 stock_close_date = close_date['close']
-        #                 print(stock_close_date)
-        #                 return stock_close_date
-        #         except KeyError as e:
-        #             logger.error(f"{date} does not appear in the stock data: {e}")
-        #             raise HTTPException(status_code=404, detail=f"{date} does not appear in the stock data: {e}")
-        #     else:
-        #         logger.debug(f"Running api call to get {symbol} current stock price.")
-        #         # Get the current price
-        #         async with request.get('/price', params=parameters) as response:
-        #             logger.info(f"Successfully obtained {symbol} current stock price.")
-        #             current_price = await response.json()
-        #             stock_current_price = current_price['price']
-        #         logger.debug(f"Running API call to obtain {symbol} name.")
-        #         async with request.get('/quote', params=parameters) as response:
-        #             logger.info(f"Successfully obtained {symbol} name.")
-        #             name = await response.json()
-        #             stock_name = name['name']
-        #             print(stock_name, stock_current_price)
-        #             return stock_current_price, stock_name
