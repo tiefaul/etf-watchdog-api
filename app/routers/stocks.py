@@ -48,13 +48,12 @@ async def get_stock(
                 # Verify date format
                 logger.debug("Verifying date format.")
                 datetime.strptime(date, "%Y-%m-%d")
-                logger.info("Date format verified")
-                stock_price_by_date = await stock.stock_data_requests(symbol=symbol.upper(), date=date, api_key=api_key) #type: ignore
+                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key) #type: ignore
                 results.update({f"price_{date}": stock_price_by_date})
 
             except ValueError as e:
-                logger.error(f"Incorrect date format: {e}", exc_info=False)
-                raise HTTPException(status_code=404, detail=f"Incorrect date format ({date}): {e}")
+                logger.warning(f"Incorrect date format: {e}")
+                raise HTTPException(status_code=404, detail=f"Incorrect date format: {e}")
 
         return results
 
