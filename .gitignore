@@ -212,3 +212,6 @@ app/sqlitedb.db
 
 # Examples
 docs/DESIGN_EXAMPLE.md
+
+# tests
+test.py
