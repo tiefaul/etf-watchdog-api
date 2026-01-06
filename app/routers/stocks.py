@@ -39,7 +39,7 @@ async def get_stock(
 
         if price is True:
             stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=api_key)
-            results.update({"price_current": stock_price}) 
+            results.update({"price_current": stock_price})
 
         if date:
             try:
