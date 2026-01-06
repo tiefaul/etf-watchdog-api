@@ -38,7 +38,7 @@ class Stock:
         return stocks
 
     # Get current price of stock
-    async def fetch_price(self, symbol: str, api_key: str):
+    async def fetch_price(self, symbol: str, api_key: str | None):
         parameters = {
             "symbol": symbol,
             "apikey": api_key
@@ -52,7 +52,7 @@ class Stock:
         return price
 
     # Get stock price by a certain date
-    async def fetch_date(self, symbol: str, date: str, api_key: str):
+    async def fetch_date(self, symbol: str, date: str, api_key: str | None):
         try:
             logger.debug(f"Attempting to obtain {symbol} price by date: {date}.")
             parameters = {
