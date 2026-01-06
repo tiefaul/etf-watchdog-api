@@ -16,9 +16,7 @@ setup_logging()
 router = APIRouter(
         prefix="/api/stocks",
         tags=["stocks"],
-        responses={
-            404: {"description": "Page Not Found"}
-            }
+        responses={404: {"description": "Page Not Found"}}
         )
 
 stock = Stock()
@@ -40,15 +38,15 @@ async def get_stock(
         results = {"symbol": symbol.upper()}
 
         if price is True:
-            stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=api_key) #type: ignore
-            results.update({"price_current": stock_price}) #type: ignore
+            stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=api_key)
+            results.update({"price_current": stock_price}) 
 
         if date:
             try:
                 # Verify date format
                 logger.debug("Verifying date format.")
                 datetime.strptime(date, "%Y-%m-%d")
-                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key) #type: ignore
+                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key)
                 results.update({f"price_{date}": stock_price_by_date})
 
             except ValueError as e:
