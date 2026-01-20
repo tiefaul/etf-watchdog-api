@@ -4,7 +4,6 @@ from fastapi import HTTPException
 
 from .logger_service import setup_logging
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 setup_logging()
@@ -13,7 +12,7 @@ SIZE_POOL_AIOHTTP = 100
 
 
 class Stock:
-    aiohttp_client: Optional[aiohttp.ClientSession] = None
+    aiohttp_client: aiohttp.ClientSession | None = None
 
     # Create startup method for Stock aiohttp client
     @classmethod
