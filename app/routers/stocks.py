@@ -42,16 +42,11 @@ async def get_stock(
             results.update({"price_current": stock_price})
 
         if date:
-            try:
-                # Verify date format
-                logger.debug("Verifying date format.")
-                datetime.strptime(date, "%Y-%m-%d")
-                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key)
-                results.update({f"price_{date}": stock_price_by_date})
-
-            except ValueError as e:
-                logger.warning(f"Incorrect date format: {e}")
-                raise HTTPException(status_code=404, detail=f"Incorrect date format: {e}")
+            # Verify date format
+            logger.debug("Verifying date format.")
+            datetime.strptime(date, "%Y-%m-%d")
+            stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key)
+            results.update({f"price_{date}": stock_price_by_date})
 
         return results
 

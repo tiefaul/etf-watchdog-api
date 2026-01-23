@@ -1,10 +1,10 @@
 import aiohttp
 from socket import AF_INET
 from fastapi import HTTPException
-
 from .logger_service import setup_logging
 import logging
 
+# Logger setup
 logger = logging.getLogger(__name__)
 setup_logging()
 
@@ -19,9 +19,7 @@ class Stock:
     def get_stock_client(cls) -> aiohttp.ClientSession:
         if cls.aiohttp_client is None:
             timeout = aiohttp.ClientTimeout(total=2)
-            connector = aiohttp.TCPConnector(
-                family=AF_INET, limit_per_host=SIZE_POOL_AIOHTTP
-            )
+            connector = aiohttp.TCPConnector(family=AF_INET, limit_per_host=SIZE_POOL_AIOHTTP)
             cls.aiohttp_client = aiohttp.ClientSession(
                 base_url="https://api.twelvedata.com",
                 timeout=timeout,
@@ -63,12 +61,13 @@ class Stock:
         async with session.get("/price", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             response = await resp.json()
-            if "price" in response:
-                price = response["price"]
-            else:
-                raise KeyError(
-                    f"Price for the stock couldn't be obtained. Either the price isn't listed or was provided an invalid stock symbol: {symbol}"
-                )
+            try:
+                if "price" in response:
+                    price = response["price"]
+                else:
+                    raise KeyError
+            except KeyError:
+                raise HTTPException(status_code=404, detail=f"Price for the stock couldn't be obtained. Either the price isn't listed or was provided an invalid stock symbol: {symbol}")
             logger.info(f"Successfully obtained {symbol} current stock price.")
         return price
 
@@ -89,12 +88,8 @@ class Stock:
             return close_date
 
         except KeyError as e:
-            logger.warning(
-                f"{date} for {symbol} does not appear in the stock data: {e}"
-            )
-            raise HTTPException(
-                status_code=404, detail=f"{date} does not appear in the stock data: {e}"
-            )
+            logger.warning(f"{date} for {symbol} does not appear in the stock data: {e}")
+            raise HTTPException(status_code=404, detail=f"{date} does not appear in the stock data: {e}")
 
 
 # /quote for stock name
