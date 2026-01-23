@@ -9,6 +9,6 @@ api_key = os.getenv("TWELVE_DATA_API_KEY")
 
 stock = Stock()
 
-test = asyncio.run(stock.fetch_price(symbol="IYW", api_key=api_key))
+test = asyncio.run(stock.fetch_price(symbol="ABC", api_key=api_key))
 
 print(test)

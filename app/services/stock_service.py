@@ -47,7 +47,12 @@ class Stock:
         async with session.get("/price", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             response = await resp.json()
-            price = response['price']
+            if "price" in response:
+                price = response["price"]
+            else:
+                raise KeyError(
+                    f"Price for the stock couldn't be obtained. Either the price isn't listed or was provided an invalid stock symbol: {symbol}"
+                )
             logger.info(f"Successfully obtained {symbol} current stock price.")
         return price
 
