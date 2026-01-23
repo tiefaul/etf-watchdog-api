@@ -11,6 +11,7 @@ setup_logging()
 
 SIZE_POOL_AIOHTTP = 100
 
+
 class Stock:
     aiohttp_client: Optional[aiohttp.ClientSession] = None
 
@@ -19,8 +20,14 @@ class Stock:
     def get_stock_client(cls) -> aiohttp.ClientSession:
         if cls.aiohttp_client is None:
             timeout = aiohttp.ClientTimeout(total=2)
-            connector = aiohttp.TCPConnector(family=AF_INET, limit_per_host=SIZE_POOL_AIOHTTP)
-            cls.aiohttp_client = aiohttp.ClientSession(base_url="https://api.twelvedata.com", timeout=timeout, connector=connector)
+            connector = aiohttp.TCPConnector(
+                family=AF_INET, limit_per_host=SIZE_POOL_AIOHTTP
+            )
+            cls.aiohttp_client = aiohttp.ClientSession(
+                base_url="https://api.twelvedata.com",
+                timeout=timeout,
+                connector=connector,
+            )
         return cls.aiohttp_client
 
     # Create shutdown method for Stock aiohttp client
@@ -33,16 +40,26 @@ class Stock:
     # Retrieve all monitored stocks
     async def get_stocks(self):
         logger.debug("Running get_stocks function...")
-        stocks =  {"stocks": {"SHY", "CIBR", "IGV", "DRIV", "SPY", "SMH", "IYW", "XLE", "AMLP", "ICLN"}}
+        stocks = {
+            "stocks": {
+                "SHY",
+                "CIBR",
+                "IGV",
+                "DRIV",
+                "SPY",
+                "SMH",
+                "IYW",
+                "XLE",
+                "AMLP",
+                "ICLN",
+            }
+        }
         logger.debug("Successfully ran get_stocks function.")
         return stocks
 
     # Get current price of stock
     async def fetch_price(self, symbol: str, api_key: str | None):
-        parameters = {
-            "symbol": symbol,
-            "apikey": api_key
-        }
+        parameters = {"symbol": symbol, "apikey": api_key}
         session = self.get_stock_client()
         async with session.get("/price", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
@@ -73,9 +90,12 @@ class Stock:
             return close_date
 
         except KeyError as e:
-            logger.warning(f"{date} for {symbol} does not appear in the stock data: {e}")
-            raise HTTPException(status_code=404, detail= f"{date} does not appear in the stock data: {e}")
+            logger.warning(
+                f"{date} for {symbol} does not appear in the stock data: {e}"
+            )
+            raise HTTPException(
+                status_code=404, detail=f"{date} does not appear in the stock data: {e}"
+            )
+
 
 # /quote for stock name
-
-
