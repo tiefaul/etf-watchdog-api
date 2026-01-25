@@ -29,7 +29,7 @@ async def get_all_stocks():
 @router.get("/{symbol}")
 async def get_stock(
         symbol: Annotated[str, Path(description="Get stock by ticker symbol.", min_length=1, max_length=5)],
-        price: Annotated[bool | None, Query(description="Show the current trading price.")] = None,
+        price: Annotated[bool | None, Query(description="Show current trading changes.")] = None,
         date: Annotated[str | None, Query(description="Retrieve price by date. Must be in 'year-month-day' format.")] = None
         ):
 
@@ -39,17 +39,23 @@ async def get_stock(
 
         if price is True:
             stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=api_key)
-            results.update({"price_current": stock_price})
+            results.update({"stock_name": stock_price["name"],
+                            "price_current": stock_price["price"],
+                            "date": stock_price["date"],
+                            "close_price": stock_price["close_price"]})
 
         if date:
-            # Verify date format
-            logger.debug("Verifying date format.")
-            datetime.strptime(date, "%Y-%m-%d")
-            stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key)
-            results.update({f"price_{date}": stock_price_by_date})
+            try:
+                # Verify date format
+                logger.debug("Verifying date format.")
+                datetime.strptime(date, "%Y-%m-%d")
+                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key)
+                results.update({f"price_{date}": stock_price_by_date})
+            except ValueError:
+                results.update({"error": "Invalid date provided."})
 
         return results
 
     else:
         logger.error(f"{symbol} not found in the database.")
-        raise HTTPException(status_code=404, detail=f"{symbol} not found in the database.")
+        raise HTTPException(status_code=404, detail=f"Symbol: '{symbol}' not found in the database.")

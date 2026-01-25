@@ -58,18 +58,22 @@ class Stock:
     async def fetch_price(self, symbol: str, api_key: str | None):
         parameters = {"symbol": symbol, "apikey": api_key}
         session = self.get_stock_client()
-        async with session.get("/price", params=parameters) as resp:
+        output = {}
+        async with session.get("/quote", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             response = await resp.json()
             try:
-                if "price" in response:
-                    price = response["price"]
+                if response:
+                    output["price"] = response["open"]
+                    output["close_price"] = response["close"]
+                    output["date"] = response["datetime"]
+                    output["name"] = response["name"]
                 else:
-                    raise KeyError
+                    raise KeyError("Error when fetching the price data.")
             except KeyError:
                 raise HTTPException(status_code=404, detail=f"Price for the stock couldn't be obtained. Either the price isn't listed or was provided an invalid stock symbol: {symbol}")
             logger.info(f"Successfully obtained {symbol} current stock price.")
-        return price
+        return output
 
     # Get stock price by a certain date
     async def fetch_date(self, symbol: str, date: str, api_key: str | None):
@@ -87,9 +91,9 @@ class Stock:
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
             return close_date
 
-        except KeyError as e:
-            logger.warning(f"{date} for {symbol} does not appear in the stock data: {e}")
-            raise HTTPException(status_code=404, detail=f"{date} does not appear in the stock data: {e}")
+        except KeyError:
+            logger.warning(f"{date} for {symbol} does not appear in the stock data.")
+            raise HTTPException(status_code=404, detail=f"{date} does not appear in the stock data. Possibly tried to request data from the future 🔮")
 
 
 # /quote for stock name
