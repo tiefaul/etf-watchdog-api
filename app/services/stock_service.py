@@ -10,7 +10,6 @@ setup_logging()
 
 SIZE_POOL_AIOHTTP = 100
 
-
 class Stock:
     aiohttp_client: aiohttp.ClientSession | None = None
 
