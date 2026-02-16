@@ -4,7 +4,6 @@ from fastapi.logger import logger as fastAPI_logger  # convenient name
 from .services.stock_service import Stock
 from contextlib import asynccontextmanager
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load aiohttp ClientSession
