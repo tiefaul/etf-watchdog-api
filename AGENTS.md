@@ -1,6 +1,6 @@
 # Agent Guidelines for ETF Watchdog API
 
-This document serves as the primary reference for AI agents and developers working in this repository. 
+This document serves as the primary reference for AI agents and developers working in this repository.
 Follow these guidelines strictly to maintain code quality, consistency, and stability.
 
 ## 1. Project Overview & Architecture

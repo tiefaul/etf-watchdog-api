@@ -15,7 +15,7 @@ class Stock:
 
     # Create startup method for Stock aiohttp client
     @classmethod
-    def get_stock_client(cls) -> aiohttp.ClientSession:
+    def get_stock_client(cls):
         if cls.aiohttp_client is None:
             timeout = aiohttp.ClientTimeout(total=2)
             connector = aiohttp.TCPConnector(family=AF_INET, limit_per_host=SIZE_POOL_AIOHTTP)
@@ -24,7 +24,6 @@ class Stock:
                 timeout=timeout,
                 connector=connector,
             )
-        return cls.aiohttp_client
 
     # Create shutdown method for Stock aiohttp client
     @classmethod
@@ -56,9 +55,8 @@ class Stock:
     # Get current price of stock
     async def fetch_price(self, symbol: str, api_key: str | None):
         parameters = {"symbol": symbol, "apikey": api_key}
-        session = self.get_stock_client()
         output = {}
-        async with session.get("/quote", params=parameters) as resp:
+        async with self.aiohttp_client.get("/quote", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             response = await resp.json()
             try:
@@ -83,8 +81,7 @@ class Stock:
                 "date": date,
                 "apikey": api_key,
             }
-            session = self.get_stock_client()
-            async with session.get("/eod", params=parameters) as resp:
+            async with self.aiohttp_client.get("/eod", params=parameters) as resp:
                 response = await resp.json()
                 close_date = response["close"]
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
@@ -93,6 +90,3 @@ class Stock:
         except KeyError:
             logger.warning(f"{date} for {symbol} does not appear in the stock data.")
             raise HTTPException(status_code=404, detail=f"{date} does not appear in the stock data. Possibly tried to request data from the future 🔮")
-
-
-# /quote for stock name

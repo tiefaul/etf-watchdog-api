@@ -25,12 +25,13 @@ docker build . -t <your_image_name>
 After the image is built, start a container with:
 
 ```bash
-docker run -p 8000:8000 --name <your_container_name> <your_image_name>
+docker run -p 8000:8000 --name <your_container_name> --env-file .env <your_image_name>
 ```
 
 - `docker run` — Starts a new container from the specified image.
 - `-p 8000:8000` — Maps port 8000 on your host to port 8000 in the container.
 - `--name <your_container_name>` — Assigns a custom name to your container.
+- `--env-file .env` — Pass in your .env variables.
 - `<your_image_name>` — The name of the image you built in the previous step.
 
 ---
