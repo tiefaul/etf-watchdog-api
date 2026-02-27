@@ -16,12 +16,16 @@ etf-watchdog-api/
 │       └── stock_service.py        # Service layer for stock-related operations
 │       └── logger_service.py       # Service layer for logging
 ├── docs/
-│   │── LOGGER.md       # Documentation for the logger service
-│   ├── COPILOT.md      # Documentation for GitHub Copilot usage
-│   ├── DESIGN.md      # Design documentation
+│   ├── architecture/
+│   │   ├── DESIGN.md       # Design documentation
+│   │   └── LOGGER.md       # Documentation for the logger service
+│   ├── deployment/
+│   │   └── DOCKER.md       # Documentation for Docker usage
+│   ├── learning/
+│   │   ├── COPILOT.md      # Documentation for GitHub Copilot usage
+│   │   └── REFERENCES.md   # Reference links for tutorials
 │   └── tutorial-snippets/
-│       ├── REFERENCES.md    # Reference links for tutorials
-│       └── basics      # Basic tutorial snippets
+│       └── basics          # Basic tutorial snippets
 ├── logs/       # Directory for log placement
 ├── logging_config.json         # Logging configuration
 ├── pyproject.toml

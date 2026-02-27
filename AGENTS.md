@@ -24,6 +24,11 @@ Follow these guidelines strictly to maintain code quality, consistency, and stab
 │   ├── services/            # Business logic & External API clients
 │   ├── internal/            # Database config & core utilities
 │   └── __init__.py
+├── docs/                    # Project documentation
+│   ├── architecture/        # Architecture & Design docs (DESIGN.md, LOGGER.md)
+│   ├── deployment/          # Deployment docs (DOCKER.md)
+│   ├── learning/            # Learning notes & references (COPILOT.md, REFERENCES.md)
+│   └── tutorial-snippets/   # Code snippets
 ├── logs/                    # Runtime logs (gitignored)
 ├── logging_config.json      # Logger configuration
 ├── pyproject.toml           # Project dependencies & tool config
@@ -46,32 +51,45 @@ Always use `uv` for dependency and environment management.
     -   Ensure a `.env` file exists in the project root.
     -   Required keys (see `example.env` if available):
         -   `TWELVE_DATA_API_KEY`: API key for stock data.
+        -   `NEWS_DATA_API_KEY `: API key for news data. (NOTE: This is not implemented yet.)
 
-### Running the Application
+### Safety and Permissions
+
+Ask first:
+- Ask for permission to install Python dependencies using uv. i.e `uv add python-dotenv`.
+- Never `git push` without authorization.
+- Never delete any files or folders with permission.
+- A good rule of thumb. If you think a human should be in the loop to authorize an action. Ask for permission!
+
+### Running the Development Server
 *   **Development Server (Hot Reload):**
     ```bash
     uv run fastapi dev app/main.py
     ```
     *Runs on `http://127.0.0.1:8000`.*
 
-*   **Production/Docker:**
+### Running the Docker container
+*   **Example Container/Docker:**
     -   The `Dockerfile` uses a multi-stage `uv` build.
     -   Build: `docker build -t etf-watchdog .`
     -   Run: `docker run -p 8000:8000 --env-file .env etf-watchdog`
 
-### Testing & Verification
-*   **Run Tests:**
-    Currently, use the manual test script.
-    ```bash
-    uv run python test.py
-    ```
-    *Note: When refactoring, verify behavior with this script. If adding new features, consider adding a proper `pytest` suite in `tests/`.*
+# !> [!IMPORTANT]
+> Do not run Tests. Tests have not been implemented and are only used by me to test functions.
 
-*   **Type Checking (Critical):**
-    ```bash
-    uv run basedpyright
-    ```
-    *Must pass before confirming any changes.*
+<!-- ### Testing & Verification -->
+<!-- *   **Run Tests:** -->
+<!--     Currently, use the manual test script. -->
+<!--     ```bash -->
+<!--     uv run python test.py -->
+<!--     ``` -->
+<!--     *Note: When refactoring, verify behavior with this script. If adding new features, consider adding a proper `pytest` suite in `tests/`.* -->
+<!---->
+<!-- *   **Type Checking (Critical):** -->
+<!--     ```bash -->
+<!--     uv run basedpyright -->
+<!--     ``` -->
+<!--     *Must pass before confirming any changes.* -->
 
 ## 3. Code Style & Conventions
 

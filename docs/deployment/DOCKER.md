@@ -39,5 +39,5 @@ docker run -p 8000:8000 --name <your_container_name> <your_image_name>
 
 ```bash
 docker build . -t etf-watchdog
-docker run -p 8000:8000 --name etf-watchdog-container etf-watchdog
+docker run -p 8000:8000 --name etf-watchdog-container --env-file .env etf-watchdog
 ```
