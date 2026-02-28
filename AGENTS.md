@@ -64,7 +64,7 @@ Ask first:
 ### Running the Development Server
 *   **Development Server (Hot Reload):**
     ```bash
-    uv run fastapi dev app/main.py
+    uv run fastapi dev app/main.py --no-reload --host 0.0.0.0
     ```
     *Runs on `http://127.0.0.1:8000`.*
 

@@ -1,6 +1,5 @@
 import aiohttp
 from socket import AF_INET
-from fastapi import HTTPException
 from .logger_service import setup_logging
 import logging
 
@@ -11,11 +10,14 @@ setup_logging()
 SIZE_POOL_AIOHTTP = 100
 
 class Stock:
+    # Shared aiohttp client session used across the application lifecycle for connection pooling
     aiohttp_client: aiohttp.ClientSession | None = None
 
     # Create startup method for Stock aiohttp client
     @classmethod
     def get_stock_client(cls):
+        # Initialize the Singleton session. Forced to IPv4 (AF_INET) and connection limited
+        # to prevent port exhaustion and comply with API rate limits.
         if cls.aiohttp_client is None:
             timeout = aiohttp.ClientTimeout(total=2)
             connector = aiohttp.TCPConnector(family=AF_INET, limit_per_host=SIZE_POOL_AIOHTTP)
@@ -35,6 +37,9 @@ class Stock:
     # Retrieve all monitored stocks
     async def get_stocks(self):
         logger.debug("Running get_stocks function...")
+        
+        # Hardcoded set of allowed ETFs/Stocks to track. Acts as an initial validation 
+        # layer to avoid unnecessary network calls to the external API for invalid symbols.
         stocks = {
             "stocks": {
                 "SHY",
@@ -53,40 +58,41 @@ class Stock:
         return stocks
 
     # Get current price of stock
-    async def fetch_price(self, symbol: str, api_key: str | None):
+    @classmethod
+    async def fetch_price(cls, symbol: str, api_key: str | None):
         parameters = {"symbol": symbol, "apikey": api_key}
         output = {}
-        async with self.aiohttp_client.get("/quote", params=parameters) as resp:
+        
+        # Fetch real-time quote data. Note: Twelve Data API often returns 200 OK with an error JSON 
+        # on failure (e.g., rate limit, invalid key). Accessing response["open"] will naturally raise 
+        # a KeyError, which is caught and handled in the router.
+        async with cls.aiohttp_client.get("/quote", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             response = await resp.json()
-            try:
-                if response:
-                    output["price"] = response["open"]
-                    output["close_price"] = response["close"]
-                    output["date"] = response["datetime"]
-                    output["name"] = response["name"]
-                else:
-                    raise KeyError("Error when fetching the price data.")
-            except KeyError:
-                raise HTTPException(status_code=404, detail=f"Price for the stock couldn't be obtained. Either the price isn't listed or was provided an invalid stock symbol: {symbol}")
+            if response:
+                output["price"] = response["open"]
+                output["close_price"] = response["close"]
+                output["date"] = response["datetime"]
+                output["name"] = response["name"]
+            else:
+                raise KeyError("Error when fetching the price data.")
             logger.info(f"Successfully obtained {symbol} current stock price.")
         return output
 
     # Get stock price by a certain date
-    async def fetch_date(self, symbol: str, date: str, api_key: str | None):
-        try:
-            logger.debug(f"Attempting to obtain {symbol} price by date: {date}.")
-            parameters = {
-                "symbol": symbol,
-                "date": date,
-                "apikey": api_key,
-            }
-            async with self.aiohttp_client.get("/eod", params=parameters) as resp:
-                response = await resp.json()
-                close_date = response["close"]
-                logger.info(f"Successfully obtained {symbol} price by date: {date}")
-            return close_date
-
-        except KeyError:
-            logger.warning(f"{date} for {symbol} does not appear in the stock data.")
-            raise HTTPException(status_code=404, detail=f"{date} does not appear in the stock data. Possibly tried to request data from the future 🔮")
+    @classmethod
+    async def fetch_date(cls, symbol: str, date: str, api_key: str | None):
+        logger.debug(f"Attempting to obtain {symbol} price by date: {date}.")
+        parameters = {
+            "symbol": symbol,
+            "date": date,
+            "apikey": api_key,
+        }
+        
+        # Uses the End-Of-Day (/eod) endpoint for historical data.
+        # Similar to /quote, missing data for future dates or errors will raise a KeyError.
+        async with cls.aiohttp_client.get("/eod", params=parameters) as resp:
+            response = await resp.json()
+            close_date = response["close"]
+            logger.info(f"Successfully obtained {symbol} price by date: {date}")
+        return close_date
