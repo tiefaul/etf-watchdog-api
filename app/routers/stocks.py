@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv("TWELVE_DATA_API_KEY")
+twelve_data_api_key = os.getenv("TWELVE_DATA_API_KEY")
+news_data_api_key = os.getenv("NEWS_DATA_API_KEY")
 logger = logging.getLogger(__name__)
 setup_logging()
 
@@ -42,7 +43,7 @@ async def get_stock(
 
         if price is True:
             try:
-                stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=api_key)
+                stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=twelve_data_api_key)
                 results.update({"stock_name": stock_price["name"],
                                 "price_current": stock_price["price"],
                                 "date": stock_price["date"],
@@ -56,7 +57,7 @@ async def get_stock(
                 # Verify date format locally to prevent invalid queries to the external API
                 logger.debug("Verifying date format.")
                 datetime.strptime(date, "%Y-%m-%d")
-                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=api_key)
+                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=twelve_data_api_key)
                 results.update({f"price_{date}": stock_price_by_date})
             except ValueError:
                 # Triggered by datetime.strptime if the date string is not strictly YYYY-MM-DD
