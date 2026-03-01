@@ -41,9 +41,10 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
     ```
 
 3.  **Configure Environment:**
-    Create a `.env` file in the root directory and add your Twelve Data API key:
+    Create a `.env` file in the root directory and add your Twelve Data and NewsData.io API keys:
     ```env
-    TWELVE_DATA_API_KEY=your_api_key_here
+    TWELVE_DATA_API_KEY=your_twelve_data_api_key_here
+    NEWS_DATA_API_KEY=your_news_data_api_key_here
     ```
 
 ### Running the Application
@@ -67,3 +68,4 @@ docker run -p 8000:8000 --env-file .env etf-watchdog
 | `GET` | `/api/stocks/` | List all tracked stocks. |
 | `GET` | `/api/stocks/{symbol}?price=true` | Get current price details for a symbol. |
 | `GET` | `/api/stocks/{symbol}?date=YYYY-MM-DD` | Get historical close price for a specific date. |
+| `GET` | `/api/stocks/{symbol}/news` | Get the latest news articles for a specific stock. |

@@ -35,7 +35,6 @@ async def get_stock(
         price: Annotated[bool | None, Query(description="Show current trading changes.")] = None,
         date: Annotated[str | None, Query(description="Retrieve price by date. Must be in 'year-month-day' format.")] = None
         ):
-
     # Validate the requested symbol against our local tracked list before querying the external API
     stock_dict = await stock.get_stocks()
     if symbol.upper() in stock_dict["stocks"]:
@@ -44,10 +43,14 @@ async def get_stock(
         if price is True:
             try:
                 stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=twelve_data_api_key)
-                results.update({"stock_name": stock_price["name"],
-                                "price_current": stock_price["price"],
-                                "date": stock_price["date"],
-                                "close_price": stock_price["close_price"]})
+                results.update(
+                    {
+                        "stock_name": stock_price["name"],
+                        "price_current": stock_price["price"],
+                        "date": stock_price["date"],
+                        "close_price": stock_price["close_price"]
+                    }
+                )
             except KeyError:
                 # KeyError occurs when external API returns an error payload (e.g., rate limit, invalid key) missing expected fields
                 results.update({"error": f"Price for the stock couldn't be obtained. Either the price isn't listed or API key is invalid. Symbol: {symbol}"})
@@ -71,3 +74,15 @@ async def get_stock(
     else:
         logger.error(f"{symbol} not found in the database.")
         raise HTTPException(status_code=404, detail=f"Symbol '{symbol}' not found in the database.")
+
+@router.get("/{symbol}/news")
+async def get_news(symbol: Annotated[str, Path(description="Get news for a stock by ticker symbol", min_length=1, max_length=5)]):
+    try:
+        # Calls the stock service to fetch news from the external API
+        results = await stock.fetch_news(symbol=symbol, api_key=news_data_api_key)
+        return results
+    except ValueError:
+        # Handles the case where the API returns 0 results by returning a structured error message
+        # rather than throwing an HTTP exception, keeping the response consistent
+        results = {"error": "Failed to find any news."}
+        return results
