@@ -47,7 +47,6 @@ class Stock:
         Retrieves the hardcoded list of valid stocks/ETFs that the application is allowed to track.
         """
         logger.debug("Running get_stocks function...")
-        
         # Hardcoded set of allowed ETFs/Stocks to track. This is dummy data until
         # I implement an actual databse.
         stocks = {
@@ -85,7 +84,6 @@ class Stock:
         """
         parameters = {"symbol": symbol, "apikey": api_key}
         output = {}
-        
         # Fetch real-time quote data. Note: Twelve Data API often returns 200 OK with an error JSON 
         # on failure (e.g., rate limit, invalid key). Accessing response["open"] will naturally raise 
         # a KeyError, which is caught and handled in the router.
@@ -125,7 +123,6 @@ class Stock:
             "date": date,
             "apikey": api_key,
         }
-        
         # Uses the End-Of-Day (/eod) endpoint for historical data.
         # Similar to /quote, missing data for future dates or errors will raise a KeyError.
         async with cls.aiohttp_client.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
@@ -156,17 +153,14 @@ class Stock:
         """
         parameters = {"symbol": symbol, "apikey": api_key}
         output = {"totalResults": None, "articles": []}
-        
         # Request news data using the /market endpoint of NewsData.io
         async with cls.aiohttp_client.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
             response = await resp.json()
             if response:
                 logger.debug(f"Attempting to obtain news about {symbol}.")
-                
                 # Check if the API returned any results for the symbol
                 if response.get('totalResults') > 0:
                     output['totalResults'] = response['totalResults']
-                    
                     # Iterate through the results and extract only the relevant fields (link and description)
                     for article in response.get('results', []):
                         append_article = {"link": article.get('link'), "description": article.get('description')}
