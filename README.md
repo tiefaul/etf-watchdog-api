@@ -17,7 +17,7 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 - **Framework:** FastAPI, Pydantic
 - **Language:** Python 3.14+
 - **Package Manager:** uv
-- **Data Source:** Twelve Data API
+- **Data Sources:** Twelve Data API, Newsdata.io
 - **Database:** SQLModel / SQLite
 
 ## ⚡ Getting Started
