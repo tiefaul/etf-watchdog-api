@@ -165,7 +165,7 @@ class Stock:
                     for article in response.get('results', []):
                         append_article = {"link": article.get('link'), "description": article.get('description')}
                         output["articles"].append(append_article)
-                        logger.info(f"Successfully obtained news about {symbol}.")
+                    logger.info(f"Successfully obtained news about {symbol}.")
                     return output
                 else:
                     raise ValueError("News API returned 0 results.")

@@ -5,9 +5,9 @@ This doc is meant to track my conversations with VsCode's Copilot feature. I use
 
 ## Table of contents
 
-- [Why would I use pydantic in my Item class when I can just put name: str, price: float, etc without it?](#why-would-i-use-pydantic-in-my-item-class-when-i-can-just-put-namestr-price-float-etc-without-it)
+- [Why would I use pydantic in my Item class when I can just put name: str, price: float, etc without it?](#why-would-i-use-pydantic-in-my-item-class-when-i-can-just-put-name-str-price-float-etc-without-it)
 - [What does typing.union do? In reference to Union[str, None] = None?](#what-does-typingunion-do-in-reference-to-unionstr-none--none)
-- [What is the enum module in Python?](#what-is-the-enum-library-in-python)
+- [What is the enum library in Python?](#what-is-the-enum-library-in-python)
 - [Explain this line of code for me: async def read_items(q: str | None = None):](#explain-this-line-of-code-for-me-async-def-read_itemsq-str--none--none)
 - [What does Annotated do in the typing library?](#what-does-annotated-do-in-the-typing-library)
 - [Can I write `!=` instead of `is not`? Example: `if item.tax != None`](#can-i-write--instead-of-is-not-example-if-itemtax--none)
