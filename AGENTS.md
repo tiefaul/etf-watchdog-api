@@ -53,14 +53,6 @@ Always use `uv` for dependency and environment management.
         -   `TWELVE_DATA_API_KEY`: API key for stock data.
         -   `NEWS_DATA_API_KEY `: API key for news data. (NOTE: This is not implemented yet.)
 
-### Safety and Permissions
-
-Ask first:
-- Ask for permission to install Python dependencies using uv. i.e `uv add python-dotenv`.
-- Never `git push` without authorization.
-- Never delete any files or folders with permission.
-- A good rule of thumb. If you think a human should be in the loop to authorize an action. Ask for permission!
-
 ### Running the Development Server
 *   **Development Server (Hot Reload):**
     ```bash
@@ -74,7 +66,7 @@ Ask first:
     -   Build: `docker build -t etf-watchdog .`
     -   Run: `docker run -p 8000:8000 --env-file .env etf-watchdog`
 
-# !> [!IMPORTANT]
+# [!IMPORTANT]
 > Do not run Tests. Tests have not been implemented and are only used by me to test functions.
 
 <!-- ### Testing & Verification -->
@@ -156,3 +148,10 @@ Organize imports in the following order (refactor mixed imports when touching fi
 4.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
 5.  **Documentation:** Update `AGENTS.md` if you introduce new tools or patterns.
 6.  **Refactoring:** If you encounter legacy code (e.g., mixed imports), clean it up only if it relates to your current task.
+
+## 5. Safety and Permissions
+Ask first:
+- Ask for permission to install Python dependencies using uv. i.e `uv add python-dotenv`.
+- Never use the command `git` without authorization.
+- Never delete any files or folders without permission.
+- A good rule of thumb. If you think a human should be in the loop to authorize an action. Ask for permission!
