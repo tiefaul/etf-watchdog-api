@@ -4,7 +4,7 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 
 > **Note:** This is a personal project under active development.
 
-## 🚀 Key Features
+## Key Features
 
 - **FastAPI Powered:** Built on Python 3.14+ for high performance and strict typing.
 - **Asynchronous:** Uses `aiohttp` for non-blocking external API requests.
@@ -12,7 +12,7 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 - **Docker Ready:** Includes a multi-stage Dockerfile for easy containerization.
 - **Market Data:** Integrates seamlessly with Twelve Data.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework:** FastAPI, Pydantic
 - **Language:** Python 3.14+
@@ -20,7 +20,7 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 - **Data Sources:** Twelve Data API, Newsdata.io
 - **Database:** SQLModel / SQLite
 
-## ⚡ Getting Started
+## Getting Started
 
 ### Prerequisites
 
