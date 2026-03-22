@@ -20,13 +20,10 @@ router = APIRouter(
         responses={404: {"description": "Page Not Found"}}
         )
 
-# Instantiate the Stock service which manages aiohttp sessions for external requests
-stock = Stock()
-
 @router.get("/", description="List all available stocks to track.")
 async def get_all_stocks():
     # Returns a local or cached list of stocks, avoiding unnecessary external API calls
-    stocks_dict = await stock.get_stocks()
+    stocks_dict = await Stock().get_stocks()
     return stocks_dict
 
 @router.get("/{symbol}")
@@ -36,13 +33,13 @@ async def get_stock(
         date: Annotated[str | None, Query(description="Retrieve price by date. Must be in 'year-month-day' format.")] = None
         ):
     # Validate the requested symbol against our local tracked list before querying the external API
-    stock_dict = await stock.get_stocks()
+    stock_dict = await Stock().get_stocks()
     if symbol.upper() in stock_dict["stocks"]:
         results = {"symbol": symbol.upper()}
 
         if price is True:
             try:
-                stock_price = await stock.fetch_price(symbol=symbol.upper(), api_key=twelve_data_api_key)
+                stock_price = await Stock.fetch_price(symbol=symbol.upper(), api_key=twelve_data_api_key)
                 results.update(
                     {
                         "stock_name": stock_price["name"],
@@ -60,7 +57,7 @@ async def get_stock(
                 # Verify date format locally to prevent invalid queries to the external API
                 logger.debug("Verifying date format.")
                 datetime.strptime(date, "%Y-%m-%d")
-                stock_price_by_date = await stock.fetch_date(symbol=symbol.upper(), date=date, api_key=twelve_data_api_key)
+                stock_price_by_date = await Stock.fetch_date(symbol=symbol.upper(), date=date, api_key=twelve_data_api_key)
                 results.update({f"price_{date}": stock_price_by_date})
             except ValueError:
                 # Triggered by datetime.strptime if the date string is not strictly YYYY-MM-DD
@@ -79,7 +76,7 @@ async def get_stock(
 async def get_news(symbol: Annotated[str, Path(description="Get news for a stock by ticker symbol", min_length=1, max_length=5)]):
     try:
         # Calls the stock service to fetch news from the external API
-        results = await stock.fetch_news(symbol=symbol, api_key=news_data_api_key)
+        results = await Stock.fetch_news(symbol=symbol, api_key=news_data_api_key)
         return results
     except ValueError:
         # Handles the case where the API returns 0 results by returning a structured error message
