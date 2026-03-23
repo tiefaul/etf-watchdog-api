@@ -151,7 +151,7 @@ class Stock:
         Raises:
             ValueError: If the API request is successful but returns 0 news articles.
         """
-        parameters = {"symbol": symbol, "apikey": api_key}
+        parameters = {"qInTitle": symbol, "apikey": api_key}
         output = {"totalResults": None, "articles": []}
         # Request news data using the /market endpoint of NewsData.io
         async with cls.aiohttp_client.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
