@@ -60,10 +60,10 @@ class Stock:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             response = await resp.json()
             if response:
-                output["price"] = response.get("open")
-                output["close_price"] = response.get("close")
-                output["date"] = response.get("datetime")
-                output["name"] = response.get("name")
+                output["price"] = response.get("open", None)
+                output["close_price"] = response.get("close", None)
+                output["date"] = response.get("datetime", None)
+                output["name"] = response.get("name", None)
                 logger.info(f"Successfully obtained {symbol} current stock price.")
                 return output
             else:
@@ -96,7 +96,7 @@ class Stock:
         async with session.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             response = await resp.json()
             if response:
-                output = response["close"]
+                output = response.get("close", None)
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
                 return output
             else:
@@ -127,7 +127,7 @@ class Stock:
                 logger.debug(f"Attempting to obtain news about {symbol}.")
                 # Check if the API returned any results for the symbol
                 if response.get('totalResults') > 0:
-                    output['totalResults'] = response['totalResults']
+                    output['totalResults'] = response.get('totalResults')
                     # Iterate through the results and extract only the relevant fields (link and description)
                     for article in response.get('results', []):
                         append_article = {"link": article.get('link'), "description": article.get('description')}

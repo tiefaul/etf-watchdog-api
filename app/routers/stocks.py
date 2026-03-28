@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Query, HTTPException, Path, Depends
 from ..services.stock_service import Stock
 from ..services.logger_service import setup_logging
 from ..services.aiohttp_client_service import HttpClient
+from fastapi import APIRouter, Query, HTTPException, Path, Depends
 from typing import Annotated
 from datetime import datetime
 from dotenv import load_dotenv
