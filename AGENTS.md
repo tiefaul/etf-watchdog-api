@@ -140,18 +140,25 @@ Organize imports in the following order (refactor mixed imports when touching fi
 
 ## 4. Agent Operational Rules
 
-1.  **Analysis First:** Before editing, run `ls -R` or `glob` to understand the structure and `read` relevant files.
-2.  **Incremental Changes:** Make small, verifiable changes.
-3.  **Verification:**
+1.  **Ask Questions First:** If requirements are ambiguous, or if you are unsure about the project's architecture, ALWAYS ask the user for clarification before making any code changes or running commands.
+2.  **Analysis First:** Before editing, run `ls -R` or `glob` to understand the structure and `read` relevant files.
+3.  **Incremental Changes:** Make small, verifiable changes.
+4.  **Verification:**
     -   After editing, ALWAYS run `uv run basedpyright` to check for type errors.
     -   Run `uv run python test.py` to ensure runtime stability.
-4.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
-5.  **Documentation:** Update `AGENTS.md` if you introduce new tools or patterns.
-6.  **Refactoring:** If you encounter legacy code (e.g., mixed imports), clean it up only if it relates to your current task.
+5.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
+6.  **Documentation:** Update `AGENTS.md` if you introduce new tools or patterns.
+7.  **Refactoring:** If you encounter legacy code (e.g., mixed imports), clean it up only if it relates to your current task.
 
-## 5. Safety and Permissions
-Ask first:
-- Ask for permission to install Python dependencies using uv. i.e `uv add python-dotenv`.
-- Never use the command `git` without authorization.
-- Never delete any files or folders without permission.
-- A good rule of thumb. If you think a human should be in the loop to authorize an action. Ask for permission!
+## 5. Safety, Permissions & Communication
+
+**When in doubt, ASK.** Proactive communication prevents mistakes.
+
+Always ask for permission and clarification BEFORE:
+- Writing or modifying code if the user's intent or the implementation strategy is at all unclear.
+- Executing shell commands that mutate the environment or file system.
+- Installing new Python dependencies (e.g., `uv add python-dotenv`).
+- Using the `git` command in any capacity without explicit authorization.
+- Deleting any files or directories.
+
+**A good rule of thumb:** If you think a human should be in the loop to authorize an action, choose a design direction, or confirm a destructive command—Stop and ask for permission!
