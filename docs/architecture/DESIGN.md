@@ -15,6 +15,15 @@ etf-watchdog-api/
 │       ├── __init__.py
 │       └── stock_service.py        # Service layer for stock-related operations
 │       └── logger_service.py       # Service layer for logging
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   └── test_stocks.py
+│   └── services/
+│       ├── __init__.py
+│       └── test_stock_service.py
 ├── docs/
 │   ├── architecture/
 │   │   ├── DESIGN.md       # Design documentation

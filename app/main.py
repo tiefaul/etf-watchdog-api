@@ -1,20 +1,10 @@
 from fastapi import FastAPI
 from .routers import stocks
-from fastapi.logger import logger as fastAPI_logger  # convenient name
-from .services.stock_service import Stock
-from contextlib import asynccontextmanager
+from .services.aiohttp_client_service import HttpClient
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Load aiohttp ClientSession
-    fastAPI_logger.info("Starting aiohttp client")
-    Stock.get_stock_client()
-    yield
-    # Shutdown aiohttp ClientSession
-    fastAPI_logger.info("Closing aiohttp client")
-    await Stock.close_stock_client()
+http_client = HttpClient()
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.include_router(router=stocks.router)
 
