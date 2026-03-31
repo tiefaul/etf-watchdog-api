@@ -142,13 +142,14 @@ Organize imports in the following order (refactor mixed imports when touching fi
 
 1.  **Ask Questions First:** If requirements are ambiguous, or if you are unsure about the project's architecture, ALWAYS ask the user for clarification before making any code changes or running commands.
 2.  **Analysis First:** Before editing, run `ls -R` or `glob` to understand the structure and `read` relevant files.
-3.  **Incremental Changes:** Make small, verifiable changes.
-4.  **Verification:**
+3.  **Plan Before Execution:** Present a clear plan of action before executing any task. Outline the steps you intend to take, wait for explicit user approval before proceeding, and do not perform any actions until the user responds with confirmation (e.g., "approve", "go ahead").
+4.  **Incremental Changes:** Make small, verifiable changes.
+5.  **Verification:**
     -   After editing, ALWAYS run `uv run basedpyright` to check for type errors.
     -   Run `uv run python test.py` to ensure runtime stability.
-5.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
-6.  **Documentation:** Update `AGENTS.md` if you introduce new tools or patterns.
-7.  **Refactoring:** If you encounter legacy code (e.g., mixed imports), clean it up only if it relates to your current task.
+6.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
+7.  **Documentation:** Update `AGENTS.md` if you introduce new tools or patterns.
+8.  **Refactoring:** If you encounter legacy code (e.g., mixed imports), clean it up only if it relates to your current task.
 
 ## 5. Safety, Permissions & Communication
 
