@@ -1,19 +1,20 @@
 # Agent Guidelines for ETF Watchdog API
 
-This document serves as the primary reference for AI agents and developers working in this repository.
-Follow these guidelines strictly to maintain code quality, consistency, and stability.
+This document serves as the primary reference for AI agents and developers working in this repository. Follow these guidelines strictly to maintain code quality, consistency, and stability.
+
+---
 
 ## 1. Project Overview & Architecture
 
 **ETF Watchdog API** is a personal ETF tracker built with FastAPI. It monitors stock prices using the Twelve Data API.
 
 ### Core Tech Stack
-- **Language:** Python 3.14+ (Required)
-- **Framework:** FastAPI
-- **Package Manager:** `uv`
-- **Type Checking:** `basedpyright`
-- **Database:** SQLite (via SQLModel)
-- **External API:** Twelve Data (Async `aiohttp` client)
+* **Language:** Python 3.14+ (Required)
+* **Framework:** FastAPI
+* **Package Manager:** `uv`
+* **Type Checking:** `basedpyright`
+* **Database:** SQLite (via SQLModel)
+* **External API:** Twelve Data (Async `aiohttp` client)
 
 ### Directory Structure
 ```text
@@ -36,52 +37,51 @@ Follow these guidelines strictly to maintain code quality, consistency, and stab
 └── test.py                  # Ad-hoc testing script
 ```
 
+---
+
 ## 2. Environment & Build Commands
 
 Always use `uv` for dependency and environment management.
 
-### Installation
+### Installation & Setup
 1.  **Sync Dependencies:**
     ```bash
     uv sync
     ```
-    *This creates/updates the `.venv` directory based on `uv.lock`.*
+    *Creates/updates the `.venv` directory based on `uv.lock`.*
 
 2.  **Environment Variables:**
-    -   Ensure a `.env` file exists in the project root.
-    -   Required keys (see `example.env` if available):
-        -   `TWELVE_DATA_API_KEY`: API key for stock data.
-        -   `NEWS_DATA_API_KEY `: API key for news data. (NOTE: This is not implemented yet.)
+    * Ensure a `.env` file exists in the project root.
+    * Required keys (see `example.env` if available):
+        * `TWELVE_DATA_API_KEY`: API key for stock data.
+        * `NEWS_DATA_API_KEY`: API key for news data. *(Note: Not implemented yet).*
 
 ### Running the Development Server
-*   **Development Server (Hot Reload):**
+* **Development Server (Hot Reload):**
     ```bash
     uv run fastapi dev app/main.py
     ```
     *Runs on `http://127.0.0.1:8000`.*
 
-### Running the Docker container
-*   **Example Container/Docker:**
-    -   The `Dockerfile` uses a multi-stage `uv` build.
-    -   Build: `docker build -t etf-watchdog .`
-    -   Run: `docker run -p 8000:8000 --env-file .env etf-watchdog`
+### Docker Deployment
+* The `Dockerfile` uses a multi-stage `uv` build.
+* **Build:** `docker build -t etf-watchdog .`
+* **Run:** `docker run -p 8000:8000 --env-file .env etf-watchdog`
 
-# [!IMPORTANT]
-> Do not run Tests. Tests have not been implemented and are only used by me to test functions.
+### Testing & Verification
+> [!IMPORTANT]  
+> **Do not run a test suite (e.g., `pytest`).** Automated tests have not been implemented.
 
-<!-- ### Testing & Verification -->
-<!-- *   **Run Tests:** -->
-<!--     Currently, use the manual test script. -->
-<!--     ```bash -->
-<!--     uv run python test.py -->
-<!--     ``` -->
-<!--     *Note: When refactoring, verify behavior with this script. If adding new features, consider adding a proper `pytest` suite in `tests/`.* -->
-<!---->
-<!-- *   **Type Checking (Critical):** -->
-<!--     ```bash -->
-<!--     uv run basedpyright -->
-<!--     ``` -->
-<!--     *Must pass before confirming any changes.* -->
+* **Runtime Testing:** Use the manual test script to verify functions ad-hoc:
+    ```bash
+    uv run python test.py
+    ```
+* **Type Checking (Critical):** Must pass before confirming any changes.
+    ```bash
+    uv run basedpyright
+    ```
+
+---
 
 ## 3. Code Style & Conventions
 
@@ -89,17 +89,17 @@ Adhere to the existing style found in `app/`.
 
 ### Imports
 Organize imports in the following order (refactor mixed imports when touching files):
-1.  **Standard Library** (`os`, `logging`, `datetime`, `typing`)
-2.  **Third-Party** (`fastapi`, `pydantic`, `sqlmodel`, `aiohttp`, `dotenv`)
-3.  **Local Application** (`from .services...`, `from app.internal...`)
+1.  **Standard Library:** `os`, `logging`, `datetime`, `typing`
+2.  **Third-Party:** `fastapi`, `pydantic`, `sqlmodel`, `aiohttp`, `dotenv`
+3.  **Local Application:** `from .services...`, `from app.internal...`
 
-*   Use **relative imports** (e.g., `from ..services.stock_service import Stock`) within `app/routers/` and `app/services/`.
-*   Avoid `import *`.
+* Use **relative imports** (e.g., `from ..services.stock_service import Stock`) within `app/routers/` and `app/services/`.
+* Avoid `import *`.
 
 ### Typing & Pydantic
-*   **Strict Typing:** All function arguments and return values must have type hints.
-*   **Syntax:** Use Python 3.10+ union syntax (`str | None`) instead of `Optional[str]`.
-*   **FastAPI:** Use `Annotated` for dependencies and query parameters.
+* **Strict Typing:** All function arguments and return values must have type hints.
+* **Syntax:** Use Python 3.10+ union syntax (`str | None`) instead of `Optional[str]`.
+* **FastAPI:** Use `Annotated` for dependencies and query parameters.
     ```python
     # Correct
     async def get_stock(
@@ -109,57 +109,51 @@ Organize imports in the following order (refactor mixed imports when touching fi
     ```
 
 ### Asynchronous Patterns
-*   The application is fully async.
-*   Route handlers must be `async def`.
-*   I/O bound service methods (DB, API calls) must be `async def`.
-*   Use `aiohttp` for external requests (managed via `Stock` class singleton).
-*   **Do not** use blocking `requests` library.
+* The application is fully async. Route handlers and I/O bound service methods (DB, API calls) must be `async def`.
+* Use `aiohttp` for external requests (managed via `Stock` class singleton).
+* **Do not** use the blocking `requests` library.
 
 ### Database (SQLModel)
-*   Define models using `SQLModel`.
-*   Use `table=True` for DB tables.
-*   Access the database using the `SessionDep` dependency (in `app/internal/database.py`).
-*   Config is currently SQLite (`sqlitedb.db`).
+* Define models using `SQLModel`. Use `table=True` for DB tables.
+* Access the database using the `SessionDep` dependency (in `app/internal/database.py`).
+* Config is currently SQLite (`sqlitedb.db`).
 
 ### Error Handling
-*   Use `fastapi.HTTPException` for API errors.
-*   Include descriptive `detail` messages.
-*   Catch specific exceptions (e.g., `KeyError` in service layer) and re-raise as `HTTPException` in routers or handle gracefully.
+* Use `fastapi.HTTPException` for API errors with descriptive `detail` messages.
+* Catch specific exceptions (e.g., `KeyError` in the service layer) and re-raise as `HTTPException` in routers, or handle gracefully.
 
 ### Logging
-*   **Setup:** Logging is configured via `logging_config.json`.
-*   **Usage:**
+* **Setup:** Logging is configured via `logging_config.json`. Ensure `setup_logging()` is called at the module level if necessary (refer to `app/routers/stocks.py`).
+* **Usage:**
     ```python
     import logging
     logger = logging.getLogger(__name__)
-    # ...
+    
     logger.info("Fetching stock data...")
     logger.error("Failed to connect to API")
     ```
-*   Ensure `setup_logging()` is called at the module level if necessary (refer to `app/routers/stocks.py`).
 
-## 4. Agent Operational Rules
+---
 
-1.  **Ask Questions First:** If requirements are ambiguous, or if you are unsure about the project's architecture, ALWAYS ask the user for clarification before making any code changes or running commands.
-2.  **Analysis First:** Before editing, run `ls -R` or `glob` to understand the structure and `read` relevant files.
-3.  **Plan Before Execution:** Present a clear plan of action before executing any task. Outline the steps you intend to take, wait for explicit user approval before proceeding, and do not perform any actions until the user responds with confirmation (e.g., "approve", "go ahead").
-4.  **Incremental Changes:** Make small, verifiable changes.
-5.  **Verification:**
-    -   After editing, ALWAYS run `uv run basedpyright` to check for type errors.
-    -   Run `uv run python test.py` to ensure runtime stability.
-6.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
-7.  **Documentation:** Update `AGENTS.md` if you introduce new tools or patterns.
-8.  **Refactoring:** If you encounter legacy code (e.g., mixed imports), clean it up only if it relates to your current task.
-
-## 5. Safety, Permissions & Communication
+## 4. Agent Operational Rules & Safety
 
 **When in doubt, ASK.** Proactive communication prevents mistakes.
 
-Always ask for permission and clarification BEFORE:
-- Writing or modifying code if the user's intent or the implementation strategy is at all unclear.
-- Executing shell commands that mutate the environment or file system.
-- Installing new Python dependencies (e.g., `uv add python-dotenv`).
-- Using the `git` command in any capacity without explicit authorization.
-- Deleting any files or directories.
+### 4.1 Execution Protocols
+1.  **Analysis First:** Before editing, run `ls -R` or `glob` to understand the structure and read relevant files.
+2.  **Plan Before Execution:** Present a clear plan of action. Outline intended steps and **wait for explicit user approval** (e.g., "approve", "go ahead") before modifying code.
+3.  **Incremental Changes:** Make small, verifiable changes. Clean up legacy code (e.g., mixed imports) only if it relates to the current task.
+4.  **Verification:** After editing, ALWAYS run `uv run basedpyright` to check for type errors, and run `uv run python test.py` for runtime stability.
+5.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
+6.  **Documentation:** Update this `Agents.md` file if you introduce new tools or patterns.
 
-**A good rule of thumb:** If you think a human should be in the loop to authorize an action, choose a design direction, or confirm a destructive command—Stop and ask for permission!
+### 4.2 Strict Permissions
+Always ask for permission and clarification BEFORE:
+* Writing or modifying code if the user's intent or the implementation strategy is unclear.
+* Executing shell commands that mutate the environment or file system.
+* Installing new Python dependencies (e.g., `uv add <package>`).
+* Using the `git` command in any capacity without explicit authorization.
+* Deleting any files or directories.
+
+> [!WARNING]
+> **A good rule of thumb:** If you think a human should be in the loop to authorize an action, choose a design direction, or confirm a destructive command—Stop and ask for permission!
