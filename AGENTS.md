@@ -140,20 +140,20 @@ Organize imports in the following order (refactor mixed imports when touching fi
 **When in doubt, ASK.** Proactive communication prevents mistakes.
 
 ### 4.1 Execution Protocols
-1.  **Analysis First:** Before editing, run `ls -R` or `glob` to understand the structure and read relevant files.
-2.  **Plan Before Execution:** Present a clear plan of action. Outline intended steps and **wait for explicit user approval** (e.g., "approve", "go ahead") before modifying code.
+1.  **Analysis First:** Before editing, use file-reading tools (like `glob` or `read`) to understand the structure. Do not use terminal commands for analysis without permission.
+2.  **Plan Before Execution:** Present a clear plan of action. Outline intended steps and **WAIT FOR EXPLICIT USER APPROVAL** before modifying code or running **ANY** command in the terminal.
 3.  **Incremental Changes:** Make small, verifiable changes. Clean up legacy code (e.g., mixed imports) only if it relates to the current task.
-4.  **Verification:** After editing, ALWAYS run `uv run basedpyright` to check for type errors, and run `uv run python test.py` for runtime stability.
+4.  **Verification:** Outline the verification commands (like `uv run basedpyright` or `uv run python test.py`) in your plan, but **DO NOT RUN THEM** until the user explicitly approves the command execution.
 5.  **Secrets Safety:** NEVER commit API keys or secrets. Use `os.getenv` and `.env` files.
-6.  **Documentation:** Update this `Agents.md` file if you introduce new tools or patterns.
+6.  **Documentation:** Update this `AGENTS.md` file if you introduce new tools or patterns.
 
 ### 4.2 Strict Permissions
-Always ask for permission and clarification BEFORE:
+**CRITICAL: ZERO-COMMAND POLICY WITHOUT APPROVAL.**
+Always ask for explicit permission and clarification BEFORE:
+* Executing **ANY** shell or terminal command using the Bash tool. This includes all `uv run` commands, testing, type-checking, `git` commands, or even read-only diagnostic commands. There are zero exceptions.
 * Writing or modifying code if the user's intent or the implementation strategy is unclear.
-* Executing shell commands that mutate the environment or file system.
 * Installing new Python dependencies (e.g., `uv add <package>`).
-* Using the `git` command in any capacity without explicit authorization.
 * Deleting any files or directories.
 
-> [!WARNING]
+> [!IMPORTANT]
 > **A good rule of thumb:** If you think a human should be in the loop to authorize an action, choose a design direction, or confirm a destructive command—Stop and ask for permission!

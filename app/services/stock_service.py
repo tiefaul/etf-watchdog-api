@@ -1,6 +1,7 @@
 from .logger_service import setup_logging
 import logging
 import aiohttp
+from typing import Dict, Set, List, Any
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -12,14 +13,14 @@ NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 class Stock:
     # Retrieve all monitored stocks
-    def get_stocks(self):
+    def get_stocks(self) -> Dict[str, Set[str]]:
         """
         Retrieves the hardcoded list of valid stocks/ETFs that the application is allowed to track.
         """
         logger.debug("Running get_stocks function...")
         # Hardcoded set of allowed ETFs/Stocks to track. This is dummy data until
         # I implement an actual databse.
-        stocks = {
+        return {
             "stocks": {
                 "SHY",
                 "CIBR",
@@ -33,11 +34,9 @@ class Stock:
                 "ICLN",
             }
         }
-        logger.info("Successfully ran get_stocks function.")
-        return stocks
 
     # Get current price of stock
-    async def fetch_price(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None):
+    async def fetch_price(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
         """
         Fetches the current price and quote data for a given stock symbol from the Twelve Data API.
         
@@ -70,7 +69,7 @@ class Stock:
                 raise KeyError("Error when fetching the price data.")
 
     # Get stock price by a certain date
-    async def fetch_date(self, session: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None):
+    async def fetch_date(self, session: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> str:
         """
         Fetches the end-of-day (EOD) historical closing price for a stock on a specific date.
         
@@ -96,14 +95,13 @@ class Stock:
         async with session.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             response = await resp.json()
             if response:
-                output = response.get("close", None)
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
-                return output
+                return response.get("close", None)
             else:
                 raise KeyError("Error when fetching the date.")
 
     # Get latest news for a specific stock
-    async def fetch_news(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None):
+    async def fetch_news(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, int | List[Dict[str, str]]]:
         """
         Fetches the latest news articles for a given stock symbol from the NewsData.io API.
 
@@ -127,10 +125,10 @@ class Stock:
                 logger.debug(f"Attempting to obtain news about {symbol}.")
                 # Check if the API returned any results for the symbol
                 if response.get('totalResults') > 0:
-                    output['totalResults'] = response.get('totalResults')
+                    output['totalResults'] = response.get('totalResults', None)
                     # Iterate through the results and extract only the relevant fields (link and description)
                     for article in response.get('results', []):
-                        append_article = {"link": article.get('link'), "description": article.get('description')}
+                        append_article = {"link": article.get('link', None), "description": article.get('description', None)}
                         output["articles"].append(append_article)
                     logger.info(f"Successfully obtained news about {symbol}.")
                     return output
