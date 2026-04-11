@@ -1,18 +1,19 @@
-import aiohttp
 from app.services.stock_service import Stock
-import asyncio
+import pytest
 
-class MockGetStocksResponse:
-    @staticmethod
-    def json():
-        return {"price": "fakeprice", "close_price": "fakecloseprice", "date": "fakedate", "name": "fakename"}
+stock = Stock()
 
-def test_get_stocks(monkeypatch):
-    def mock_get(*args, **kwargs):
-        return MockGetStocksResponse()
+def test_get_stocks():
+    func = stock.get_stocks()
+    assert isinstance(func, dict)
+    assert "stocks" in func
+    assert isinstance(func["stocks"], set)
 
-    monkeypatch.setattr(aiohttp.ClientSession, "get", mock_get)
-    results = asyncio.run(Stock.fetch_price(symbol="fakesymbol", api_key="fakeapikey"))
 
-    output = {"price": "fakeprice", "close_price": "fakecloseprice", "date": "fakedate", "name": "fakename"}
-    assert results == output
+@pytest.mark.asyncio
+async def test_fetch_price(mock_response, async_client):
+    url = "https://api.twelvedata.com"
+    response = {"price": "1234", "close_price": "12343", "date": "datetime", "name": "fake"}
+    mock_response.get(f"{url}/quote?symbol=FAKE&apikey=faketoken", status=200, payload=response)
+    data = await stock.fetch_price(session=async_client, symbol="FAKE", api_key="faketoken")
+    assert isinstance(data, dict)
