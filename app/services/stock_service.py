@@ -57,6 +57,7 @@ class Stock:
         # a KeyError, which is caught and handled in the router.
         async with session.get(f"{TWELVE_DATA_URL}/quote", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
+            resp.raise_for_status()
             response = await resp.json()
             if response:
                 output["price"] = response.get("open", None)
@@ -93,10 +94,11 @@ class Stock:
         # Uses the End-Of-Day (/eod) endpoint for historical data.
         # Similar to /quote, missing data for future dates or errors will raise a KeyError.
         async with session.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
+            resp.raise_for_status()
             response = await resp.json()
             if response:
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
-                return response.get("close", None)
+                return response["close"]
             else:
                 raise KeyError("Error when fetching the date.")
 
@@ -120,6 +122,7 @@ class Stock:
         output = {"totalResults": None, "articles": []}
         # Request news data using the /market endpoint of NewsData.io
         async with session.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
+            resp.raise_for_status()
             response = await resp.json()
             if response:
                 logger.debug(f"Attempting to obtain news about {symbol}.")

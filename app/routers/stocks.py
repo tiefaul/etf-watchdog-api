@@ -14,11 +14,16 @@ import aiohttp
 load_dotenv()
 
 twelve_data_api_key = os.getenv("TWELVE_DATA_API_KEY")
+if not twelve_data_api_key:
+    raise RuntimeError("The twelve_data_api_key environment variable was not set in the .env")
 news_data_api_key = os.getenv("NEWS_DATA_API_KEY")
+if not news_data_api_key:
+    raise RuntimeError("The news_data_api_key environment variable was not set in the .env")
 logger = logging.getLogger(__name__)
 setup_logging()
 http_client = HttpClient()
 stock = Stock()
+
 
 @asynccontextmanager
 async def lifespan(app: APIRouter):
@@ -37,11 +42,13 @@ router = APIRouter(
         lifespan=lifespan
         )
 
+
 @router.get("/", description="List all available stocks to track.")
 async def get_all_stocks():
     # Returns a local or cached list of stocks, avoiding unnecessary external API calls
     stocks_dict = stock.get_stocks()
     return stocks_dict
+
 
 @router.get("/{symbol}")
 async def get_stock(
@@ -90,15 +97,14 @@ async def get_stock(
         logger.error(f"{symbol} not found in the database.")
         raise HTTPException(status_code=404, detail=f"Symbol '{symbol}' not found in the database.")
 
+
 @router.get("/{symbol}/news")
 async def get_news(session: Annotated[aiohttp.ClientSession, Depends(http_client.get_session)],
                    symbol: Annotated[str, Path(description="Get news for a stock by ticker symbol", min_length=1, max_length=5)]):
     try:
         # Calls the stock service to fetch news from the external API
-        results = await stock.fetch_news(session=session, symbol=symbol, api_key=news_data_api_key)
-        return results
+        return await stock.fetch_news(session=session, symbol=symbol, api_key=news_data_api_key)
     except ValueError:
         # Handles the case where the API returns 0 results by returning a structured error message
         # rather than throwing an HTTP exception, keeping the response consistent
-        results = {"error": "Failed to find any news."}
-        return results
+        return {"error": "Failed to find any news."}

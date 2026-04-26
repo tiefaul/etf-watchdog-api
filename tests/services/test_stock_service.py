@@ -1,18 +1,28 @@
-import aiohttp
 from app.services.stock_service import Stock
-import asyncio
+import pytest
 
-class MockGetStocksResponse:
-    @staticmethod
-    def json():
-        return {"price": "fakeprice", "close_price": "fakecloseprice", "date": "fakedate", "name": "fakename"}
+stock = Stock()
+url = "https://api.twelvedata.com"
 
-def test_get_stocks(monkeypatch):
-    def mock_get(*args, **kwargs):
-        return MockGetStocksResponse()
+def test_get_stocks():
+    func = stock.get_stocks()
+    assert isinstance(func, dict)
+    assert "stocks" in func
+    assert isinstance(func["stocks"], set)
 
-    monkeypatch.setattr(aiohttp.ClientSession, "get", mock_get)
-    results = asyncio.run(Stock.fetch_price(symbol="fakesymbol", api_key="fakeapikey"))
 
-    output = {"price": "fakeprice", "close_price": "fakecloseprice", "date": "fakedate", "name": "fakename"}
-    assert results == output
+@pytest.mark.asyncio
+async def test_fetch_price(mock_response, async_client):
+    func = stock.fetch_price
+    response = {"open": "123", "close": "12343", "datetime": "2026-04-26", "name": "fake"}
+    mock_response.get(f"{url}/quote?symbol=FAKE&apikey=faketoken", status=200, payload=response)
+    data = await func(session=async_client, symbol="FAKE", api_key="faketoken")
+    assert isinstance(data, dict)
+    assert isinstance(data["price"], str)
+    assert isinstance(data["close_price"], str)
+    assert isinstance(data["date"], str)
+    assert isinstance(data["name"], str)
+    # make sure it raises a KeyError
+    with pytest.raises(KeyError):
+        assert data["wrong_key"]
+
