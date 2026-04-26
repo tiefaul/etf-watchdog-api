@@ -11,6 +11,7 @@ SIZE_POOL_AIOHTTP = 100
 TWELVE_DATA_URL = "https://api.twelvedata.com"
 NEWS_DATA_URL = "https://newsdata.io/api/1"
 
+
 class Stock:
     # Retrieve all monitored stocks
     def get_stocks(self) -> Dict[str, Set[str]]:
@@ -34,6 +35,7 @@ class Stock:
                 "ICLN",
             }
         }
+
 
     # Get current price of stock
     async def fetch_price(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
@@ -69,6 +71,7 @@ class Stock:
             else:
                 raise KeyError("Error when fetching the price data.")
 
+
     # Get stock price by a certain date
     async def fetch_date(self, session: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, str]:
         """
@@ -80,7 +83,7 @@ class Stock:
             api_key (str | None): The API key for Twelve Data.
             
         Returns:
-            str | float: The closing price for the specified date.
+            dict: Key containing the closing price for the specified date.
             
         Raises:
             KeyError: If the API returns an error or misses the expected 'close' key.
@@ -103,6 +106,7 @@ class Stock:
                 return output
             else:
                 raise KeyError("Error when fetching the date.")
+
 
     # Get latest news for a specific stock
     async def fetch_news(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, int | List[Dict[str, str]]]:
