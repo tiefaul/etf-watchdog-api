@@ -70,7 +70,7 @@ class Stock:
                 raise KeyError("Error when fetching the price data.")
 
     # Get stock price by a certain date
-    async def fetch_date(self, session: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> str:
+    async def fetch_date(self, session: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, str]:
         """
         Fetches the end-of-day (EOD) historical closing price for a stock on a specific date.
         
@@ -91,6 +91,7 @@ class Stock:
             "date": date,
             "apikey": api_key,
         }
+        output: Dict[str, str] = {}
         # Uses the End-Of-Day (/eod) endpoint for historical data.
         # Similar to /quote, missing data for future dates or errors will raise a KeyError.
         async with session.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
@@ -98,7 +99,8 @@ class Stock:
             response = await resp.json()
             if response:
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
-                return response["close"]
+                output["date"] = response["close"]
+                return output
             else:
                 raise KeyError("Error when fetching the date.")
 

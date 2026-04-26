@@ -83,13 +83,13 @@ async def get_stock(
                 logger.debug("Verifying date format.")
                 datetime.strptime(date, "%Y-%m-%d")
                 stock_price_by_date = await stock.fetch_date(session=session, symbol=symbol.upper(), date=date, api_key=twelve_data_api_key)
-                results.update({f"price_{date}": stock_price_by_date})
+                results.update({f"price_{date}": stock_price_by_date["date"]})
             except ValueError:
                 # Triggered by datetime.strptime if the date string is not strictly YYYY-MM-DD
-                results.update({"error": "Invalid date provided."})
+                results.update({"error": "Invalid date format provided."})
             except KeyError:
                 # Triggered if the external API response lacks price data for the specified date (e.g., future dates, market holidays)
-                results.update({"error": f"{date} does not appear in the stock data. Possibly tried to request data from the future 🔮"})
+                results.update({"error": f"{date} does not appear in the stock data. Possibly tried to request data from the future or on a weekend/holiday"})
 
         return results
 
