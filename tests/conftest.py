@@ -3,12 +3,18 @@ import requests
 from aioresponses import aioresponses
 import aiohttp
 import pytest_asyncio
+from app.services.stock_service import Stock
 
 @pytest.fixture(autouse=True)
 def disable_network_calls(monkeypatch):
     def stunted_get():
         raise RuntimeError("Network access not allowed during testing!")
     monkeypatch.setattr(requests, "get", lambda *args, **kwargs: stunted_get())
+
+
+@pytest.fixture
+def stock_service():
+    return Stock()
 
 
 @pytest_asyncio.fixture
