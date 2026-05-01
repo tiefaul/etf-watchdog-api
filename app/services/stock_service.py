@@ -68,8 +68,7 @@ class Stock:
                 output["name"] = response.get("name", None)
                 logger.info(f"Successfully obtained {symbol} current stock price.")
                 return output
-            else:
-                raise KeyError("Error when fetching the price data.")
+            raise KeyError("Error when fetching the price data.")
 
 
     # Get stock price by a certain date
@@ -83,7 +82,7 @@ class Stock:
             api_key (str | None): The API key for Twelve Data.
             
         Returns:
-            dict: Key containing the closing price for the specified date.
+            dict: Key containing The closing price for the specified date.
             
         Raises:
             KeyError: If the API returns an error or misses the expected 'close' key.
@@ -104,8 +103,7 @@ class Stock:
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
                 output["date"] = response["close"]
                 return output
-            else:
-                raise KeyError("Error when fetching the date.")
+            raise KeyError("Error when fetching the date.")
 
 
     # Get latest news for a specific stock
@@ -141,5 +139,5 @@ class Stock:
                         output["articles"].append(append_article)
                     logger.info(f"Successfully obtained news about {symbol}.")
                     return output
-                else:
-                    raise ValueError("News API returned 0 results.")
+                raise ValueError("News API returned 0 results.")
+
