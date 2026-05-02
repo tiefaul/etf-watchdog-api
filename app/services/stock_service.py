@@ -37,7 +37,6 @@ class Stock:
         }
 
 
-    # Get current price of stock
     async def fetch_price(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
         """
         Fetches the current price and quote data for a given stock symbol from the Twelve Data API.
@@ -54,9 +53,6 @@ class Stock:
         """
         parameters = {"symbol": symbol, "apikey": api_key}
         output = {}
-        # Fetch real-time quote data. Note: Twelve Data API often returns 200 OK with an error JSON 
-        # on failure (e.g., rate limit, invalid key). Accessing response["open"] will naturally raise 
-        # a KeyError, which is caught and handled in the router.
         async with session.get(f"{TWELVE_DATA_URL}/quote", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             resp.raise_for_status()
@@ -71,7 +67,6 @@ class Stock:
             raise KeyError("Error when fetching the price data.")
 
 
-    # Get stock price by a certain date
     async def fetch_date(self, session: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, str]:
         """
         Fetches the end-of-day (EOD) historical closing price for a stock on a specific date.
@@ -94,8 +89,6 @@ class Stock:
             "apikey": api_key,
         }
         output: Dict[str, str] = {}
-        # Uses the End-Of-Day (/eod) endpoint for historical data.
-        # Similar to /quote, missing data for future dates or errors will raise a KeyError.
         async with session.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
@@ -106,7 +99,6 @@ class Stock:
             raise KeyError("Error when fetching the date.")
 
 
-    # Get latest news for a specific stock
     async def fetch_news(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, int | List[Dict[str, str]]]:
         """
         Fetches the latest news articles for a given stock symbol from the NewsData.io API.
@@ -124,13 +116,11 @@ class Stock:
         """
         parameters = {"qInTitle": symbol, "apikey": api_key}
         output = {"totalResults": None, "articles": []}
-        # Request news data using the /market endpoint of NewsData.io
         async with session.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
             if response:
                 logger.debug(f"Attempting to obtain news about {symbol}.")
-                # Check if the API returned any results for the symbol
                 if response.get('totalResults') > 0:
                     output['totalResults'] = response.get('totalResults', None)
                     # Iterate through the results and extract only the relevant fields (link and description)

@@ -158,10 +158,11 @@ Always use `uv` for dependency and environment management.
 * **Run:** `docker run -p 8000:8000 --env-file .env etf-watchdog`
 
 ### Testing & Verification
-> [!IMPORTANT]  
-> **Do not run a test suite (e.g., `pytest`).** Automated tests have not been implemented.
-
-* **Runtime Testing:** Use the manual test script to verify functions ad-hoc:
+* **Automated Testing:** Run the test suite using `pytest` to validate changes:
+    ```bash
+    uv run pytest
+    ```
+* **Runtime Testing:** Use the manual test script to verify functions ad-hoc if needed:
     ```bash
     uv run python test.py
     ```
@@ -217,7 +218,6 @@ Organize imports in the following order (refactor mixed imports when touching fi
     ```python
     import logging
     logger = logging.getLogger(__name__)
-    
     logger.info("Fetching stock data...")
     logger.error("Failed to connect to API")
     ```

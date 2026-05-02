@@ -16,9 +16,11 @@ load_dotenv()
 twelve_data_api_key = os.getenv("TWELVE_DATA_API_KEY")
 if not twelve_data_api_key:
     raise RuntimeError("The twelve_data_api_key environment variable was not set in the .env")
+
 news_data_api_key = os.getenv("NEWS_DATA_API_KEY")
 if not news_data_api_key:
     raise RuntimeError("The news_data_api_key environment variable was not set in the .env")
+
 logger = logging.getLogger(__name__)
 setup_logging()
 http_client = HttpClient()
