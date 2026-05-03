@@ -4,6 +4,7 @@ import pytest
 twelve_url = "https://api.twelvedata.com"
 new_data_url = "https://newsdata.io/api/1"
 
+
 def test_get_stocks(stock_service):
     data = stock_service.get_stocks()
     assert isinstance(data, dict)
@@ -27,6 +28,7 @@ async def test_fetch_price(mock_response, async_client, stock_service):
         mock_response.get(f"{twelve_url}/quote?symbol=FAKE&apikey=faketoken", status=200, payload={})
         await func(session=async_client, symbol="FAKE", api_key="faketoken")
 
+
 @pytest.mark.asyncio
 async def test_fetch_date(mock_response, async_client, stock_service):
     func = stock_service.fetch_date
@@ -38,6 +40,7 @@ async def test_fetch_date(mock_response, async_client, stock_service):
     with pytest.raises(KeyError):
         mock_response.get(f"{twelve_url}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload={}) # Mock an empty response
         await func(session=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
+
 
 @pytest.mark.asyncio
 async def test_fetch_news(mock_response, async_client, stock_service):
