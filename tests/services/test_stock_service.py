@@ -19,14 +19,19 @@ async def test_fetch_price(mock_response, async_client, stock_service):
     mock_response.get(f"{twelve_url}/quote?symbol=FAKE&apikey=faketoken", status=200, payload=response)
     data = await func(session=async_client, symbol="FAKE", api_key="faketoken")
     assert isinstance(data, dict)
-    assert isinstance(data["price"], str)
-    assert isinstance(data["close_price"], str)
-    assert isinstance(data["date"], str)
-    assert isinstance(data["name"], str)
-    # make sure func raises a KeyError
+    assert data["price"] == "123"
+    assert data["close_price"] == "12343"
+    assert data["date"] == "2026-04-26"
+    assert data["name"] == "fake"
+
+
+@pytest.mark.asyncio
+async def test_fetch_price_empty_response(mock_response, async_client, stock_service):
+    func = stock_service.fetch_price
     with pytest.raises(KeyError):
         mock_response.get(f"{twelve_url}/quote?symbol=FAKE&apikey=faketoken", status=200, payload={})
-        await func(session=async_client, symbol="FAKE", api_key="faketoken")
+        data = await func(session=async_client, symbol="FAKE", api_key="faketoken")
+        assert "Error when fetching the price data." in data
 
 
 @pytest.mark.asyncio
@@ -37,9 +42,15 @@ async def test_fetch_date(mock_response, async_client, stock_service):
     data = await func(session=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
     assert isinstance(data, dict)
     assert isinstance(data["date"], str)
+
+
+@pytest.mark.asyncio
+async def test_fetch_date_empty_response(mock_response, async_client, stock_service):
+    func = stock_service.fetch_date
     with pytest.raises(KeyError):
-        mock_response.get(f"{twelve_url}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload={}) # Mock an empty response
-        await func(session=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
+        mock_response.get(f"{twelve_url}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload={})
+        data = await func(session=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
+        assert "Error when fetching the date" in data
 
 
 @pytest.mark.asyncio
