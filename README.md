@@ -10,6 +10,7 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 
 - **FastAPI Powered:** Built on Python 3.14+ for high performance and strict typing.
 - **Asynchronous:** Uses `aiohttp` for non-blocking external API requests.
+- **Test Coverage:** Includes both synchronous and asynchronous tests for services and routers.
 - **Modern Tooling:** Managed by `uv` for lightning-fast dependency resolution.
 - **Docker Ready:** Includes a multi-stage Dockerfile for easy containerization.
 - **Market Data:** Integrates seamlessly with Twelve Data.
@@ -61,6 +62,14 @@ The API will be available at `http://127.0.0.1:8000`.
 ```bash
 docker build -t etf-watchdog .
 docker run -p 8000:8000 --env-file .env etf-watchdog
+```
+
+## Testing
+
+Sync and async tests live under `tests/`.
+
+```bash
+uv run pytest tests
 ```
 
 ## 📡 API Endpoints
