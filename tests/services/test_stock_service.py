@@ -41,7 +41,7 @@ async def test_fetch_date(mock_response, async_client, stock_service):
     mock_response.get(f"{twelve_url}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload=response)
     data = await func(session=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
     assert isinstance(data, dict)
-    assert isinstance(data["date"], str)
+    assert data["date"] == "123.34"
 
 
 @pytest.mark.asyncio

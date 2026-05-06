@@ -99,7 +99,7 @@ class Stock:
             raise KeyError("Error when fetching the date.")
 
 
-    async def fetch_news(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, int | List[Dict[str, str]]]:
+    async def fetch_news(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None):
         """
         Fetches the latest news articles for a given stock symbol from the NewsData.io API.
 
