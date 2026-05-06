@@ -5,7 +5,7 @@ twelve_url = "https://api.twelvedata.com"
 new_data_url = "https://newsdata.io/api/1"
 
 
-def test_get_stocks(stock_service):
+def test_get_stocks_success(stock_service):
     data = stock_service.get_stocks()
     assert isinstance(data, dict)
     assert "stocks" in data
@@ -13,7 +13,7 @@ def test_get_stocks(stock_service):
 
 
 @pytest.mark.asyncio
-async def test_fetch_price(mock_response, async_client, stock_service):
+async def test_fetch_price_success(mock_response, async_client, stock_service):
     func = stock_service.fetch_price
     response = {"open": "123", "close": "12343", "datetime": "2026-04-26", "name": "fake"}
     mock_response.get(f"{twelve_url}/quote?symbol=FAKE&apikey=faketoken", status=200, payload=response)
@@ -26,7 +26,7 @@ async def test_fetch_price(mock_response, async_client, stock_service):
 
 
 @pytest.mark.asyncio
-async def test_fetch_price_empty_response(mock_response, async_client, stock_service):
+async def test_fetch_price_raises_key_error(mock_response, async_client, stock_service):
     func = stock_service.fetch_price
     with pytest.raises(KeyError):
         mock_response.get(f"{twelve_url}/quote?symbol=FAKE&apikey=faketoken", status=200, payload={})
@@ -35,7 +35,7 @@ async def test_fetch_price_empty_response(mock_response, async_client, stock_ser
 
 
 @pytest.mark.asyncio
-async def test_fetch_date(mock_response, async_client, stock_service):
+async def test_fetch_date_success(mock_response, async_client, stock_service):
     func = stock_service.fetch_date
     response = {"close": "123.34"}
     mock_response.get(f"{twelve_url}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload=response)
@@ -45,7 +45,7 @@ async def test_fetch_date(mock_response, async_client, stock_service):
 
 
 @pytest.mark.asyncio
-async def test_fetch_date_empty_response(mock_response, async_client, stock_service):
+async def test_fetch_date_raises_key_error(mock_response, async_client, stock_service):
     func = stock_service.fetch_date
     with pytest.raises(KeyError):
         mock_response.get(f"{twelve_url}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload={})
@@ -54,7 +54,7 @@ async def test_fetch_date_empty_response(mock_response, async_client, stock_serv
 
 
 @pytest.mark.asyncio
-async def test_fetch_news(mock_response, async_client, stock_service):
+async def test_fetch_news_success(mock_response, async_client, stock_service):
     func = stock_service.fetch_news
     response = {"totalResults": 1,
                 "results": [
@@ -70,15 +70,19 @@ async def test_fetch_news(mock_response, async_client, stock_service):
     assert isinstance(data, dict)
     assert isinstance(data["totalResults"], int)
     assert isinstance(data["articles"], list)
-    with pytest.raises(ValueError):
-        response = {"totalResults": 0,
-                    "results": [
-                    {
-                        "link": "https://www.fakenews.com",
-                        "description": "My fake description",
-                        }
-                    ]
-                }
-        mock_response.get(f"{new_data_url}/market?qInTitle=FAKE&apikey=fakeapikey", status=200, payload=response)
-        await func(session=async_client, symbol="FAKE", api_key="fakeapikey")
 
+
+@pytest.mark.asyncio
+async def test_fetch_news_raises_value_error(mock_response, async_client, stock_service):
+    func = stock_service.fetch_news
+    response = {"totalResults": 0,
+                "results": [
+                {
+                    "link": "https://www.fakenews.com",
+                    "description": "My fake description",
+                    }
+                ]
+            }
+    mock_response.get(f"{new_data_url}/market?qInTitle=FAKE&apikey=fakeapikey", status=200, payload=response)
+    with pytest.raises(ValueError):
+        await func(session=async_client, symbol="FAKE", api_key="fakeapikey")
