@@ -16,9 +16,11 @@ load_dotenv()
 twelve_data_api_key = os.getenv("TWELVE_DATA_API_KEY")
 if not twelve_data_api_key:
     raise RuntimeError("The twelve_data_api_key environment variable was not set in the .env")
+
 news_data_api_key = os.getenv("NEWS_DATA_API_KEY")
 if not news_data_api_key:
     raise RuntimeError("The news_data_api_key environment variable was not set in the .env")
+
 logger = logging.getLogger(__name__)
 setup_logging()
 http_client = HttpClient()
@@ -75,7 +77,10 @@ async def get_stock(
                 )
             except KeyError:
                 # KeyError occurs when external API returns an error payload (e.g., rate limit, invalid key) missing expected fields
-                results.update({"error": f"Price for the stock couldn't be obtained. Either the price isn't listed or API key is invalid. Symbol: {symbol}"})
+                raise HTTPException(status_code=404, detail=f"Price for the stock couldn't be obtained. Either the price isn't listed or API key is invalid. Symbol: {symbol}")
+            except aiohttp.ClientError as e:
+                logger.error(f"Network error fetching price for {symbol}: {e}")
+                raise HTTPException(status_code=502, detail="Failed to connect to the external stock pricing API.")
 
         if date:
             try:
@@ -86,10 +91,13 @@ async def get_stock(
                 results.update({f"price_{date}": stock_price_by_date["date"]})
             except ValueError:
                 # Triggered by datetime.strptime if the date string is not strictly YYYY-MM-DD
-                results.update({"error": "Invalid date format provided."})
+                raise HTTPException(status_code=400, detail="Invalid date format provided. Must be 'YYYY-MM-DD'.")
             except KeyError:
                 # Triggered if the external API response lacks price data for the specified date (e.g., future dates, market holidays)
-                results.update({"error": f"{date} does not appear in the stock data. Possibly tried to request data from the future or on a weekend/holiday"})
+                raise HTTPException(status_code=404, detail=f"{date} does not appear in the stock data. Possibly tried to request data from the future or on a weekend/holiday.")
+            except aiohttp.ClientError as e:
+                logger.error(f"Network error fetching historical price for {symbol} on {date}: {e}")
+                raise HTTPException(status_code=502, detail="Failed to connect to the external stock pricing API.")
 
         return results
 
@@ -106,5 +114,7 @@ async def get_news(session: Annotated[aiohttp.ClientSession, Depends(http_client
         return await stock.fetch_news(session=session, symbol=symbol, api_key=news_data_api_key)
     except ValueError:
         # Handles the case where the API returns 0 results by returning a structured error message
-        # rather than throwing an HTTP exception, keeping the response consistent
-        return {"error": "Failed to find any news."}
+        raise HTTPException(status_code=404, detail=f"Failed to find any news for {symbol}.")
+    except aiohttp.ClientError as e:
+        logger.error(f"Network error fetching news for {symbol}: {e}")
+        raise HTTPException(status_code=502, detail="Failed to connect to the external news API.")
