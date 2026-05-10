@@ -1,12 +1,9 @@
 from ..services.stock_service import Stock
 from ..services.logger_service import setup_logging
-from ..services.aiohttp_client_service import HttpClient
-from fastapi import APIRouter, Query, HTTPException, Path, Depends
+from fastapi import APIRouter, Query, HTTPException, Path, Depends, Request
 from typing import Annotated
 from datetime import datetime
 from dotenv import load_dotenv
-from contextlib import asynccontextmanager
-from fastapi.logger import logger as fastAPI_logger  # convenient name
 import os
 import logging
 import aiohttp
@@ -23,26 +20,18 @@ if not news_data_api_key:
 
 logger = logging.getLogger(__name__)
 setup_logging()
-http_client = HttpClient()
 stock = Stock()
 
-
-@asynccontextmanager
-async def lifespan(app: APIRouter):
-    # Load aiohttp ClientSession
-    fastAPI_logger.info("Starting aiohttp client for Stock router")
-    http_client.start_http_client()
-    yield
-    # Shutdown aiohttp ClientSession
-    fastAPI_logger.info("Closing aiohttp client for Stock router")
-    await http_client.stop_http_client()
 
 router = APIRouter(
         prefix="/api/stocks",
         tags=["stocks"],
         responses={404: {"description": "Page Not Found"}},
-        lifespan=lifespan
         )
+
+
+def get_session(request: Request) -> aiohttp.ClientSession:
+    return request.app.state.http_client.get_session()
 
 
 @router.get("/", description="List all available stocks to track.")
@@ -54,7 +43,7 @@ async def get_all_stocks():
 
 @router.get("/{symbol}")
 async def get_stock(
-        session: Annotated[aiohttp.ClientSession, Depends(http_client.get_session)],
+        session: Annotated[aiohttp.ClientSession, Depends(get_session)],
         symbol: Annotated[str, Path(description="Get stock by ticker symbol.", min_length=1, max_length=5)],
         price: Annotated[bool | None, Query(description="Show current trading changes.")] = None,
         date: Annotated[str | None, Query(description="Retrieve price by date. Must be in 'year-month-day' format.")] = None
@@ -107,7 +96,7 @@ async def get_stock(
 
 
 @router.get("/{symbol}/news")
-async def get_news(session: Annotated[aiohttp.ClientSession, Depends(http_client.get_session)],
+async def get_news(session: Annotated[aiohttp.ClientSession, Depends(get_session)],
                    symbol: Annotated[str, Path(description="Get news for a stock by ticker symbol", min_length=1, max_length=5)]):
     try:
         # Calls the stock service to fetch news from the external API
