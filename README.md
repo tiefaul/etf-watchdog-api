@@ -72,6 +72,14 @@ Sync and async tests live under `tests/`.
 uv run pytest tests
 ```
 
+## Documentation
+
+Project docs live under `docs/` and are organized by purpose:
+
+- `docs/architecture/` covers project structure and logger design/configuration details.
+- `docs/deployment/` includes Docker build and run guidance for local container usage.
+- `docs/learning/` stores personal learning notes, reference links, and FastAPI tutorial snippets used as quick examples.
+
 ## 📡 API Endpoints
 
 | Method | Endpoint | Description |
