@@ -9,12 +9,12 @@ from .services.aiohttp_client_service import HttpClient
 async def lifespan(app: FastAPI):
     # Load aiohttp ClientSession
     fastAPI_logger.info("Starting aiohttp client for Stock router")
-    app.state.http_client = HttpClient()
-    app.state.http_client.start_http_client()
-    yield
+    http_client = HttpClient()
+    http_client.start_http_client()
+    yield {"http_client": http_client.get_session()}
     # Shutdown aiohttp ClientSession
     fastAPI_logger.info("Closing aiohttp client for Stock router")
-    await app.state.http_client.stop_http_client()
+    await http_client.stop_http_client()
 
 
 app = FastAPI(lifespan=lifespan)

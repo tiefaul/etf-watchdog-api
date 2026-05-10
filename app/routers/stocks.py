@@ -31,7 +31,7 @@ router = APIRouter(
 
 
 def get_session(request: Request) -> aiohttp.ClientSession:
-    return request.app.state.http_client.get_session()
+    return request.state.http_client
 
 
 @router.get("/", description="List all available stocks to track.")
