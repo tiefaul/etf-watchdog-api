@@ -1,10 +1,10 @@
 from sqlmodel import (
-        FetchedValue, 
-        Field, 
-        SQLModel, 
-        UniqueConstraint, 
-        TIMESTAMP, 
-        Column, 
+        FetchedValue,
+        Field,
+        SQLModel,
+        UniqueConstraint,
+        TIMESTAMP,
+        Column,
         text
         )
 from datetime import datetime
