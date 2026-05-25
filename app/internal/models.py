@@ -9,5 +9,8 @@ class Stock(SQLModel, table=True):
     currency: str | None = None
 
 
-class StockPrice(SQLModel, table=True):
-    id: int | None = Field(primary_key=True, default=None)
+# class StockPrice(SQLModel, table=True):
+#     id: int | None = Field(primary_key=True, default=None)
+
+
+

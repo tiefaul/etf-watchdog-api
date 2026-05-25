@@ -20,7 +20,7 @@ class HttpClient:
                 connector=connector,
             )
 
-    async def stop_http_client(self):
+    async def stop_http_client(self) -> None:
         if self.aiohttp_client:
             await self.aiohttp_client.close()
             self.aiohttp_client = None
@@ -41,14 +41,16 @@ class DatabaseManager:
             connect_args=connect_args
             )
 
-# This gets passed into lifespan function for FastAPI
+    # This gets passed into lifespan function for FastAPI
     @classmethod
     def init_db(cls):
         return SQLModel.metadata.create_all(bind=cls.engine)
 
-# Dependency for getting DB session 
+    # Dependency for getting DB session 
     @classmethod
     def get_db(cls):
+        if cls.engine is None:
+            raise RuntimeError("Database engine was not initalized.")
         with Session(cls.engine) as session:
             yield session
 
