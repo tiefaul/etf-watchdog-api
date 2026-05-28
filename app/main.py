@@ -10,10 +10,13 @@ async def lifespan(app: FastAPI):
     # Load aiohttp ClientSession
     fastAPI_logger.info("Initializing the database.")
     DatabaseManager.init_db()
-    fastAPI_logger.info("Starting aiohttp client for Stock router.")
+
+    fastAPI_logger.info("Starting aiohttp client.")
     http_client = HttpClient()
     http_client.start_http_client()
+
     yield {"http_client": http_client.get_session(), "db_session": DatabaseManager.get_db()}
+
     # Shutdown aiohttp ClientSession
     fastAPI_logger.info("Closing aiohttp client for Stock router.")
     await http_client.stop_http_client()

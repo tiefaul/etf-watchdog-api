@@ -32,6 +32,7 @@ class HttpClient:
 
 
 class DatabaseManager:
+    """Manager for the database"""
     DATABASE_NAME = "sqlitedb.db"
     DATABASE_URL = f"sqlite:///{DATABASE_NAME}"
     connect_args = {"check_same_thread": False}
