@@ -56,7 +56,7 @@ class StockPrice(SQLModel, table=True):
 class NewsArticle(SQLModel, table=True):
     id: int | None = Field(primary_key=True, default=None)
     title: str | None = None
-    url: str = Field(unique=True)
+    url: str
     summary: str | None = None
     created_at: datetime | None = Field(
         default=None,
