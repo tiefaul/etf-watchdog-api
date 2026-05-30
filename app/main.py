@@ -7,10 +7,11 @@ from .internal import models
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load aiohttp ClientSession
+    # Initialize the database
     fastAPI_logger.info("Initializing the database.")
     DatabaseManager.init_db()
 
+    # Load aiohttp ClientSession
     fastAPI_logger.info("Starting aiohttp client.")
     http_client = HttpClient()
     http_client.start_http_client()
