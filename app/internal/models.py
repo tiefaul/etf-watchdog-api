@@ -1,4 +1,12 @@
-from sqlmodel import FetchedValue, Field, SQLModel, UniqueConstraint, TIMESTAMP, Column, text
+from sqlmodel import (
+        FetchedValue, 
+        Field, 
+        SQLModel, 
+        UniqueConstraint, 
+        TIMESTAMP, 
+        Column, 
+        text
+        )
 from datetime import datetime
 from ..services.lifespan import DatabaseManager
 
@@ -22,6 +30,10 @@ class Stock(SQLModel, table=True):
         server_default=text("CURRENT_TIMESTAMP"),
         server_onupdate=FetchedValue(),
         ))
+
+
+class StockPublic(SQLModel):
+    ticker_symbol: str
 
 
 class StockPrice(SQLModel, table=True):

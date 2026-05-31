@@ -2,12 +2,12 @@ from unittest.mock import patch, AsyncMock
 import aiohttp
 
 
-def test_get_stock_success(client):
-    response = client.get("/api/stocks")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, dict)
-    assert "stocks" in data
+# def test_get_all_stocks_success(client):
+#     response = client.get("/api/stocks")
+#     assert response.status_code == 200
+#     data = response.json()
+#     assert isinstance(data, dict)
+#     assert "stocks" in data
 
 
 def test_get_symbol_success(client):

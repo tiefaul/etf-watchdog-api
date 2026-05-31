@@ -1,12 +1,11 @@
 import aiohttp
 from socket import AF_INET
 from sqlmodel import Session, SQLModel, create_engine
-# from typing import Annotated
-# from fastapi import Depends
 
 
 class HttpClient:
     """Manager for the aiohttp ClientSession"""
+
     def __init__(self):
         self.aiohttp_client: aiohttp.ClientSession | None = None
         self.size_pool_aiohttp = 100
@@ -33,6 +32,7 @@ class HttpClient:
 
 class DatabaseManager:
     """Manager for the database"""
+
     DATABASE_NAME = "sqlitedb.db"
     DATABASE_URL = f"sqlite:///{DATABASE_NAME}"
     connect_args = {"check_same_thread": False}
@@ -46,13 +46,3 @@ class DatabaseManager:
     @classmethod
     def init_db(cls):
         return SQLModel.metadata.create_all(bind=cls.engine)
-
-    # Dependency for getting DB session 
-    @classmethod
-    def get_db(cls):
-        if cls.engine is None:
-            raise RuntimeError("Database engine was not initalized.")
-        with Session(cls.engine) as session:
-            yield session
-
-# SessionDep = Annotated[Session, Depends(get_db)]

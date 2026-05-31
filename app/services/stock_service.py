@@ -12,7 +12,7 @@ TWELVE_DATA_URL = "https://api.twelvedata.com"
 NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 
-class Stock:
+class StockService:
     # Retrieve all monitored stocks
     def get_stocks(self) -> Dict[str, Set[str]]:
         """

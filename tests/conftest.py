@@ -3,7 +3,7 @@ import requests
 from aioresponses import aioresponses
 import aiohttp
 import pytest_asyncio
-from app.services.stock_service import Stock
+from app.services.stock_service import StockService
 from app.main import app
 from fastapi.testclient import TestClient
 
@@ -16,7 +16,7 @@ def disable_network_calls(monkeypatch):
 
 @pytest.fixture
 def stock_service():
-    return Stock()
+    return StockService()
 
 
 @pytest_asyncio.fixture

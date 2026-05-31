@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
     http_client = HttpClient()
     http_client.start_http_client()
 
-    yield {"http_client": http_client.get_session(), "db_session": DatabaseManager.get_db()}
+    yield {"http_client": http_client.get_session(),}
 
     # Shutdown aiohttp ClientSession
     fastAPI_logger.info("Closing aiohttp client for Stock router.")
