@@ -1,13 +1,29 @@
 from unittest.mock import patch, AsyncMock
 import aiohttp
+from fastapi.testclient import TestClient
+from sqlmodel import Session
+from app.internal.models import (
+        Stock,
+        StockNews,
+        StockPrice
+        )
 
 
-# def test_get_all_stocks_success(client):
-#     response = client.get("/api/stocks")
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert isinstance(data, dict)
-#     assert "stocks" in data
+def test_get_all_stocks_success(client: TestClient, stock_db_session: Session):
+    statement = Stock(ticker_symbol="IYW")
+    stock_db_session.add(statement)
+    response = client.get("/api/stocks")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, dict)
+    assert "stocks" in data
+    assert "IYW" in data["stocks"]
+
+
+def test_get_all_stocks_raises_http_404(client: TestClient):
+    response = client.get("/api/stocks")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "No stocks were found."}
 
 
 def test_get_symbol_success(client):
