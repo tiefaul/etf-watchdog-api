@@ -1,11 +1,19 @@
+from app.services.stock_service import StockService
+from app.main import app
+from fastapi.testclient import TestClient
+from sqlmodel.pool import StaticPool
+from sqlmodel import (
+        create_engine,
+        SQLModel,
+        Session
+        )
+from app.routers.stocks import get_db_session
 import pytest
 import requests
 from aioresponses import aioresponses
 import aiohttp
 import pytest_asyncio
-from app.services.stock_service import Stock
-from app.main import app
-from fastapi.testclient import TestClient
+
 
 @pytest.fixture(autouse=True)
 def disable_network_calls(monkeypatch):
@@ -16,9 +24,10 @@ def disable_network_calls(monkeypatch):
 
 @pytest.fixture
 def stock_service():
-    return Stock()
+    return StockService()
 
 
+# Async test client
 @pytest_asyncio.fixture
 async def async_client():
     async with aiohttp.ClientSession() as session:
@@ -31,7 +40,25 @@ async def mock_response():
         yield mocker
 
 
+# FastAPI test client
 @pytest.fixture
-def client():
+def client(stock_db_session: Session):
+    def get_session_override():
+        return stock_db_session
+
+    app.dependency_overrides[get_db_session] = get_session_override
+
     with TestClient(app) as client:
         yield client
+        app.dependency_overrides.clear()
+
+
+# Database test session
+@pytest.fixture
+def stock_db_session():
+    engine = create_engine(
+            "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+            )
+    SQLModel.metadata.create_all(engine)
+    with Session(engine) as session:
+        yield session

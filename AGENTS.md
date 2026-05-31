@@ -95,16 +95,6 @@ Notes:
 
 <CRITICAL_INSTRUCTION>
 
-# DOCUMENTATION STANDARD (MANDATORY)
-
-When creating or updating script documentation, agents MUST reference `docs/HOWTO_TEMPLATE.md` and follow its structure. Argument sections in all docs MUST use the table format defined in that template (`Flag`, `Required`, `Description`).
-
-</CRITICAL_INSTRUCTION>
-
----
-
-<CRITICAL_INSTRUCTION>
-
 # AGENT PERMISSION MODEL
 
 - No unrestricted shell for autonomous or runtime agents unless explicitly approved.

@@ -1,9 +1,19 @@
-from ..services.stock_service import Stock
+from fastapi import (APIRouter,
+                     Query,
+                     HTTPException,
+                     Path,
+                     Depends,
+                     Request
+                     )
+from ..services.stock_service import StockService
 from ..services.logger_service import setup_logging
-from fastapi import APIRouter, Query, HTTPException, Path, Depends, Request
+from ..internal.models import Stock, StockPublic
+from ..services.lifespan import DatabaseManager
 from typing import Annotated
 from datetime import datetime
 from dotenv import load_dotenv
+from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
 import os
 import logging
 import aiohttp
@@ -20,7 +30,7 @@ if not news_data_api_key:
 
 logger = logging.getLogger(__name__)
 setup_logging()
-stock = Stock()
+stock = StockService()
 
 
 router = APIRouter(
@@ -34,14 +44,38 @@ def get_session(request: Request) -> aiohttp.ClientSession:
     return request.state.http_client
 
 
+def get_db_session():
+    with Session(DatabaseManager.engine) as session:
+        yield session
+
+
 @router.get("/", description="List all available stocks to track.")
-async def get_all_stocks():
-    # Returns a local or cached list of stocks, avoiding unnecessary external API calls
-    stocks_dict = stock.get_stocks()
-    return stocks_dict
+async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]):
+    statement = select(Stock.ticker_symbol)
+    stocks = db_session.exec(statement).all()
+    if not stocks:
+        raise HTTPException(status_code=404, detail="No stocks were found.")
+    return {"stocks": stocks}
 
 
-@router.get("/{symbol}")
+@router.post("/", description="Create a stock to track. Must be a real ticker symbol.", response_model=StockPublic)
+async def post_stock(
+        session: Annotated[aiohttp.ClientSession, Depends(get_session)],
+        db_session: Annotated[Session, Depends(get_db_session)],
+        symbol: Stock,
+        ):
+    try:
+        stock_info = await stock.fetch_price(session=session, symbol=symbol.ticker_symbol.upper(), api_key=twelve_data_api_key)
+        db_session.add(Stock(ticker_symbol=symbol.ticker_symbol.upper(), company_name=stock_info["name"], currency="USD"))
+        db_session.commit()
+        return symbol
+    except aiohttp.ClientResponseError:
+        raise HTTPException(status_code=404, detail="Stock could not be found. Please insure you are using the correct ticker symbol.")
+    except IntegrityError:
+        raise HTTPException(status_code=409, detail="Ticker symbol already exists.")
+
+
+@router.get("/{symbol}", description="Return specific ticker symbol information.")
 async def get_stock(
         session: Annotated[aiohttp.ClientSession, Depends(get_session)],
         symbol: Annotated[str, Path(description="Get stock by ticker symbol.", min_length=1, max_length=5)],
@@ -95,7 +129,7 @@ async def get_stock(
         raise HTTPException(status_code=404, detail=f"Symbol '{symbol}' not found in the database.")
 
 
-@router.get("/{symbol}/news")
+@router.get("/{symbol}/news", description="Retrieve news articles on specific ticker symbol.")
 async def get_news(session: Annotated[aiohttp.ClientSession, Depends(get_session)],
                    symbol: Annotated[str, Path(description="Get news for a stock by ticker symbol", min_length=1, max_length=5)]):
     try:

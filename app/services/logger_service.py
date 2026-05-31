@@ -3,7 +3,7 @@ import logging.config
 import os
 from pathlib import Path
 
-# TODO: Add a logfile name param
+
 def setup_logging():
     new_cwd = Path(__file__).resolve().parents[2] # os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     os.chdir(new_cwd)
