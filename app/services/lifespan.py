@@ -46,3 +46,8 @@ class DatabaseManager:
     @classmethod
     def init_db(cls):
         return SQLModel.metadata.create_all(bind=cls.engine)
+
+    @classmethod
+    def get_db_session(cls):
+        session = Session(cls.engine)
+        return session
