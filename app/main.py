@@ -5,6 +5,7 @@ from fastapi.logger import logger as fastAPI_logger
 from .services.lifespan import HttpClient, DatabaseManager
 from .internal import models
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize the database
@@ -16,7 +17,7 @@ async def lifespan(app: FastAPI):
     http_client = HttpClient()
     http_client.start_http_client()
 
-    yield {"http_client": http_client.get_session(),}
+    yield {"http_client": http_client.get_session(), "db_session": DatabaseManager.get_db_session()}
 
     # Shutdown aiohttp ClientSession
     fastAPI_logger.info("Closing aiohttp client for Stock router.")

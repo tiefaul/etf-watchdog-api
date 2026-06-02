@@ -1,14 +1,14 @@
-from fastapi import (APIRouter,
-                     Query,
-                     HTTPException,
-                     Path,
-                     Depends,
-                     Request
-                     )
+from fastapi import (
+        APIRouter,
+        Query,
+        HTTPException,
+        Path,
+        Depends,
+        )
 from ..services.stock_service import StockService
 from ..services.logger_service import setup_logging
+from ..services.app_state import get_db_session, get_session
 from ..internal.models import Stock, StockPublic
-from ..services.lifespan import DatabaseManager
 from typing import Annotated
 from datetime import datetime
 from dotenv import load_dotenv
@@ -38,15 +38,6 @@ router = APIRouter(
         tags=["stocks"],
         responses={404: {"description": "Page Not Found"}},
         )
-
-
-def get_session(request: Request) -> aiohttp.ClientSession:
-    return request.state.http_client
-
-
-def get_db_session():
-    with Session(DatabaseManager.engine) as session:
-        yield session
 
 
 @router.get("/", description="List all available stocks to track.")

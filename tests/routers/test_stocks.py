@@ -9,9 +9,9 @@ from app.internal.models import (
         )
 
 
-def test_get_all_stocks_success(client: TestClient, stock_db_session: Session):
+def test_get_all_stocks_success(client: TestClient, db_session: Session):
     statement = Stock(ticker_symbol="IYW")
-    stock_db_session.add(statement)
+    db_session.add(statement)
     response = client.get("/api/stocks")
     assert response.status_code == 200
     data = response.json()

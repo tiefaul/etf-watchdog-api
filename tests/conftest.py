@@ -7,7 +7,7 @@ from sqlmodel import (
         SQLModel,
         Session
         )
-from app.routers.stocks import get_db_session
+from app.services.app_state import get_db_session
 import pytest
 import requests
 from aioresponses import aioresponses
@@ -42,9 +42,9 @@ async def mock_response():
 
 # FastAPI test client
 @pytest.fixture
-def client(stock_db_session: Session):
+def client(db_session: Session):
     def get_session_override():
-        return stock_db_session
+        return db_session
 
     app.dependency_overrides[get_db_session] = get_session_override
 
@@ -55,7 +55,7 @@ def client(stock_db_session: Session):
 
 # Database test session
 @pytest.fixture
-def stock_db_session():
+def db_session():
     engine = create_engine(
             "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
             )
