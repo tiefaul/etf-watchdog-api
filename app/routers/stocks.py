@@ -51,12 +51,12 @@ async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]
 
 @router.post("/", description="Create a stock to track. Must be a real ticker symbol.", response_model=StockPublic)
 async def post_stock(
-        session: Annotated[aiohttp.ClientSession, Depends(get_session)],
+        client: Annotated[aiohttp.ClientSession, Depends(get_session)],
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: Stock,
         ):
     try:
-        stock_info = await stock.fetch_price(session=session, symbol=symbol.ticker_symbol.upper(), api_key=twelve_data_api_key)
+        stock_info = await stock.fetch_price(client=client, symbol=symbol.ticker_symbol.upper(), api_key=twelve_data_api_key)
         db_session.add(Stock(ticker_symbol=symbol.ticker_symbol.upper(), company_name=stock_info["name"], currency="USD"))
         db_session.commit()
         return symbol
@@ -68,7 +68,7 @@ async def post_stock(
 
 @router.get("/{symbol}", description="Return specific ticker symbol information.")
 async def get_stock(
-        session: Annotated[aiohttp.ClientSession, Depends(get_session)],
+        client: Annotated[aiohttp.ClientSession, Depends(get_session)],
         symbol: Annotated[str, Path(description="Get stock by ticker symbol.", min_length=1, max_length=5)],
         price: Annotated[bool | None, Query(description="Show current trading changes.")] = None,
         date: Annotated[str | None, Query(description="Retrieve price by date. Must be in 'year-month-day' format.")] = None
@@ -80,7 +80,7 @@ async def get_stock(
 
         if price is True:
             try:
-                stock_price = await stock.fetch_price(session=session, symbol=symbol.upper(), api_key=twelve_data_api_key)
+                stock_price = await stock.fetch_price(client=client, symbol=symbol.upper(), api_key=twelve_data_api_key)
                 results.update(
                     {
                         "stock_name": stock_price["name"],
@@ -101,7 +101,7 @@ async def get_stock(
                 # Verify date format locally to prevent invalid queries to the external API
                 logger.debug("Verifying date format.")
                 datetime.strptime(date, "%Y-%m-%d")
-                stock_price_by_date = await stock.fetch_date(session=session, symbol=symbol.upper(), date=date, api_key=twelve_data_api_key)
+                stock_price_by_date = await stock.fetch_date(client=client, symbol=symbol.upper(), date=date, api_key=twelve_data_api_key)
                 results.update({f"price_{date}": stock_price_by_date["date"]})
             except ValueError:
                 # Triggered by datetime.strptime if the date string is not strictly YYYY-MM-DD
@@ -121,11 +121,11 @@ async def get_stock(
 
 
 @router.get("/{symbol}/news", description="Retrieve news articles on specific ticker symbol.")
-async def get_news(session: Annotated[aiohttp.ClientSession, Depends(get_session)],
+async def get_news(client: Annotated[aiohttp.ClientSession, Depends(get_session)],
                    symbol: Annotated[str, Path(description="Get news for a stock by ticker symbol", min_length=1, max_length=5)]):
     try:
         # Calls the stock service to fetch news from the external API
-        return await stock.fetch_news(session=session, symbol=symbol, api_key=news_data_api_key)
+        return await stock.fetch_news(client=client, symbol=symbol, api_key=news_data_api_key)
     except ValueError:
         # Handles the case where the API returns 0 results by returning a structured error message
         raise HTTPException(status_code=404, detail=f"Failed to find any news for {symbol}.")
