@@ -58,8 +58,8 @@ class StockService:
             resp.raise_for_status()
             response = await resp.json()
             if response:
-                output["price"] = response.get("open", None)
-                output["close_price"] = response.get("close", None)
+                output["price"] = response.get("open", None) # NOTE need to do something with this.
+                output["close_price"] = float(response.get("close", None))
                 output["date"] = response.get("datetime", None)
                 output["name"] = response.get("name", None)
                 logger.info(f"Successfully obtained {symbol} current stock price.")

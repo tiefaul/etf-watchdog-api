@@ -8,7 +8,7 @@ from fastapi import (
 from ..services.stock_service import StockService
 from ..services.logger_service import setup_logging
 from ..services.app_state import get_db_session, get_session
-from ..internal.models import Stock, StockPublic
+from ..internal.models import Stock, StockPrice, StockPublic
 from typing import Annotated
 from datetime import datetime
 from dotenv import load_dotenv
@@ -56,10 +56,29 @@ async def post_stock(
         symbol: Stock,
         ):
     try:
-        stock_info = await stock.fetch_price(client=client, symbol=symbol.ticker_symbol.upper(), api_key=twelve_data_api_key)
-        db_session.add(Stock(ticker_symbol=symbol.ticker_symbol.upper(), company_name=stock_info["name"], currency="USD"))
+        stock_info = await stock.fetch_price(
+                client=client,
+                symbol=symbol.ticker_symbol.upper(),
+                api_key=twelve_data_api_key
+                )
+        db_stock = Stock(
+                ticker_symbol=symbol.ticker_symbol.upper(),
+                company_name=stock_info["name"],
+                currency="USD"
+                )
+        db_session.add(db_stock)
         db_session.commit()
+
+        db_session.add(StockPrice(
+            stock_id=db_stock.id,
+            price_date=stock_info["date"],
+            close_price=int(stock_info["close_price"])
+            )
+        )
+        db_session.commit()
+
         return symbol
+
     except aiohttp.ClientResponseError:
         raise HTTPException(status_code=404, detail="Stock could not be found. Please insure you are using the correct ticker symbol.")
     except IntegrityError:
