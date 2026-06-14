@@ -2,7 +2,7 @@
 etf-watchdog-api/
 ├── LICENSE
 ├── Dockerfile
-├── app/        # Main application package
+├── backend/        # Main application package
 │   ├── __init__.py
 │   ├── internal/        # Internal modules not exposed to external users
 │   │   ├── __init__.py

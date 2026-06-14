@@ -1,7 +1,7 @@
 from .logger_service import setup_logging
 import logging
 import aiohttp
-from typing import Dict, Set, List, Any
+from typing import Dict, Set
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class StockService:
         }
 
 
-    async def fetch_price(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
+    async def fetch_price(self, client: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
         """
         Fetches the current price and quote data for a given stock symbol from the Twelve Data API.
         
@@ -53,13 +53,13 @@ class StockService:
         """
         parameters = {"symbol": symbol, "apikey": api_key}
         output = {}
-        async with session.get(f"{TWELVE_DATA_URL}/quote", params=parameters) as resp:
+        async with client.get(f"{TWELVE_DATA_URL}/quote", params=parameters) as resp:
             logger.debug(f"Attempting to find {symbol} current stock price.")
             resp.raise_for_status()
             response = await resp.json()
             if response:
-                output["price"] = response.get("open", None)
-                output["close_price"] = response.get("close", None)
+                output["price"] = response.get("open", None) # NOTE need to do something with this.
+                output["close_price"] = float(response.get("close", None))
                 output["date"] = response.get("datetime", None)
                 output["name"] = response.get("name", None)
                 logger.info(f"Successfully obtained {symbol} current stock price.")
@@ -67,7 +67,7 @@ class StockService:
             raise KeyError("Error when fetching the price data.")
 
 
-    async def fetch_date(self, session: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, str]:
+    async def fetch_date(self, client: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, str]:
         """
         Fetches the end-of-day (EOD) historical closing price for a stock on a specific date.
         
@@ -89,7 +89,7 @@ class StockService:
             "apikey": api_key,
         }
         output: Dict[str, str] = {}
-        async with session.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
+        async with client.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
             if response:
@@ -99,7 +99,7 @@ class StockService:
             raise KeyError("Error when fetching the date.")
 
 
-    async def fetch_news(self, session: aiohttp.ClientSession, symbol: str, api_key: str | None):
+    async def fetch_news(self, client: aiohttp.ClientSession, symbol: str, api_key: str | None):
         """
         Fetches the latest news articles for a given stock symbol from the NewsData.io API.
 
@@ -116,7 +116,7 @@ class StockService:
         """
         parameters = {"qInTitle": symbol, "apikey": api_key}
         output = {"totalResults": None, "articles": []}
-        async with session.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
+        async with client.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
             if response:

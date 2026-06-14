@@ -2,7 +2,7 @@ from unittest.mock import patch, AsyncMock
 import aiohttp
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-from app.internal.models import (
+from backend.internal.models import (
         Stock,
         StockNews,
         StockPrice
@@ -40,7 +40,7 @@ def test_get_symbol_raises_http_404(client):
     assert response.json() == {"detail": "Symbol 'fake' not found in the database."}
 
 
-@patch("app.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
 def test_get_symbol_price_success(mock_fetch_price, client):
     mock_fetch_price.return_value = {
         "name": "iShares US Technology ETF",
@@ -59,7 +59,7 @@ def test_get_symbol_price_success(mock_fetch_price, client):
     assert data["close_price"] == "140.00"
 
 
-@patch("app.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
 def test_get_symbol_price_raises_key_error(mock_fetch_price, client):
     mock_fetch_price.side_effect = KeyError()
 
@@ -68,7 +68,7 @@ def test_get_symbol_price_raises_key_error(mock_fetch_price, client):
     assert "Price for the stock couldn't be obtained" in response.json()["detail"]
 
 
-@patch("app.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
 def test_get_symbol_price_raises_client_error(mock_fetch_price, client):
     # Pass an empty request_info to avoid initialization errors with aiohttp.ClientError
     mock_fetch_price.side_effect = aiohttp.ClientError()
@@ -78,7 +78,7 @@ def test_get_symbol_price_raises_client_error(mock_fetch_price, client):
     assert response.json()["detail"] == "Failed to connect to the external stock pricing API."
 
 
-@patch("app.routers.stocks.stock.fetch_date", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_date", new_callable=AsyncMock)
 def test_get_symbol_date_success(mock_fetch_date, client):
     mock_fetch_date.return_value = {"date": "135.00"}
 
@@ -95,7 +95,7 @@ def test_get_symbol_date_raises_http_400(client):
     assert response.json()["detail"] == "Invalid date format provided. Must be 'YYYY-MM-DD'."
 
 
-@patch("app.routers.stocks.stock.fetch_date", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_date", new_callable=AsyncMock)
 def test_get_symbol_date_raises_key_error(mock_fetch_date, client):
     mock_fetch_date.side_effect = KeyError()
 
@@ -104,7 +104,7 @@ def test_get_symbol_date_raises_key_error(mock_fetch_date, client):
     assert "2024-04-25 does not appear in the stock data" in response.json()["detail"]
 
 
-@patch("app.routers.stocks.stock.fetch_news", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_news", new_callable=AsyncMock)
 def test_get_news_success(mock_fetch_news, client):
     mock_fetch_news.return_value = {
         "totalResults": 1,
@@ -118,7 +118,7 @@ def test_get_news_success(mock_fetch_news, client):
     assert len(data["articles"]) == 1
 
 
-@patch("app.routers.stocks.stock.fetch_news", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_news", new_callable=AsyncMock)
 def test_get_news_raises_value_error(mock_fetch_news, client):
     mock_fetch_news.side_effect = ValueError()
 
@@ -127,7 +127,7 @@ def test_get_news_raises_value_error(mock_fetch_news, client):
     assert response.json()["detail"] == "Failed to find any news for IYW."
 
 
-@patch("app.routers.stocks.stock.fetch_news", new_callable=AsyncMock)
+@patch("backend.routers.stocks.stock.fetch_news", new_callable=AsyncMock)
 def test_get_news_raises_client_error(mock_fetch_news, client):
     mock_fetch_news.side_effect = aiohttp.ClientError()
 

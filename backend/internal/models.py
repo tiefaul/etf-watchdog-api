@@ -41,7 +41,7 @@ class StockPrice(SQLModel, table=True):
             UniqueConstraint("stock_id", "price_date"),
             )
     id: int | None = Field(primary_key=True, default=None)
-    stock_id: int = Field(foreign_key="stock.id")
+    stock_id: int | None = Field(foreign_key="stock.id", default=None)
     price_date: str = Field(index=True)
     close_price: int | None = None
     created_at: datetime | None = Field(
