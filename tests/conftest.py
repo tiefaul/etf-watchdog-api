@@ -1,5 +1,5 @@
-from app.services.stock_service import StockService
-from app.main import app
+from backend.services.stock_service import StockService
+from backend.main import app
 from fastapi.testclient import TestClient
 from sqlmodel.pool import StaticPool
 from sqlmodel import (
@@ -7,7 +7,7 @@ from sqlmodel import (
         SQLModel,
         Session
         )
-from app.services.app_state import get_db_session
+from backend.services.app_state import get_db_session
 import pytest
 import requests
 from aioresponses import aioresponses
