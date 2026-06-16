@@ -115,7 +115,7 @@ class StockService:
             ValueError: If the API request is successful but returns 0 news articles.
         """
         parameters = {"qInTitle": symbol, "apikey": api_key}
-        output = {"totalResults": None, "articles": []}
+        output = {"totalResults": 0, "articles": []}
         async with client.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
@@ -130,4 +130,23 @@ class StockService:
                     logger.info(f"Successfully obtained news about {symbol}.")
                     return output
                 raise ValueError("News API returned 0 results.")
+
+
+if __name__ == "__main__":
+    """For testing purposes. Run `uv run python -m backend.services.stock_service`"""
+
+    import asyncio
+    import aiohttp
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    async def main():
+        stock = StockService()
+        api_key = os.getenv("TWELVE_DATA_API_KEY")
+        async with aiohttp.ClientSession() as client:
+            test = await stock.fetch_price(client, "1234", api_key)
+            print(test)
+    asyncio.run(main())
 

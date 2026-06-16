@@ -8,7 +8,12 @@ from fastapi import (
 from ..services.stock_service import StockService
 from ..services.logger_service import setup_logging
 from ..services.app_state import get_db_session, get_session
-from ..internal.models import Stock, StockPrice, StockPublic
+from ..internal.models import (
+        Stock,
+        StockPrice,
+        StockPublic,
+        StockCreate,
+        )
 from typing import Annotated
 from datetime import datetime
 from dotenv import load_dotenv
@@ -53,7 +58,7 @@ async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]
 async def post_stock(
         client: Annotated[aiohttp.ClientSession, Depends(get_session)],
         db_session: Annotated[Session, Depends(get_db_session)],
-        symbol: Stock,
+        symbol: StockCreate,
         ):
     try:
         stock_info = await stock.fetch_price(
@@ -66,18 +71,24 @@ async def post_stock(
                 company_name=stock_info["name"],
                 currency="USD"
                 )
-        db_session.add(db_stock)
+        db_stock_valid = Stock.model_validate(db_stock)
+        db_session.add(db_stock_valid)
         db_session.commit()
-
+        # Add price information to the stockprice table
         db_session.add(StockPrice(
-            stock_id=db_stock.id,
+            stock_id=db_stock_valid.id, # trigger session refresh to load data from Stock object: db_stock_valid
             price_date=stock_info["date"],
             close_price=int(stock_info["close_price"])
             )
         )
         db_session.commit()
 
-        return symbol
+        # No need to refresh the Stock object "db_stock_valid". SQLModel/SQLAlchemy already has access to all attributes
+        # when we accessed db_stock_valid's id attribute in the code above. By accessing the attribute, it triggered work
+        # done by SQLModel/SQLAlchemy and refreshed the data from the database (basically it ran a query to retrieve the information).
+        # Calling refresh() below would be redundant here unless we need to reload updated values from the database (which was already done).
+        # db_session.refresh(db_stock_valid)
+        return db_stock_valid
 
     except aiohttp.ClientResponseError:
         raise HTTPException(status_code=404, detail="Stock could not be found. Please insure you are using the correct ticker symbol.")

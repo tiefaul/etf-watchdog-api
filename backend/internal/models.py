@@ -33,6 +33,13 @@ class Stock(SQLModel, table=True):
 
 
 class StockPublic(SQLModel):
+    id: int
+    ticker_symbol: str
+    company_name: str | None = None
+    currency: str | None = None
+
+
+class StockCreate(SQLModel):
     ticker_symbol: str
 
 
