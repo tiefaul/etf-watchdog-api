@@ -62,7 +62,7 @@ class StockService:
                 output["close_price"] = float(response.get("close", None))
                 output["date"] = response.get("datetime", None)
                 output["name"] = response.get("name", None)
-                logger.info(f"Successfully obtained {symbol} current stock price.")
+                logger.info(f"Successfully obtained {symbol} stock price.")
                 return output
             raise KeyError("Error when fetching the price data.")
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         stock = StockService()
         api_key = os.getenv("TWELVE_DATA_API_KEY")
         async with aiohttp.ClientSession() as client:
-            test = await stock.fetch_price(client, "1234", api_key)
+            test = await stock.fetch_price(client, "SPCX", api_key)
             print(test)
     asyncio.run(main())
 

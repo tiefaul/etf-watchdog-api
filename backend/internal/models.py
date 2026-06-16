@@ -50,7 +50,7 @@ class StockPrice(SQLModel, table=True):
     id: int | None = Field(primary_key=True, default=None)
     stock_id: int | None = Field(foreign_key="stock.id", default=None)
     price_date: str = Field(index=True)
-    close_price: int | None = None
+    close_price: float | None = None
     created_at: datetime | None = Field(
         default=None,
         sa_column=Column(

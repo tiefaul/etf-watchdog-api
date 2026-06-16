@@ -26,6 +26,24 @@ def test_get_all_stocks_raises_http_404(client: TestClient):
     assert response.json() == {"detail": "No stocks were found."}
 
 
+@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
+def test_post_stock_success(mock_fetch_price, client: TestClient, db_session: Session):
+    mock_fetch_price.return_value = {
+        "name": "iShares US Technology ETF",
+        "price": "140.50",
+        "date": "2024-05-01 16:00:00",
+        "close_price": 140.00
+    }
+
+    response = client.post("/api/stocks", json={"ticker_symbol": "IYW"})
+    data = response.json()
+
+    assert isinstance(data["id"], int)
+    assert data["ticker_symbol"] == "IYW"
+    assert data["company_name"] == "iShares US Technology ETF"
+    assert isinstance(data["currency"], str)
+
+
 def test_get_symbol_success(client):
     response = client.get("/api/stocks/IYW")
     assert response.status_code == 200
@@ -46,7 +64,7 @@ def test_get_symbol_price_success(mock_fetch_price, client):
         "name": "iShares US Technology ETF",
         "price": "140.50",
         "date": "2024-05-01 16:00:00",
-        "close_price": "140.00"
+        "close_price": 140.00
     }
 
     response = client.get("/api/stocks/IYW?price=true")
@@ -56,8 +74,10 @@ def test_get_symbol_price_success(mock_fetch_price, client):
     assert data["stock_name"] == "iShares US Technology ETF"
     assert data["price_current"] == "140.50"
     assert data["date"] == "2024-05-01 16:00:00"
-    assert data["close_price"] == "140.00"
+    assert data["close_price"] == 140.00
 
+
+# NOTE Add errors for post function
 
 @patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
 def test_get_symbol_price_raises_key_error(mock_fetch_price, client):

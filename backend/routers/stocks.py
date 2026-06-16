@@ -14,7 +14,7 @@ from ..internal.models import (
         StockPublic,
         StockCreate,
         )
-from typing import Annotated
+from typing import Annotated, cast
 from datetime import datetime
 from dotenv import load_dotenv
 from sqlmodel import Session, select
@@ -78,7 +78,7 @@ async def post_stock(
         db_session.add(StockPrice(
             stock_id=db_stock_valid.id, # trigger session refresh to load data from Stock object: db_stock_valid
             price_date=stock_info["date"],
-            close_price=int(stock_info["close_price"])
+            close_price=cast(float, stock_info["close_price"])
             )
         )
         db_session.commit()

@@ -48,6 +48,7 @@ def client(db_session: Session):
 
     app.dependency_overrides[get_db_session] = get_session_override
 
+    # Use `with` because we have lifespans
     with TestClient(app) as client:
         yield client
         app.dependency_overrides.clear()
