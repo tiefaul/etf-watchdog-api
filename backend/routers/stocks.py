@@ -39,7 +39,7 @@ stock = StockService()
 
 
 router = APIRouter(
-        prefix="/api/stocks",
+        prefix="/api/etfs",
         tags=["stocks"],
         responses={404: {"description": "Page Not Found"}},
         )
