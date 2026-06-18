@@ -28,10 +28,9 @@ async def test_fetch_price_success(mock_response, async_client, stock_service):
 @pytest.mark.asyncio
 async def test_fetch_price_raises_key_error(mock_response, async_client, stock_service):
     func = stock_service.fetch_price
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError, match="Error when fetching the price data."):
         mock_response.get(f"{TWELVE_URL}/quote?symbol=FAKE&apikey=faketoken", status=200, payload={})
-        data = await func(client=async_client, symbol="FAKE", api_key="faketoken")
-        assert "Error when fetching the price data." in data
+        await func(client=async_client, symbol="FAKE", api_key="faketoken")
 
 
 @pytest.mark.asyncio
@@ -47,10 +46,9 @@ async def test_fetch_date_success(mock_response, async_client, stock_service):
 @pytest.mark.asyncio
 async def test_fetch_date_raises_key_error(mock_response, async_client, stock_service):
     func = stock_service.fetch_date
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError, match="Error when fetching the date."):
         mock_response.get(f"{TWELVE_URL}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload={})
-        data = await func(client=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
-        assert "Error when fetching the date" in data
+        await func(client=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
 
 
 @pytest.mark.asyncio
@@ -84,6 +82,5 @@ async def test_fetch_news_raises_value_error(mock_response, async_client, stock_
                 ]
             }
     mock_response.get(f"{NEW_DATA_URL}/market?qInTitle=FAKE&apikey=fakeapikey", status=200, payload=response)
-    with pytest.raises(ValueError):
-        data = await func(client=async_client, symbol="FAKE", api_key="fakeapikey")
-        assert "News API returned 0 results." in data
+    with pytest.raises(ValueError, match="News API returned 0 results."):
+        await func(client=async_client, symbol="FAKE", api_key="fakeapikey")
