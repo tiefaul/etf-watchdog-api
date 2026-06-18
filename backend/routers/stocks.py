@@ -25,13 +25,13 @@ import aiohttp
 
 load_dotenv()
 
-twelve_data_api_key = os.getenv("TWELVE_DATA_API_KEY")
-if not twelve_data_api_key:
-    raise RuntimeError("The twelve_data_api_key environment variable was not set in the .env")
+TWELVE_DATA_API_KEY = os.getenv("TWELVE_DATA_API_KEY")
+if not TWELVE_DATA_API_KEY:
+    raise RuntimeError("The TWELVE_DATA_API_KEY environment variable was not set in the .env")
 
-news_data_api_key = os.getenv("NEWS_DATA_API_KEY")
-if not news_data_api_key:
-    raise RuntimeError("The news_data_api_key environment variable was not set in the .env")
+NEWS_DATA_API_KEY = os.getenv("NEWS_DATA_API_KEY")
+if not NEWS_DATA_API_KEY:
+    raise RuntimeError("The NEWS_DATA_API_KEY environment variable was not set in the .env")
 
 logger = logging.getLogger(__name__)
 setup_logging()
@@ -64,7 +64,7 @@ async def post_stock(
         stock_info = await stock.fetch_price(
                 client=client,
                 symbol=symbol.ticker_symbol.upper(),
-                api_key=twelve_data_api_key
+                api_key=TWELVE_DATA_API_KEY
                 )
         db_stock = Stock(
                 ticker_symbol=symbol.ticker_symbol.upper(),
@@ -90,8 +90,8 @@ async def post_stock(
         # db_session.refresh(db_stock_valid)
         return db_stock_valid
 
-    except aiohttp.ClientResponseError:
-        raise HTTPException(status_code=404, detail="Stock could not be found. Please insure you are using the correct ticker symbol.")
+    except aiohttp.ClientError:
+        raise HTTPException(status_code=404, detail="Stock could not be found. Please ensure you are using the correct ticker symbol.")
     except IntegrityError:
         raise HTTPException(status_code=409, detail="Ticker symbol already exists.")
 
@@ -110,7 +110,7 @@ async def get_stock(
 
         if price is True:
             try:
-                stock_price = await stock.fetch_price(client=client, symbol=symbol.upper(), api_key=twelve_data_api_key)
+                stock_price = await stock.fetch_price(client=client, symbol=symbol.upper(), api_key=TWELVE_DATA_API_KEY)
                 results.update(
                     {
                         "stock_name": stock_price["name"],
@@ -131,7 +131,7 @@ async def get_stock(
                 # Verify date format locally to prevent invalid queries to the external API
                 logger.debug("Verifying date format.")
                 datetime.strptime(date, "%Y-%m-%d")
-                stock_price_by_date = await stock.fetch_date(client=client, symbol=symbol.upper(), date=date, api_key=twelve_data_api_key)
+                stock_price_by_date = await stock.fetch_date(client=client, symbol=symbol.upper(), date=date, api_key=TWELVE_DATA_API_KEY)
                 results.update({f"price_{date}": stock_price_by_date["date"]})
             except ValueError:
                 # Triggered by datetime.strptime if the date string is not strictly YYYY-MM-DD
@@ -155,7 +155,7 @@ async def get_news(client: Annotated[aiohttp.ClientSession, Depends(get_session)
                    symbol: Annotated[str, Path(description="Get news for a stock by ticker symbol", min_length=1, max_length=5)]):
     try:
         # Calls the stock service to fetch news from the external API
-        return await stock.fetch_news(client=client, symbol=symbol, api_key=news_data_api_key)
+        return await stock.fetch_news(client=client, symbol=symbol, api_key=NEWS_DATA_API_KEY)
     except ValueError:
         # Handles the case where the API returns 0 results by returning a structured error message
         raise HTTPException(status_code=404, detail=f"Failed to find any news for {symbol}.")
