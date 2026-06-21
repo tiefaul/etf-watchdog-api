@@ -67,7 +67,7 @@ class StockService:
             raise KeyError("Error when fetching the price data.")
 
 
-    async def fetch_date(self, client: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, str]:
+    async def fetch_date(self, client: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, float]:
         """
         Fetches the end-of-day (EOD) historical closing price for a stock on a specific date.
         
@@ -88,13 +88,13 @@ class StockService:
             "date": date,
             "apikey": api_key,
         }
-        output: Dict[str, str] = {}
+        output: Dict[str, float] = {}
         async with client.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
             if response:
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
-                output["date"] = response["close"]
+                output["date"] = float(response.get("close"))
                 return output
             raise KeyError("Error when fetching the date.")
 
@@ -133,7 +133,7 @@ class StockService:
 
 
 if __name__ == "__main__":
-    """For testing purposes. Run `uv run python -m backend.services.stock_service`"""
+    # For testing purposes. Run `uv run python -m backend.services.stock_service`
 
     import asyncio
     import aiohttp

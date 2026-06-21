@@ -23,7 +23,7 @@ def test_get_all_stocks_success(client: TestClient, db_session: Session):
 def test_get_all_stocks_raises_http_404(client: TestClient):
     response = client.get("/api/etfs")
     assert response.status_code == 404
-    assert response.json() == {"detail": "No stocks were found."}
+    assert response.json() == {"detail": "No stocks found in the database."}
 
 
 @patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
@@ -36,8 +36,8 @@ def test_post_stock_success(mock_fetch_price, client: TestClient):
     }
 
     response = client.post("/api/etfs", json={"ticker_symbol": "IYW"})
+    assert response.status_code == 200
     data = response.json()
-
     assert isinstance(data["id"], int)
     assert data["ticker_symbol"] == "IYW"
     assert data["company_name"] == "iShares US Technology ETF"
@@ -60,18 +60,20 @@ def test_post_stock_raises_http_409(client: TestClient, db_session: Session):
     assert response.json() == {"detail": "Ticker symbol already exists."}
 
 
-def test_get_symbol_success(client: TestClient):
-    response = client.get("/api/etfs/IYW")
+def test_get_symbol_success(client: TestClient, db_session: Session):
+    statement = Stock(ticker_symbol="AAPL")
+    db_session.add(statement)
+    response = client.get("/api/etfs/AAPL")
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, dict)
-    assert data["symbol"] == "IYW"
+    assert isinstance(data, list)
+    assert "AAPL" in data
 
 
 def test_get_symbol_raises_http_404(client: TestClient):
     response = client.get("/api/etfs/fake")
     assert response.status_code == 404
-    assert response.json() == {"detail": "Symbol 'fake' not found in the database."}
+    assert response.json() == {"detail": "Ticker symbol not found in the database."}
 
 
 @patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
