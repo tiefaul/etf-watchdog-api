@@ -49,12 +49,12 @@ class StockPublic(StockBase):
     currency: str | None = None
 
 
+"""Stock Price Models"""
 class StockPriceBase(SQLModel):
     price_date: str = Field(index=True)
     close_price: float
 
 
-"""Stock Price Models"""
 class StockPrice(StockPriceBase, table=True):
     __table_args__ = (
             UniqueConstraint("stock_id", "price_date"),
@@ -71,6 +71,7 @@ class StockPrice(StockPriceBase, table=True):
 
 
 class StockPricePublic(StockPriceBase):
+    """Place ticker symbol in here because I do not want the SQLModel to create a entry in the db."""
     ticker_symbol: str
 
 

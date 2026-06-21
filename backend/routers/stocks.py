@@ -116,6 +116,7 @@ async def get_price(
         date: Annotated[date | None, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")] = None
         ):
     symbol = symbol.upper()
+    output = {"ticker_symbol": symbol, "price_date": None, "close_price": None}
     try:
         etf_id = db_session.exec(select(Stock.id).where(col(Stock.ticker_symbol) == symbol)).one()
     except NoResultFound:
@@ -132,11 +133,8 @@ async def get_price(
                     price_date=symbol_price["date"],
                     close_price=cast(float, symbol_price["close_price"])
                     )
-            return {
-                    "ticker_symbol": symbol,
-                    "price_date": current_price_data.price_date,
-                    "close_price": current_price_data.close_price,
-                    }
+            output["price_date"], output["close_price"] = current_price_data.price_date, current_price_data.close_price
+            return output
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error has occured: {e}")
 
@@ -154,23 +152,14 @@ async def get_price(
                     price_date=str(date),
                     close_price=symbol_date_price["date"]
                     )
-            return {
-                    "ticker_symbol": symbol,
-                    "price_date": price_data.price_date,
-                    "close_price": price_data.close_price,
-                    }
+            output["price_date"], output["close_price"] = price_data.price_date, price_data.close_price
+            return output
 
-        return {
-                "ticker_symbol": symbol,
-                "price_date": get_price_by_date.price_date,
-                "close_price": get_price_by_date.close_price,
-                }
+        output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
+        return output
 
-    return {
-            "ticker_symbol": symbol,
-            "price_date": data.price_date,
-            "close_price": data.close_price,
-            }
+    output["price_date"], output["close_price"] = data.price_date, data.close_price
+    return output
 
 
 @router.get("/{symbol}/news", description="Retrieve news articles on specific ticker symbol.")
