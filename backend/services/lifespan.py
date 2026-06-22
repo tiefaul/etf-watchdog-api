@@ -12,7 +12,7 @@ class HttpClient:
 
     def start_http_client(self):
         if self.aiohttp_client is None:
-            timeout = aiohttp.ClientTimeout(total=2)
+            timeout = aiohttp.ClientTimeout(total=10)
             connector = aiohttp.TCPConnector(family=AF_INET, limit_per_host=self.size_pool_aiohttp)
             self.aiohttp_client = aiohttp.ClientSession(
                 timeout=timeout,

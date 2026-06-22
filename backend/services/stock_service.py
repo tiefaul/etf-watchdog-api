@@ -13,30 +13,6 @@ NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 
 class StockService:
-    # Retrieve all monitored stocks
-    def get_stocks(self) -> Dict[str, Set[str]]:
-        """
-        Retrieves the hardcoded list of valid stocks/ETFs that the application is allowed to track.
-        """
-        logger.debug("Running get_stocks function...")
-        # Hardcoded set of allowed ETFs/Stocks to track. This is dummy data until
-        # I implement an actual databse.
-        return {
-            "stocks": {
-                "SHY",
-                "CIBR",
-                "IGV",
-                "DRIV",
-                "SPY",
-                "SMH",
-                "IYW",
-                "XLE",
-                "AMLP",
-                "ICLN",
-            }
-        }
-
-
     async def fetch_price(self, client: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
         """
         Fetches the current price and quote data for a given stock symbol from the Twelve Data API.
@@ -62,12 +38,12 @@ class StockService:
                 output["close_price"] = float(response.get("close", None))
                 output["date"] = response.get("datetime", None)
                 output["name"] = response.get("name", None)
-                logger.info(f"Successfully obtained {symbol} current stock price.")
+                logger.info(f"Successfully obtained {symbol} stock price.")
                 return output
             raise KeyError("Error when fetching the price data.")
 
 
-    async def fetch_date(self, client: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, str]:
+    async def fetch_date(self, client: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> Dict[str, float]:
         """
         Fetches the end-of-day (EOD) historical closing price for a stock on a specific date.
         
@@ -88,13 +64,13 @@ class StockService:
             "date": date,
             "apikey": api_key,
         }
-        output: Dict[str, str] = {}
+        output: Dict[str, float] = {}
         async with client.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
             if response:
                 logger.info(f"Successfully obtained {symbol} price by date: {date}")
-                output["date"] = response["close"]
+                output["price"] = float(response.get("close"))
                 return output
             raise KeyError("Error when fetching the date.")
 
@@ -115,7 +91,7 @@ class StockService:
             ValueError: If the API request is successful but returns 0 news articles.
         """
         parameters = {"qInTitle": symbol, "apikey": api_key}
-        output = {"totalResults": None, "articles": []}
+        output = {"totalResults": 0, "articles": []}
         async with client.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
             resp.raise_for_status()
             response = await resp.json()
@@ -130,4 +106,23 @@ class StockService:
                     logger.info(f"Successfully obtained news about {symbol}.")
                     return output
                 raise ValueError("News API returned 0 results.")
+
+
+if __name__ == "__main__":
+    # For testing purposes. Run `uv run python -m backend.services.stock_service`
+
+    import asyncio
+    import aiohttp
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    async def main():
+        stock = StockService()
+        api_key = os.getenv("TWELVE_DATA_API_KEY")
+        async with aiohttp.ClientSession() as client:
+            test = await stock.fetch_date(client, "AAPL", "2025-10-13", api_key)
+            print(test)
+    asyncio.run(main())
 

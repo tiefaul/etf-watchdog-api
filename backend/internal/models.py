@@ -10,9 +10,14 @@ from sqlmodel import (
 from datetime import datetime
 from ..services.lifespan import DatabaseManager
 
-class Stock(SQLModel, table=True):
-    id: int | None = Field(primary_key=True, default=None)
+
+"""Stock Models"""
+class StockBase(SQLModel):
     ticker_symbol: str = Field(unique=True, index=True)
+
+
+class Stock(StockBase, table=True):
+    id: int | None = Field(primary_key=True, default=None)
     company_name: str | None = None
     currency: str | None = None
     created_at: datetime | None = Field(
@@ -32,18 +37,30 @@ class Stock(SQLModel, table=True):
         ))
 
 
-class StockPublic(SQLModel):
+# raises 422
+class StockCreate(StockBase):
+    pass
+
+
+class StockPublic(StockBase):
+    id: int
     ticker_symbol: str
+    company_name: str | None = None
+    currency: str | None = None
 
 
-class StockPrice(SQLModel, table=True):
+"""Stock Price Models"""
+class StockPriceBase(SQLModel):
+    price_date: str = Field(index=True)
+    close_price: float
+
+
+class StockPrice(StockPriceBase, table=True):
     __table_args__ = (
             UniqueConstraint("stock_id", "price_date"),
             )
     id: int | None = Field(primary_key=True, default=None)
     stock_id: int | None = Field(foreign_key="stock.id", default=None)
-    price_date: str = Field(index=True)
-    close_price: int | None = None
     created_at: datetime | None = Field(
         default=None,
         sa_column=Column(
@@ -53,6 +70,12 @@ class StockPrice(SQLModel, table=True):
         ))
 
 
+class StockPricePublic(StockPriceBase):
+    """Place ticker symbol in here because I do not want the SQLModel to create a entry in the db."""
+    ticker_symbol: str
+
+
+"""Stock News Models"""
 class NewsArticle(SQLModel, table=True):
     id: int | None = Field(primary_key=True, default=None)
     title: str | None = None
@@ -92,4 +115,5 @@ class User(SQLModel, table = True):
 
 
 if __name__ == "__main__":
+    # For testing purposes. Run `uv run python -m backend.internal.models`
     DatabaseManager.init_db()
