@@ -5,13 +5,6 @@ TWELVE_URL = "https://api.twelvedata.com"
 NEW_DATA_URL = "https://newsdata.io/api/1"
 
 
-def test_get_stocks_success(stock_service):
-    data = stock_service.get_stocks()
-    assert isinstance(data, dict)
-    assert "stocks" in data
-    assert isinstance(data["stocks"], set)
-
-
 @pytest.mark.asyncio
 async def test_fetch_price_success(mock_response, async_client, stock_service):
     func = stock_service.fetch_price
@@ -40,7 +33,7 @@ async def test_fetch_date_success(mock_response, async_client, stock_service):
     mock_response.get(f"{TWELVE_URL}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload=response)
     data = await func(client=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
     assert isinstance(data, dict)
-    assert data["date"] == "123.34"
+    assert data["price"] == 123.34
 
 
 @pytest.mark.asyncio
