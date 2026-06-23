@@ -1,7 +1,3 @@
 [pytest]
 asyncio_debug = true
 asyncio_mode = "auto" # or "strict"
-
-[tool.pytest_env]
-TWELVE_DATA_URL = "https://api.twelvedata.com"
-NEWS_DATA_URL = "https://newsdata.io/api/1"
