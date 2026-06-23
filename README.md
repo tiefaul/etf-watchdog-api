@@ -86,6 +86,6 @@ Project docs live under `docs/` and are organized by purpose:
 | :--- | :--- | :--- |
 | `GET` | `/api/stocks/` | List all tracked stocks. |
 | `POST` | `/api/stocks/` | Create a stock to track using a valid ticker symbol. |
-| `GET` | `/api/stocks/{symbol}?price=true` | Get current price details for a symbol. |
+| `GET` | `/api/stocks/{symbol}/price` | Get current price details for a symbol. |
 | `GET` | `/api/stocks/{symbol}?date=YYYY-MM-DD` | Get historical close price for a specific date. |
 | `GET` | `/api/stocks/{symbol}/news` | Get the latest news articles for a specific stock. |
