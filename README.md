@@ -1,7 +1,5 @@
 # ETF Watchdog API 🐕📈
 
-For `agents` or `llms` read the `AGENTS.md` file.
-
 A high-performance, asynchronous REST API built with **FastAPI** to track ETF and stock prices. This project leverages the **Twelve Data API** for real-time and historical market data, designed for speed and modern Python standards.
 
 > **Note:** This is a personal project under active development.
