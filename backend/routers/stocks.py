@@ -15,8 +15,8 @@ from ..internal.models import (
         StockPrice,
         StockPricePublic
         )
-from typing import Annotated, List, cast
-from datetime import date
+from typing import Annotated, List, cast, Dict
+from datetime import date, timedelta
 from dotenv import load_dotenv
 from sqlmodel import Session, select, col
 from sqlalchemy.exc import NoResultFound
@@ -46,15 +46,11 @@ router = APIRouter(
         )
 
 
-def validate_add_commit_refresh(model, session: Session, **kwargs):
-    data = model(
-            **kwargs
-            )
-    output = model.model_validate(data)
-    session.add(output)
-    session.commit()
-    session.refresh(output)
-    return output
+def get_latest_trading_day(current: date, market_holidays: tuple = ()) -> date:
+    #NOTE: Add holiday handling
+    while current.weekday() >= 5:
+        current -= timedelta(days=1)
+    return current
 
 
 @router.get("/", description="List all available stocks to track.", response_model=List[str])
@@ -72,7 +68,7 @@ async def post_stock(
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: StockCreate,
         ):
-    find_symbol = db_session.exec(select(Stock.ticker_symbol).where(col(Stock.ticker_symbol) == symbol.ticker_symbol.upper())).first()
+    find_symbol = db_session.exec(select(Stock.ticker_symbol).where(col(Stock.ticker_symbol) == symbol.ticker_symbol.upper())).one_or_none()
     if find_symbol:
         raise HTTPException(status_code=409, detail="Ticker symbol already exists.")
 
@@ -82,13 +78,16 @@ async def post_stock(
                 symbol.ticker_symbol.upper(),
                 TWELVE_DATA_API_KEY
                 )
-        return validate_add_commit_refresh(
-                Stock,
-                db_session,
+        add_symbol = Stock(
                 ticker_symbol=symbol.ticker_symbol.upper(),
                 company_name=stock_info.get("name"),
                 currency="USD"
                 )
+        db_session.add(add_symbol)
+        db_session.commit()
+        db_session.refresh(add_symbol)
+        return add_symbol
+    # NOTE: Check for fetch_price error.
     except aiohttp.ClientResponseError:
         raise HTTPException(status_code=404, detail="Stock could not be found. Please ensure you are using the correct ticker symbol.")
 
@@ -100,9 +99,9 @@ async def get_stock(
         ):
     symbol = symbol.upper()
     try:
-        # We use `one` here instead of `first` because we expect only one etf to return. Using `one` will return an MultipleResultsFound error if there is more than one result.
-        data = db_session.exec(select(Stock).where(col(Stock.ticker_symbol) == symbol)).one()
-        return data
+        # We use `one` here instead of `first` because we expect only one etf to return. Using `one` will return an MultipleResultsFound error if there is more than one result or NoResultFound.
+        output_symbol = db_session.exec(select(Stock).where(col(Stock.ticker_symbol) == symbol)).one()
+        return output_symbol
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
 
@@ -112,30 +111,30 @@ async def get_price(
         client: Annotated[aiohttp.ClientSession, Depends(get_session)],
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: Annotated[str, Path(description="ETF ticker symbol.", min_length=1, max_length=5)],
-        date: Annotated[date | None, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")] = None
+        price_date: Annotated[date | None, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")] = None
         ):
     symbol = symbol.upper()
-    output = {"ticker_symbol": symbol, "price_date": None, "close_price": None}
+    output: Dict[str, str|float|None]= {"ticker_symbol": symbol, "price_date": None, "close_price": None}
 
     try:
-        etf_id = db_session.exec(select(Stock.id).where(col(Stock.ticker_symbol) == symbol)).one()
+        symbol_id = db_session.exec(select(Stock.id).where(col(Stock.ticker_symbol) == symbol)).one()
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
 
-    if not date:
-        # NOTE: This query will return the first result and not the latest price for the stock.
-        data = db_session.exec(select(StockPrice).where(col(StockPrice.stock_id) == etf_id)).first()
+    if not price_date:
+        latest_trading_day = get_latest_trading_day(date.today()).isoformat()
+        data = db_session.exec(select(StockPrice).where(col(StockPrice.stock_id) == symbol_id, col(StockPrice.price_date) == latest_trading_day)).one_or_none()
         if not data:
             try:
                 symbol_price = await stock.fetch_price(client, symbol, TWELVE_DATA_API_KEY)
-                current_price_data = validate_add_commit_refresh(
-                        StockPrice,
-                        db_session,
-                        stock_id=etf_id,
+                add_latest_price_data = StockPrice(
+                        stock_id=symbol_id,
                         price_date=symbol_price["date"],
                         close_price=cast(float, symbol_price["close_price"])
                         )
-                output["price_date"], output["close_price"] = current_price_data.price_date, current_price_data.close_price
+                db_session.add(add_latest_price_data)
+                db_session.commit()
+                output["price_date"], output["close_price"] = add_latest_price_data.price_date, add_latest_price_data.close_price
                 return output
             except KeyError as e:
                 raise HTTPException(status_code=500, detail=f"Unexpected error has occured: {e}")
@@ -143,22 +142,22 @@ async def get_price(
         output["price_date"], output["close_price"] = data.price_date, data.close_price
         return output
 
-    if date:
-        get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == date, col(StockPrice.stock_id) == etf_id)).first()
+    if price_date:
+        get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date, col(StockPrice.stock_id) == symbol_id)).one_or_none()
         if not get_price_by_date:
             try:
-                symbol_date_price = await stock.fetch_date(client, symbol, str(date), TWELVE_DATA_API_KEY)
-                price_data = validate_add_commit_refresh(
-                        StockPrice,
-                        db_session,
-                        stock_id=etf_id,
-                        price_date=str(date),
+                symbol_date_price = await stock.fetch_date(client, symbol, str(price_date), TWELVE_DATA_API_KEY)
+                add_price_data = StockPrice(
+                        stock_id=symbol_id,
+                        price_date=str(price_date),
                         close_price=symbol_date_price["price"]
                         )
-                output["price_date"], output["close_price"] = price_data.price_date, price_data.close_price
+                db_session.add(add_price_data)
+                db_session.commit()
+                output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
                 return output
             except aiohttp.ClientResponseError:
-                raise HTTPException(status_code=404, detail="Could not find a price on that date. This could have been a holiday or sometime in the future.")
+                raise HTTPException(status_code=404, detail="Could not find a price on that date. This could have been a weekend, holiday, or sometime in the future.")
 
         output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
         return output
