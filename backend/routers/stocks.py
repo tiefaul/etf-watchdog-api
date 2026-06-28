@@ -46,8 +46,7 @@ router = APIRouter(
         )
 
 
-def get_latest_trading_day(current: date, market_holidays: tuple = ()) -> date:
-    #NOTE: Add holiday handling
+def get_latest_trading_day(current: date) -> date:
     while current.weekday() >= 5:
         current -= timedelta(days=1)
     return current
@@ -87,8 +86,7 @@ async def post_stock(
         db_session.commit()
         db_session.refresh(add_symbol)
         return add_symbol
-    # NOTE: Check for fetch_price error.
-    except aiohttp.ClientResponseError:
+    except (aiohttp.ClientResponseError, KeyError):
         raise HTTPException(status_code=404, detail="Stock could not be found. Please ensure you are using the correct ticker symbol.")
 
 
@@ -136,8 +134,8 @@ async def get_price(
                 db_session.commit()
                 output["price_date"], output["close_price"] = add_latest_price_data.price_date, add_latest_price_data.close_price
                 return output
-            except KeyError as e:
-                raise HTTPException(status_code=500, detail=f"Unexpected error has occured: {e}")
+            except KeyError:
+                raise HTTPException(status_code=404, detail=f"Price could not be obtained. Stock market could have been closed on date: {date.today().isoformat()}")
 
         output["price_date"], output["close_price"] = data.price_date, data.close_price
         return output

@@ -46,8 +46,17 @@ def test_post_stock_success(mock_fetch_price, client: TestClient):
 
 
 @patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
-def test_post_stock_raises_http_404(mock_fetch_price, client: TestClient):
+def test_post_stock_raises_http_404_on_client_response_error(mock_fetch_price, client: TestClient):
     mock_fetch_price.side_effect = aiohttp.ClientResponseError(history=(), request_info=None) # type: ignore
+
+    response = client.post("/api/etfs", json={"ticker_symbol": "FAKE"})
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Stock could not be found. Please ensure you are using the correct ticker symbol."}
+
+
+@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
+def test_post_stock_raises_http_404_on_key_error(mock_fetch_price, client: TestClient):
+    mock_fetch_price.side_effect = KeyError()
 
     response = client.post("/api/etfs", json={"ticker_symbol": "FAKE"})
     assert response.status_code == 404
@@ -108,15 +117,15 @@ def test_get_symbol_price_raises_http_404(client: TestClient):
 
 
 @patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
-def test_get_symbol_price_raises_http_500(mock_fetch_price, client: TestClient, db_session: Session):
+def test_get_symbol_price_raises_http_404_on_fetch_price(mock_fetch_price, client: TestClient, db_session: Session):
     mock_fetch_price.side_effect = KeyError()
 
     add_stock_statement = Stock(ticker_symbol="AAPL")
     db_session.add(add_stock_statement)
 
     response = client.get("api/etfs/AAPL/price")
-    assert response.status_code == 500
-    assert response.json() == {"detail": f"Unexpected error has occured: {mock_fetch_price.side_effect}"}
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Price could not be obtained. Stock market could have been closed on date: {date.today().isoformat()}"}
 
 
 def test_get_symbol_price_by_date_success(client: TestClient, db_session: Session):
