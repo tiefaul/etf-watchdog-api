@@ -1,7 +1,9 @@
 from unittest.mock import patch, AsyncMock
+from typing import cast
 import aiohttp
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, select
+from sqlalchemy.exc import MultipleResultsFound
 from backend.internal.models import (
         Stock,
         StockNews,
@@ -93,12 +95,56 @@ def test_get_symbol_raises_http_404(client: TestClient):
     assert response.json() == {"detail": "Ticker symbol not found in the database."}
 
 
+def test_delete_stock_success(client: TestClient, db_session: Session):
+    statement = Stock(ticker_symbol="AAPL", company_name="Apple INC", currency="USD")
+    db_session.add(statement)
+    db_session.commit()
+
+    response = client.delete("/api/etfs/AAPL")
+    assert response.status_code == 200
+    assert response.json() == {"success": "Stock deleted successfully"}
+
+    deleted_stock = db_session.exec(select(Stock).where(Stock.ticker_symbol == "AAPL")).one_or_none()
+    assert deleted_stock is None
+
+
+def test_delete_stock_raises_http_404(client: TestClient):
+    response = client.delete("/api/etfs/FAKE")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Symbol not found."}
+
+
+def test_delete_stock_raises_http_500_on_multiple_results_found(client: TestClient, db_session: Session):
+    with patch.object(db_session, "exec", side_effect=MultipleResultsFound()):
+        response = client.delete("/api/etfs/AAPL")
+
+    assert response.status_code == 500
+    assert response.json() == {"detail": "Expected exactly one resource, found multiple."}
+
+
+def test_delete_stock_cascade_deletes_related_prices(client: TestClient, db_session: Session):
+    stock_price_1 = StockPrice(price_date="2026-01-02", close_price=100.12) # type: ignore
+    stock_price_2 = StockPrice(price_date="2026-01-03", close_price=101.34) # type: ignore
+    stock = Stock(ticker_symbol="VOO", prices=[stock_price_1, stock_price_2])
+    db_session.add(stock)
+    db_session.commit()
+
+    prices_before_delete = db_session.exec(select(StockPrice).where(StockPrice.stock_id == stock.id)).all()
+    assert len(prices_before_delete) == 2
+
+    response = client.delete("/api/etfs/VOO")
+    assert response.status_code == 200
+
+    prices_after_delete = db_session.exec(select(StockPrice).where(StockPrice.stock_id == stock.id)).all()
+    assert prices_after_delete == []
+
+
 def test_get_symbol_price_success(client: TestClient, db_session: Session):
     latest_trading_day = get_latest_trading_day(date.today()).isoformat()
     add_stock_statement = Stock(ticker_symbol="AAPL")
     db_session.add(add_stock_statement)
     db_session.commit()
-    add_stock_price_statement = StockPrice(price_date=latest_trading_day, close_price=200.10, stock_id=add_stock_statement.id)
+    add_stock_price_statement = StockPrice(price_date=latest_trading_day, close_price=200.10, stock_id=cast(int, add_stock_statement.id))
     db_session.add(add_stock_price_statement)
 
     response = client.get("/api/etfs/AAPL/price")
@@ -132,7 +178,7 @@ def test_get_symbol_price_by_date_success(client: TestClient, db_session: Sessio
     add_stock_statement = Stock(ticker_symbol="AAPL")
     db_session.add(add_stock_statement)
     db_session.commit()
-    add_stock_price_statement = StockPrice(price_date="2025-10-13", close_price=110.12, stock_id=add_stock_statement.id)
+    add_stock_price_statement = StockPrice(price_date="2025-10-13", close_price=110.12, stock_id=cast(int, add_stock_statement.id))
     db_session.add(add_stock_price_statement)
 
     response = client.get("/api/etfs/AAPL/price?price_date=2025-10-13")

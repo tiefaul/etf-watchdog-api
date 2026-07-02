@@ -3,7 +3,6 @@ from .routers import stocks
 from contextlib import asynccontextmanager
 from fastapi.logger import logger as fastAPI_logger
 from .services.lifespan import HttpClient, DatabaseManager
-from .internal import models
 
 
 @asynccontextmanager
@@ -28,6 +27,6 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(stocks.router)
 
 
-@app.get("/api")
+@app.get("/api", description="This does nothing at the moment")
 async def main():
     pass
