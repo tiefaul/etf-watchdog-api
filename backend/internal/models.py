@@ -5,7 +5,8 @@ from sqlmodel import (
         UniqueConstraint,
         TIMESTAMP,
         Column,
-        text
+        text,
+        Relationship
         )
 from datetime import datetime
 from ..services.lifespan import DatabaseManager
@@ -36,6 +37,7 @@ class Stock(StockBase, table=True):
         server_onupdate=FetchedValue(),
         ))
 
+    prices: list["StockPrice"] = Relationship(back_populates="stock", cascade_delete=True)
 
 # raises 422
 class StockCreate(StockBase):
@@ -60,7 +62,7 @@ class StockPrice(StockPriceBase, table=True):
             UniqueConstraint("stock_id", "price_date"),
             )
     id: int | None = Field(primary_key=True, default=None)
-    stock_id: int | None = Field(foreign_key="stock.id", default=None)
+    stock_id: int = Field(foreign_key="stock.id", ondelete="CASCADE") # A stockprice must be related to a stock.
     created_at: datetime | None = Field(
         default=None,
         sa_column=Column(
@@ -68,6 +70,8 @@ class StockPrice(StockPriceBase, table=True):
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
         ))
+
+    stock: Stock = Relationship(back_populates="prices")
 
 
 class StockPricePublic(StockPriceBase):

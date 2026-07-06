@@ -6,8 +6,8 @@ NEW_DATA_URL = "https://newsdata.io/api/1"
 
 
 @pytest.mark.asyncio
-async def test_fetch_price_success(mock_response, async_client, stock_service):
-    func = stock_service.fetch_price
+async def test_fetch_quote_data_success(mock_response, async_client, stock_service):
+    func = stock_service.fetch_quote_data
     response = {"open": "123", "close": "12343.0", "datetime": "2026-04-26", "name": "fake"}
     mock_response.get(f"{TWELVE_URL}/quote?symbol=FAKE&apikey=faketoken", status=200, payload=response)
     data = await func(client=async_client, symbol="FAKE", api_key="faketoken")
@@ -19,8 +19,8 @@ async def test_fetch_price_success(mock_response, async_client, stock_service):
 
 
 @pytest.mark.asyncio
-async def test_fetch_price_raises_key_error(mock_response, async_client, stock_service):
-    func = stock_service.fetch_price
+async def test_fetch_quote_data_raises_key_error(mock_response, async_client, stock_service):
+    func = stock_service.fetch_quote_data
     with pytest.raises(KeyError, match="Error when fetching the price data."):
         mock_response.get(f"{TWELVE_URL}/quote?symbol=FAKE&apikey=faketoken", status=200, payload={})
         await func(client=async_client, symbol="FAKE", api_key="faketoken")

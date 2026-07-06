@@ -82,8 +82,9 @@ Project docs live under `docs/` and are organized by purpose:
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/stocks/` | List all tracked stocks. |
-| `POST` | `/api/stocks/` | Create a stock to track using a valid ticker symbol. |
-| `GET` | `/api/stocks/{symbol}/price` | Get current price details for a symbol. |
-| `GET` | `/api/stocks/{symbol}?date=YYYY-MM-DD` | Get historical close price for a specific date. |
-| `GET` | `/api/stocks/{symbol}/news` | Get the latest news articles for a specific stock. |
+| `GET` | `/api/etfs/` | List all tracked stocks. |
+| `POST` | `/api/etfs/` | Create a stock to track using a valid ticker symbol. |
+| `DELETE` | `/api/etfs/{symbol}` | Delete a tracked symbol and its related price records. |
+| `GET` | `/api/etfs/{symbol}/price` | Get current price details for a symbol. |
+| `GET` | `/api/etfs/{symbol}/price?price_date=YYYY-MM-DD` | Get historical close price for a specific date. |
+| `GET` | `/api/etfs/{symbol}/news` | Get the latest news articles for a specific stock. |
