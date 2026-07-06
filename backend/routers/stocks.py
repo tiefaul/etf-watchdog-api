@@ -47,8 +47,14 @@ router = APIRouter(
 
 
 def get_latest_trading_day(current: date) -> date:
-    while current.weekday() >= 5:
-        current -= timedelta(days=1)
+    if current.weekday() >= 5:
+        while current.weekday() >= 5:
+            current -= timedelta(days=1)
+        return current
+    elif current.weekday() == 0:
+        current -= timedelta(days=3)
+        return current
+    current -= timedelta(days=1)
     return current
 
 
@@ -72,7 +78,7 @@ async def post_stock(
         raise HTTPException(status_code=409, detail="Ticker symbol already exists.")
 
     try:
-        stock_info = await stock.fetch_price(
+        stock_info = await stock.fetch_quote_data(
                 client,
                 symbol.ticker_symbol.upper(),
                 TWELVE_DATA_API_KEY
@@ -147,18 +153,18 @@ async def get_price(
         data = db_session.exec(select(StockPrice).where(col(StockPrice.stock_id) == symbol_id, col(StockPrice.price_date) == latest_trading_day)).one_or_none()
         if not data:
             try:
-                symbol_price = await stock.fetch_price(client, symbol, TWELVE_DATA_API_KEY)
+                symbol_price = await stock.fetch_date(client, symbol, latest_trading_day, TWELVE_DATA_API_KEY)
                 add_latest_price_data = StockPrice(
                         stock_id=cast(int, symbol_id),
-                        price_date=symbol_price["date"],
-                        close_price=cast(float, symbol_price["close_price"])
+                        price_date=latest_trading_day,
+                        close_price=symbol_price["price"]
                         )
                 db_session.add(add_latest_price_data)
                 db_session.commit()
                 output["price_date"], output["close_price"] = add_latest_price_data.price_date, add_latest_price_data.close_price
                 return output
-            except KeyError:
-                raise HTTPException(status_code=404, detail=f"Price could not be obtained. Stock market could have been closed on date: {date.today().isoformat()}")
+            except aiohttp.ClientResponseError:
+                raise HTTPException(status_code=404, detail=f"Could not find a price on {latest_trading_day}. This could have been a weekend, holiday, or sometime in the future.")
 
         output["price_date"], output["close_price"] = data.price_date, data.close_price
         return output
@@ -178,7 +184,7 @@ async def get_price(
                 output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
                 return output
             except aiohttp.ClientResponseError:
-                raise HTTPException(status_code=404, detail="Could not find a price on that date. This could have been a weekend, holiday, or sometime in the future.")
+                raise HTTPException(status_code=404, detail=f"Could not find a price on {price_date}. This could have been a weekend, holiday, or sometime in the future.")
 
         output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
         return output

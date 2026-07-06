@@ -13,6 +13,14 @@ from datetime import date
 from backend.routers.stocks import get_latest_trading_day
 
 
+def test_get_latest_trading_day_monday_returns_friday():
+    assert get_latest_trading_day(date(2026, 7, 6)).isoformat() == "2026-07-03"
+
+
+def test_get_latest_trading_day_sunday_returns_friday():
+    assert get_latest_trading_day(date(2026, 7, 5)).isoformat() == "2026-07-03"
+
+
 def test_get_all_stocks_success(client: TestClient, db_session: Session):
     statement = Stock(ticker_symbol="IYW")
     db_session.add(statement)
@@ -29,9 +37,9 @@ def test_get_all_stocks_raises_http_404(client: TestClient):
     assert response.json() == {"detail": "No stocks found in the database."}
 
 
-@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
-def test_post_stock_success(mock_fetch_price, client: TestClient):
-    mock_fetch_price.return_value = {
+@patch("backend.routers.stocks.stock.fetch_quote_data", new_callable=AsyncMock)
+def test_post_stock_success(mock_fetch_quote_data, client: TestClient):
+    mock_fetch_quote_data.return_value = {
         "name": "iShares US Technology ETF",
         "price": "140.50",
         "date": "2024-05-01 16:00:00",
@@ -47,18 +55,18 @@ def test_post_stock_success(mock_fetch_price, client: TestClient):
     assert isinstance(data["currency"], str)
 
 
-@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
-def test_post_stock_raises_http_404_on_client_response_error(mock_fetch_price, client: TestClient):
-    mock_fetch_price.side_effect = aiohttp.ClientResponseError(history=(), request_info=None) # type: ignore
+@patch("backend.routers.stocks.stock.fetch_quote_data", new_callable=AsyncMock)
+def test_post_stock_raises_http_404_on_client_response_error(mock_fetch_quote_data, client: TestClient):
+    mock_fetch_quote_data.side_effect = aiohttp.ClientResponseError(history=(), request_info=None) # type: ignore
 
     response = client.post("/api/etfs", json={"ticker_symbol": "FAKE"})
     assert response.status_code == 404
     assert response.json() == {"detail": "Stock could not be found. Please ensure you are using the correct ticker symbol."}
 
 
-@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
-def test_post_stock_raises_http_404_on_key_error(mock_fetch_price, client: TestClient):
-    mock_fetch_price.side_effect = KeyError()
+@patch("backend.routers.stocks.stock.fetch_quote_data", new_callable=AsyncMock)
+def test_post_stock_raises_http_404_on_key_error(mock_fetch_quote_data, client: TestClient):
+    mock_fetch_quote_data.side_effect = KeyError()
 
     response = client.post("/api/etfs", json={"ticker_symbol": "FAKE"})
     assert response.status_code == 404
@@ -162,16 +170,17 @@ def test_get_symbol_price_raises_http_404(client: TestClient):
     assert response.json() == {"detail": "Ticker symbol not found in the database."}
 
 
-@patch("backend.routers.stocks.stock.fetch_price", new_callable=AsyncMock)
-def test_get_symbol_price_raises_http_404_on_fetch_price(mock_fetch_price, client: TestClient, db_session: Session):
-    mock_fetch_price.side_effect = KeyError()
+@patch("backend.routers.stocks.stock.fetch_date", new_callable=AsyncMock)
+def test_get_symbol_price_raises_http_404_on_fetch_date(mock_fetch_date, client: TestClient, db_session: Session):
+    mock_fetch_date.side_effect = aiohttp.ClientResponseError(history=(), request_info=None) # type: ignore
 
     add_stock_statement = Stock(ticker_symbol="AAPL")
     db_session.add(add_stock_statement)
 
-    response = client.get("api/etfs/AAPL/price")
+    response = client.get("/api/etfs/AAPL/price")
     assert response.status_code == 404
-    assert response.json() == {"detail": f"Price could not be obtained. Stock market could have been closed on date: {date.today().isoformat()}"}
+    latest_trading_day = get_latest_trading_day(date.today()).isoformat()
+    assert response.json() == {"detail": f"Could not find a price on {latest_trading_day}. This could have been a weekend, holiday, or sometime in the future."}
 
 
 def test_get_symbol_price_by_date_success(client: TestClient, db_session: Session):
@@ -199,7 +208,7 @@ def test_get_symbol_price_by_date_raises_http_404(mock_fetch_date, client: TestC
 
     response = client.get("/api/etfs/FAKE/price?price_date=2025-04-25")
     assert response.status_code == 404
-    assert response.json() == {"detail": "Could not find a price on that date. This could have been a weekend, holiday, or sometime in the future."}
+    assert response.json() == {"detail": "Could not find a price on 2025-04-25. This could have been a weekend, holiday, or sometime in the future."}
 
 
 @patch("backend.routers.stocks.stock.fetch_news", new_callable=AsyncMock)

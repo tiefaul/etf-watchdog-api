@@ -1,7 +1,7 @@
 from .logger_service import setup_logging
 import logging
 import aiohttp
-from typing import Dict, Set
+from typing import Dict
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -13,9 +13,9 @@ NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 
 class StockService:
-    async def fetch_price(self, client: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
+    async def fetch_quote_data(self, client: aiohttp.ClientSession, symbol: str, api_key: str | None) -> Dict[str, str]:
         """
-        Fetches the current price and quote data for a given stock symbol from the Twelve Data API.
+        Fetches quote data for a given stock symbol from the Twelve Data API.
         
         Args:
             symbol (str): The stock ticker symbol.
@@ -122,7 +122,6 @@ if __name__ == "__main__":
         stock = StockService()
         api_key = os.getenv("TWELVE_DATA_API_KEY")
         async with aiohttp.ClientSession() as client:
-            test = await stock.fetch_date(client, "AAPL", "2025-10-13", api_key)
+            test = await stock.fetch_quote_data(client, "AAPL", api_key)
             print(test)
     asyncio.run(main())
-
