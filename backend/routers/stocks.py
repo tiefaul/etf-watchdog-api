@@ -164,7 +164,7 @@ async def get_price(
                 output["price_date"], output["close_price"] = add_latest_price_data.price_date, add_latest_price_data.close_price
                 return output
             except aiohttp.ClientResponseError:
-                raise HTTPException(status_code=404, detail=f"Could not find a price on {latest_trading_day}. This could have been a weekend, holiday, or sometime in the future.")
+                raise HTTPException(status_code=404, detail=f"Could not find a price on {latest_trading_day}. This could have been a holiday, or sometime in the future.")
 
         output["price_date"], output["close_price"] = data.price_date, data.close_price
         return output

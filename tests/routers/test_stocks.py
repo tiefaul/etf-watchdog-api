@@ -180,7 +180,7 @@ def test_get_symbol_price_raises_http_404_on_fetch_date(mock_fetch_date, client:
     response = client.get("/api/etfs/AAPL/price")
     assert response.status_code == 404
     latest_trading_day = get_latest_trading_day(date.today()).isoformat()
-    assert response.json() == {"detail": f"Could not find a price on {latest_trading_day}. This could have been a weekend, holiday, or sometime in the future."}
+    assert response.json() == {"detail": f"Could not find a price on {latest_trading_day}. This could have been a holiday, or sometime in the future."}
 
 
 def test_get_symbol_price_by_date_success(client: TestClient, db_session: Session):
