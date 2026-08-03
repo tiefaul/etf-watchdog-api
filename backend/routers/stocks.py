@@ -1,28 +1,30 @@
-from fastapi import (
-        APIRouter,
-        Query,
-        HTTPException,
-        Path,
-        Depends,
-        )
-from ..services.stock_service import StockService
-from ..services.logger_service import setup_logging
-from ..services.app_state import get_db_session, get_session
-from ..internal.models import (
-        Stock,
-        StockPublic,
-        StockCreate,
-        StockPrice,
-        StockPricePublic
-        )
-from typing import Annotated, List, cast, Dict
-from datetime import date, timedelta
-from dotenv import load_dotenv
-from sqlmodel import Session, select, col
-from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-import os
 import logging
+import os
+from datetime import date, timedelta
+from typing import Annotated, cast
+
 import aiohttp
+from dotenv import load_dotenv
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Path,
+    Query,
+)
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
+from sqlmodel import Session, col, select
+
+from ..internal.models import (
+    Stock,
+    StockCreate,
+    StockPrice,
+    StockPricePublic,
+    StockPublic,
+)
+from ..services.app_state import get_db_session, get_session
+from ..services.logger_service import setup_logging
+from ..services.stock_service import StockService
 
 load_dotenv()
 
@@ -58,7 +60,7 @@ def get_latest_trading_day(current: date) -> date:
     return current
 
 
-@router.get("/", description="List all available stocks to track.", response_model=List[str])
+@router.get("/", description="List all available stocks to track.", response_model=list[str])
 async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]):
     statement = select(Stock.ticker_symbol)
     stocks = db_session.exec(statement).all()
@@ -141,7 +143,7 @@ async def get_price(
         price_date: Annotated[date | None, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")] = None
         ):
     symbol = symbol.upper()
-    output: Dict[str, str|float|None]= {"ticker_symbol": symbol, "price_date": None, "close_price": None}
+    output: dict[str, str|float|None]= {"ticker_symbol": symbol, "price_date": None, "close_price": None}
 
     try:
         symbol_id = db_session.exec(select(Stock.id).where(col(Stock.ticker_symbol) == symbol)).one()

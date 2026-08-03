@@ -1,8 +1,10 @@
-from fastapi import FastAPI
-from .routers import stocks
 from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 from fastapi.logger import logger as fastAPI_logger
-from .services.lifespan import HttpClient, DatabaseManager
+
+from .routers import stocks
+from .services.lifespan import DatabaseManager, HttpClient
 
 
 @asynccontextmanager

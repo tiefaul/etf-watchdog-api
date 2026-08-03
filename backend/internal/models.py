@@ -1,16 +1,17 @@
-from sqlmodel import (
-        FetchedValue,
-        Field,
-        SQLModel,
-        UniqueConstraint,
-        TIMESTAMP,
-        Column,
-        text,
-        Relationship
-        )
 from datetime import datetime
-from ..services.lifespan import DatabaseManager
 
+from sqlmodel import (
+    TIMESTAMP,
+    Column,
+    FetchedValue,
+    Field,
+    Relationship,
+    SQLModel,
+    UniqueConstraint,
+    text,
+)
+
+from ..services.lifespan import DatabaseManager
 
 """Stock Models"""
 class StockBase(SQLModel):
