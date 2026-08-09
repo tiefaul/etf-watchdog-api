@@ -1,10 +1,12 @@
-<script>
-  import { Card } from '$lib/components'
+<script lang='ts'>
+  import { Card } from '$lib/components';
+  let { data } = $props();
 </script>
 
 <div class="flex-container">
-  <Card ticker_symbol="AAPL" price='100' shares='50' />
-  <Card ticker_symbol="SPCX" price='200' shares='10' />
+  {#each data.stocks as { ticker_symbol, price, shares }}
+    <Card ticker_symbol={ticker_symbol} price={price} shares={shares}  />
+  {/each}
 </div>
 
 <style>
