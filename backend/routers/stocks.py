@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 from typing import Annotated, cast
 
 import aiohttp
@@ -48,16 +48,16 @@ router = APIRouter(
         )
 
 
-def get_latest_trading_day(current: date) -> date:
+def get_latest_trading_day(current: datetime) -> str:
     if current.weekday() >= 5:
         while current.weekday() >= 5:
             current -= timedelta(days=1)
-        return current
+        return current.strftime("%Y-%m-%d")
     elif current.weekday() == 0:
         current -= timedelta(days=3)
-        return current
+        return current.strftime("%Y-%m-%d")
     current -= timedelta(days=1)
-    return current
+    return current.strftime("%Y-%m-%d")
 
 
 @router.get("/", description="List all available stocks to track.", response_model=list[str])
@@ -140,7 +140,7 @@ async def get_price(
         client: Annotated[aiohttp.ClientSession, Depends(get_session)],
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: Annotated[str, Path(description="ETF ticker symbol.", min_length=1, max_length=5)],
-        price_date: Annotated[date | None, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")] = None
+        price_date: Annotated[datetime | None, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")] = None
         ):
     symbol = symbol.upper()
     output: dict[str, str|float|None]= {"ticker_symbol": symbol, "price_date": None, "close_price": None}
@@ -150,8 +150,9 @@ async def get_price(
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
 
+    # Get current closed price if date was not provided
     if not price_date:
-        latest_trading_day = get_latest_trading_day(date.today()).isoformat()
+        latest_trading_day = get_latest_trading_day(datetime.now())
         data = db_session.exec(select(StockPrice).where(col(StockPrice.stock_id) == symbol_id, col(StockPrice.price_date) == latest_trading_day)).one_or_none()
         if not data:
             try:
@@ -171,14 +172,15 @@ async def get_price(
         output["price_date"], output["close_price"] = data.price_date, data.close_price
         return output
 
+    # If date was provided, then get the closed price on that date if possible
     if price_date:
-        get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date, col(StockPrice.stock_id) == symbol_id)).one_or_none()
+        get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date.strftime("%Y-%m-%d"), col(StockPrice.stock_id) == symbol_id)).one_or_none()
         if not get_price_by_date:
             try:
-                symbol_date_price = await stock.fetch_date(client, symbol, str(price_date), TWELVE_DATA_API_KEY)
+                symbol_date_price = await stock.fetch_date(client, symbol, price_date.strftime("%Y-%m-%d"), TWELVE_DATA_API_KEY)
                 add_price_data = StockPrice(
                         stock_id=cast(int, symbol_id),
-                        price_date=str(price_date),
+                        price_date=str(price_date.strftime("%Y-%m-%d")),
                         close_price=symbol_date_price["price"]
                         )
                 db_session.add(add_price_data)
@@ -186,7 +188,7 @@ async def get_price(
                 output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
                 return output
             except aiohttp.ClientResponseError:
-                raise HTTPException(status_code=404, detail=f"Could not find a price on {price_date}. This could have been a weekend, holiday, or sometime in the future.")
+                raise HTTPException(status_code=404, detail=f"Could not find a price on {price_date.strftime("%Y-%m-%d")}. This could have been a weekend, holiday, sometime in the future, or the stock wasn't listed at the time.")
 
         output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
         return output
