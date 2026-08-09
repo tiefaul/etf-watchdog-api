@@ -3,8 +3,8 @@
 </script>
 
 <div class="flex-container">
-  <Card etfName="AAPL" price='100' />
-  <Card etfName="SPCX" price='200' />
+  <Card ticker_symbol="AAPL" price='100' shares='50' />
+  <Card ticker_symbol="SPCX" price='200' shares='10' />
 </div>
 
 <style>

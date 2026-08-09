@@ -1,7 +1,8 @@
 <script lang="ts">
   let {
-    etfName = 'Placeholder',
-    price = '0'
+    ticker_symbol = 'Placeholder',
+    price = '0',
+    shares = '0'
     } = $props()
 
   const displayRed = (number: string): string => {
@@ -11,10 +12,13 @@
 
 <div class="card">
   <div class="container">
-    <h4><b>{etfName}</b></h4>
-    <p style:--font-size="12px">company name</p>
+    <h3><b>{ticker_symbol}</b></h3>
+    <p>company name</p>
     <div class="justify-between">
       <span>Current price</span><span style:--color={ displayRed(price) }>${price}</span>
+    </div>
+    <div class="justify-between">
+      <span>Shares</span><span>{shares}</span>
     </div>
   </div>
 </div>
@@ -38,25 +42,24 @@
   overflow-wrap: break-word;
 }
 
-.container > h4 {
+.container > h3 {
   margin-bottom: 0px;
   margin-top: 10px;
 }
 
 .container > p {
-  font-size: var(--font-size);
+  font-size: 12px;
   margin-top: 0px;
 }
 
 .justify-between {
   display: flex;
-  font-size: var(--font-side);
-  color: ver(--color);
   justify-content: space-between;
 }
 
 .justify-between > span {
   color: var(--color);
+  font-size: 15px;
   margin-bottom: 8px;
 }
 </style>
