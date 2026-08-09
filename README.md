@@ -1,6 +1,6 @@
 # ETF Watchdog API 🐕📈
 
-A high-performance, asynchronous REST API built with **FastAPI** to track ETF and stock prices. This project leverages the **Twelve Data API** for real-time and historical market data, designed for speed and modern Python standards.
+A full-stack ETF tracker with a high-performance **FastAPI** backend and a new **SvelteKit** frontend. The backend leverages the **Twelve Data API** for real-time and historical market data, while the frontend provides a modern UI for viewing tracked symbols.
 
 > **Note:** This is a personal project under active development.
 
@@ -8,6 +8,7 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 
 - **FastAPI Powered:** Built on Python 3.14+ for high performance and strict typing.
 - **Asynchronous:** Uses `aiohttp` for non-blocking external API requests.
+- **Svelte Frontend:** Includes a SvelteKit + Tailwind CSS client app under `frontend/`.
 - **Test Coverage:** Includes both synchronous and asynchronous tests for services and routers.
 - **Modern Tooling:** Managed by `uv` for lightning-fast dependency resolution.
 - **Docker Ready:** Includes a multi-stage Dockerfile for easy containerization.
@@ -15,11 +16,12 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 
 ## Tech Stack
 
-- **Framework:** FastAPI, Pydantic
-- **Language:** Python 3.14+
-- **Package Manager:** uv
+- **Backend Framework:** FastAPI, Pydantic, SQLModel
+- **Frontend Framework:** SvelteKit (Svelte 5), Tailwind CSS
+- **Languages:** Python 3.14+, TypeScript/JavaScript
+- **Package Managers:** uv (backend), npm/pnpm (frontend)
 - **Data Sources:** Twelve Data API, Newsdata.io
-- **Database:** SQLModel / SQLite
+- **Database:** SQLite
 
 ## Getting Started
 
@@ -27,6 +29,7 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 
 - Python 3.14+
 - [uv](https://github.com/astral-sh/uv) installed
+- Node.js 20+ (for the Svelte frontend)
 
 ### Installation
 
@@ -36,12 +39,18 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
     cd etf-watchdog-api
     ```
 
-2.  **Sync dependencies:**
+2.  **Sync backend dependencies:**
     ```bash
     uv sync
     ```
 
-3.  **Configure Environment:**
+3.  **Install frontend dependencies:**
+    ```bash
+    cd frontend
+    npm install
+    ```
+
+4.  **Configure Environment:**
     Create a `.env` file in the root directory and add your Twelve Data and NewsData.io API keys:
     ```env
     TWELVE_DATA_API_KEY=your_twelve_data_api_key_here
@@ -51,10 +60,19 @@ A high-performance, asynchronous REST API built with **FastAPI** to track ETF an
 ### Running the Application
 
 **Local Development:**
+
+Start the backend:
 ```bash
 uv run fastapi dev backend/main.py
 ```
-The API will be available at `http://127.0.0.1:8000`.
+Start the frontend in a second terminal:
+```bash
+cd frontend
+npm run dev
+```
+
+- API: `http://127.0.0.1:8000`
+- Frontend: `http://127.0.0.1:5173`
 
 **Docker:**
 ```bash
@@ -74,7 +92,7 @@ uv run pytest tests
 
 Project docs live under `docs/` and are organized by purpose:
 
-- `docs/architecture/` covers project structure and logger design/configuration details.
+- `docs/architecture/` covers project structure and backend/frontend design details.
 - `docs/deployment/` includes Docker build and run guidance for local container usage.
 - `docs/learning/` stores personal learning notes, reference links, and FastAPI tutorial snippets used as quick examples.
 

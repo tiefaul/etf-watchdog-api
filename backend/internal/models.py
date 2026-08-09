@@ -38,7 +38,7 @@ class Stock(StockBase, table=True):
         server_onupdate=FetchedValue(),
         ))
 
-    prices: list["StockPrice"] = Relationship(back_populates="stock", cascade_delete=True)
+    prices: list["StockPrice"] = Relationship(back_populates="stock", cascade_delete=True) # noqa
 
 # raises 422
 class StockCreate(StockBase):
