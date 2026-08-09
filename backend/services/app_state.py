@@ -1,6 +1,6 @@
+import aiohttp
 from fastapi import Request
 from sqlmodel import Session
-import aiohttp
 
 """Made these their own modules mainly because I needed to pass the db_session into pytest."""
 

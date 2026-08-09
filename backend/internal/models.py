@@ -1,16 +1,17 @@
-from sqlmodel import (
-        FetchedValue,
-        Field,
-        SQLModel,
-        UniqueConstraint,
-        TIMESTAMP,
-        Column,
-        text,
-        Relationship
-        )
 from datetime import datetime
-from ..services.lifespan import DatabaseManager
 
+from sqlmodel import (
+    TIMESTAMP,
+    Column,
+    FetchedValue,
+    Field,
+    Relationship,
+    SQLModel,
+    UniqueConstraint,
+    text,
+)
+
+from ..services.lifespan import DatabaseManager
 
 """Stock Models"""
 class StockBase(SQLModel):
@@ -37,7 +38,7 @@ class Stock(StockBase, table=True):
         server_onupdate=FetchedValue(),
         ))
 
-    prices: list["StockPrice"] = Relationship(back_populates="stock", cascade_delete=True)
+    prices: list["StockPrice"] = Relationship(back_populates="stock", cascade_delete=True) # noqa
 
 # raises 422
 class StockCreate(StockBase):

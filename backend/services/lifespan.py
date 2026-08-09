@@ -1,5 +1,7 @@
-import aiohttp
 from socket import AF_INET
+from typing import ClassVar
+
+import aiohttp
 from sqlmodel import Session, SQLModel, create_engine
 
 
@@ -35,7 +37,7 @@ class DatabaseManager:
 
     DATABASE_NAME = "sqlitedb.db"
     DATABASE_URL = f"sqlite:///{DATABASE_NAME}"
-    connect_args = {"check_same_thread": False}
+    connect_args: ClassVar[dict[str, bool]] = {"check_same_thread": False}
     engine = create_engine(
             DATABASE_URL,
             echo=True, # remove True for prod

@@ -1,3 +1,13 @@
-@import 'tailwindcss';
-@plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
+/* @import 'tailwindcss'; */
+/* @plugin '@tailwindcss/forms'; */
+/* @plugin '@tailwindcss/typography'; */
+
+:root {
+	--primary-color: #fafafa;
+	--primary-font: 'Roboto', sans-serif;
+}
+
+body {
+	background-color: var(--primary-color);
+	font-family: var(--primary-font);
+}

@@ -9,16 +9,16 @@ from backend.internal.models import (
         StockNews,
         StockPrice
         )
-from datetime import date
+from datetime import datetime
 from backend.routers.stocks import get_latest_trading_day
 
 
 def test_get_latest_trading_day_monday_returns_friday():
-    assert get_latest_trading_day(date(2026, 7, 6)).isoformat() == "2026-07-03"
+    assert get_latest_trading_day(datetime(2026, 7, 6)) == "2026-07-03"
 
 
 def test_get_latest_trading_day_sunday_returns_friday():
-    assert get_latest_trading_day(date(2026, 7, 5)).isoformat() == "2026-07-03"
+    assert get_latest_trading_day(datetime(2026, 7, 5)) == "2026-07-03"
 
 
 def test_get_all_stocks_success(client: TestClient, db_session: Session):
@@ -148,7 +148,7 @@ def test_delete_stock_cascade_deletes_related_prices(client: TestClient, db_sess
 
 
 def test_get_symbol_price_success(client: TestClient, db_session: Session):
-    latest_trading_day = get_latest_trading_day(date.today()).isoformat()
+    latest_trading_day = get_latest_trading_day(datetime.now())
     add_stock_statement = Stock(ticker_symbol="AAPL")
     db_session.add(add_stock_statement)
     db_session.commit()
@@ -179,7 +179,7 @@ def test_get_symbol_price_raises_http_404_on_fetch_date(mock_fetch_date, client:
 
     response = client.get("/api/etfs/AAPL/price")
     assert response.status_code == 404
-    latest_trading_day = get_latest_trading_day(date.today()).isoformat()
+    latest_trading_day = get_latest_trading_day(datetime.now())
     assert response.json() == {"detail": f"Could not find a price on {latest_trading_day}. This could have been a holiday, or sometime in the future."}
 
 
@@ -208,7 +208,7 @@ def test_get_symbol_price_by_date_raises_http_404(mock_fetch_date, client: TestC
 
     response = client.get("/api/etfs/FAKE/price?price_date=2025-04-25")
     assert response.status_code == 404
-    assert response.json() == {"detail": "Could not find a price on 2025-04-25. This could have been a weekend, holiday, or sometime in the future."}
+    assert response.json() == {"detail": "Could not find a price on 2025-04-25. This could have been a weekend, holiday, sometime in the future, or the stock wasn't listed at the time."}
 
 
 @patch("backend.routers.stocks.stock.fetch_news", new_callable=AsyncMock)
