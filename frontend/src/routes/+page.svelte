@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { Card } from '$lib/components';
+  import { Card, Switch } from '$lib/components';
   let { data } = $props();
   let card = $state(true);
 </script>
@@ -44,6 +44,7 @@
 </main>
 
 
+
 <style>
   .card-flex-container {
     padding: 0px 10px 10px 10px;
@@ -54,7 +55,6 @@
   }
 
   .switch-container {
-    border-radius: 12px;
     width: max-content;
     background-color: lightgray;
     margin-left: 10px;
