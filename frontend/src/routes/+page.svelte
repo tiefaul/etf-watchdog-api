@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { Card, Switch } from '$lib/components';
+  import { Card } from '$lib/components';
   let { data } = $props();
   let card = $state(true);
 </script>
@@ -112,7 +112,6 @@
 
   .table-container td, th {
     border: 1px solid #dddddd;
-    border-right-style: hidden;
     border-left-style: hidden;
     text-align: left;
     padding: 8px;
