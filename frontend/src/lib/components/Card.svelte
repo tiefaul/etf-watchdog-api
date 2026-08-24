@@ -1,6 +1,7 @@
 <script lang="ts">
   let {
     ticker_symbol = 'Placeholder',
+    company_name = 'Placeholder',
     price = '0',
     shares = '0'
     } = $props()
@@ -13,7 +14,7 @@
 <div class="card">
   <div class="container">
     <h3><b>{ticker_symbol}</b></h3>
-    <p>company name</p>
+    <p>{company_name}</p>
     <div class="justify-between">
       <span>Current price</span><span style:--color={ displayRed(price) }>${price}</span>
     </div>

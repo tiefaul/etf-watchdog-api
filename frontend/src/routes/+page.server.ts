@@ -5,7 +5,8 @@
      stocks: Stocks.map((stock) => ({
        ticker_symbol: stock.ticker_symbol,
        price: stock.price,
-       shares: stock.shares
+       shares: stock.shares,
+       company_name: stock.company_name,
      }))
    };
  }

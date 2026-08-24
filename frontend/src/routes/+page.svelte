@@ -1,17 +1,45 @@
 <script lang='ts'>
-  import { Card, Switch } from '$lib/components';
+  import { Card } from '$lib/components';
   let { data } = $props();
+  let card = $state(true)
 </script>
 
 <div class="switch-container">
-  <Switch />
+  <button onclick={() => card = true}>Card View</button>
+  <button onclick={() => card = false}>Table View</button>
 </div>
 
-<div class="card-flex-container">
-  {#each data.stocks as { ticker_symbol, price, shares }}
-    <Card ticker_symbol={ticker_symbol} price={price} shares={shares}  />
-  {/each}
-</div>
+{#if card}
+  <div class="card-flex-container">
+    {#each data.stocks as { ticker_symbol, price, shares, company_name }}
+      <Card {ticker_symbol} {price} {shares} {company_name} />
+    {/each}
+  </div>
+{:else}
+  <div class ="table-container">
+    <h3>Stock Holdings</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Company Name</th>
+            <th>Closing Price</th>
+            <th>Shares</th>
+          </tr>
+        </thead>
+        {#each data.stocks as { ticker_symbol, price, shares, company_name }}
+          <tbody>
+            <tr>
+              <td>{ticker_symbol}</td>
+              <td>{company_name}</td>
+              <td>{price}</td>
+              <td>{shares}</td>
+            </tr>
+          </tbody>
+        {/each}
+    </table>
+  </div>
+{/if}
 
 
 <style>
@@ -25,8 +53,48 @@
 
   .switch-container {
     border-radius: 12px;
-    width: max-content; 
+    width: max-content;
     background-color: lightgray;
     margin-left: 10px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .switch-container button {
+    border: none;
+    background: none;
+    padding: 5px 20px;
+    text-align: center;
+    font-weight: bold;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 4px 4px 4px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
+
+  .switch-container button:focus {
+    background-color: white;
+    border-radius: 10px;
+  }
+
+  .table-container {
+    padding: 10px 10px 10px 10px;
+  }
+
+  .table-container table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .table-container td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+
+  .table-container tbody:nth-child(odd) {
+    background-color: #dddddd;
   }
 </style>
