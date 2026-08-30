@@ -90,16 +90,24 @@
 
   .table-container {
     padding: 10px 10px 10px 10px;
+    border-style: outset inset inset outset;
+    border-radius: 15px;
+    margin-top: 20px;
+    border-width: 2px;
   }
 
   .table-container table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    border-left-style: hidden;
+    border-right-style: hidden;
   }
 
   .table-container td, th {
     border: 1px solid #dddddd;
+    border-right-style: hidden;
+    border-left-style: hidden;
     text-align: left;
     padding: 8px;
   }
