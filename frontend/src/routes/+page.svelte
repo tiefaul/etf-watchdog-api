@@ -1,12 +1,12 @@
 <script lang='ts'>
   import { Card } from '$lib/components';
   let { data } = $props();
-  let card = $state(true)
+  let card = $state(true);
 </script>
 
 <div class="switch-container">
-  <button onclick={() => card = true}>Card View</button>
-  <button onclick={() => card = false}>Table View</button>
+  <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
+  <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
 </div>
 
 {#if card}
@@ -60,7 +60,7 @@
     flex-wrap: wrap;
   }
 
-  .switch-container button {
+  .switch-container-button {
     border: none;
     background: none;
     padding: 5px 20px;
@@ -73,7 +73,17 @@
     cursor: pointer;
   }
 
-  .switch-container button:focus {
+  .switch-container-button-active {
+    border: none;
+    background: none;
+    padding: 5px 20px;
+    text-align: center;
+    font-weight: bold;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 4px 4px 4px;
+    transition-duration: 0.4s;
+    cursor: pointer;
     background-color: white;
     border-radius: 10px;
   }
