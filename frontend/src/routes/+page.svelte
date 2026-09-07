@@ -41,7 +41,6 @@
   </div>
 {/if}
 
-
 <style>
   .card-flex-container {
     padding: 0px 10px 10px 10px;
@@ -94,6 +93,10 @@
     border-radius: 15px;
     margin-top: 20px;
     border-width: 2px;
+  }
+
+  .table-container h3 {
+    margin-top: 0px;
   }
 
   .table-container table {
