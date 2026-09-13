@@ -21,6 +21,11 @@ interface CreateStock {
 }
 
 
+interface DeleteStock {
+  success: string;
+}
+
+
 const getClient = async (path: string = '') => {
   try {
     const response = await fetch(`${base_url + path}`);
@@ -65,6 +70,27 @@ const postClient = async (body: CreateStock, path: string = '') => {
 }
 
 
+const deleteClient = async (path: string = '') => {
+  try {
+    const response = await fetch(`${base_url + path}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      let responseError = await response.json();
+      throw new Error(`${responseError.detail}`);
+    }
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      console. error('API ERROR:', error.message);
+    } else {
+      console.error('An unknown error occured');
+    }
+  }
+}
+
+
 const getStocks = async (): Promise<string[]> => {
   const data = await getClient();
   return data;
@@ -89,4 +115,8 @@ const createStock = async (ticker_symbol: string): Promise<StockData> => {
   return data;
 }
 
-console.log(await getStocks('googl'));
+
+const deleteStock = async (ticker_symbol: string): Promise<DeleteStock> => {
+  const data = await deleteClient(ticker_symbol);
+  return data;
+}
