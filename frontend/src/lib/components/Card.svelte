@@ -11,14 +11,14 @@
     }
 </script>
 
-<div class="card">
-  <div class="container">
+<div class='card'>
+  <div class='container'>
     <h3><b>{ticker_symbol}</b></h3>
     <p>{company_name}</p>
-    <div class="justify-between">
+    <div class='justify-between'>
       <span>Current price</span><span style:--color={ displayRed(price) }>${price}</span>
     </div>
-    <div class="justify-between">
+    <div class='justify-between'>
       <span>Shares</span><span>{shares}</span>
     </div>
   </div>
