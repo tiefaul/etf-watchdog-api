@@ -91,32 +91,33 @@ const deleteClient = async (path: string = '') => {
 }
 
 
-const getStocks = async (): Promise<string[]> => {
+export const getStocks = async (): Promise<string[]> => {
   const data = await getClient();
   return data;
 }
 
 
-const getStockPrice = async (ticker_symbol: string): Promise<StockPrice> => {
+export const getStockPrice = async (ticker_symbol: string): Promise<StockPrice> => {
     const data = await getClient(`${ticker_symbol}/price`);
     return data;
 }
 
 
-const getStockData = async (ticker_symbol: string): Promise<StockData> => {
+export const getStockData = async (ticker_symbol: string): Promise<StockData> => {
   const data = await getClient(`${ticker_symbol}`);
   return data;
 }
 
 
-const createStock = async (ticker_symbol: string): Promise<StockData> => {
+export const createStock = async (ticker_symbol: string): Promise<StockData> => {
   const payload = {'ticker_symbol': ticker_symbol};
   const data = await postClient(payload);
   return data;
 }
 
 
-const deleteStock = async (ticker_symbol: string): Promise<DeleteStock> => {
+export const deleteStock = async (ticker_symbol: string): Promise<DeleteStock> => {
   const data = await deleteClient(ticker_symbol);
   return data;
 }
+
