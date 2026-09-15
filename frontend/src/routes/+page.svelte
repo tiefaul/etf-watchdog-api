@@ -4,6 +4,7 @@
   let card = $state(true);
 </script>
 
+
 <div class="switch-container">
   <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
   <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
@@ -16,7 +17,7 @@
     {/each}
   </div>
 {:else}
-  <div class ="table-container">
+  <div class="table-container">
     <h3>Stock Holdings</h3>
       <table>
         <thead>
