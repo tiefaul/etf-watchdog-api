@@ -1,5 +1,5 @@
-import { getStocks, getStockData, getStockPrice } from '../lib/components/dummy_data.ts'
-
+import { getStocks, getStockData, getStockPrice, createStock } from '../lib/api/stocks.ts';
+import type { Actions } from './$types';
 
 interface Stocks {
   ticker_symbol: string;
@@ -25,3 +25,11 @@ export const load = async () => {
   }
   return {stocks: stocks};
 }
+
+
+export const actions = {
+  default: async ({ request }) => {
+    const data = await request.formData();
+    createStock(data.get('ticker_symbol'));
+  }
+} satisfies Actions;

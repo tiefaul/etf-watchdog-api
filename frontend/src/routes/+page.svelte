@@ -5,42 +5,45 @@
 </script>
 
 
-<div class="switch-container">
-  <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
-  <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
-</div>
+<main>
+  <div class="switch-container">
+    <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
+    <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
+  </div>
 
-{#if card}
-  <div class="card-flex-container">
-    {#each data.stocks as { ticker_symbol, price, shares, company_name }}
-      <Card {ticker_symbol} {price} {shares} {company_name} />
-    {/each}
-  </div>
-{:else}
-  <div class="table-container">
-    <h3>Stock Holdings</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Company Name</th>
-            <th>Closing Price</th>
-            <th>Shares</th>
-          </tr>
-        </thead>
-        {#each data.stocks as { ticker_symbol, price, shares, company_name }}
-          <tbody>
+  {#if card}
+    <div class="card-flex-container">
+      {#each data.stocks as { ticker_symbol, price, shares, company_name }}
+        <Card {ticker_symbol} {price} {shares} {company_name} />
+      {/each}
+    </div>
+  {:else}
+    <div class="table-container">
+      <h3>Stock Holdings</h3>
+        <table>
+          <thead>
             <tr>
-              <td>{ticker_symbol}</td>
-              <td>{company_name}</td>
-              <td>{price}</td>
-              <td>{shares}</td>
+              <th>Symbol</th>
+              <th>Company Name</th>
+              <th>Closing Price</th>
+              <th>Shares</th>
             </tr>
-          </tbody>
-        {/each}
-    </table>
-  </div>
-{/if}
+          </thead>
+          {#each data.stocks as { ticker_symbol, price, shares, company_name }}
+            <tbody>
+              <tr>
+                <td>{ticker_symbol}</td>
+                <td>{company_name}</td>
+                <td>{price}</td>
+                <td>{shares}</td>
+              </tr>
+            </tbody>
+          {/each}
+      </table>
+    </div>
+  {/if}
+</main>
+
 
 <style>
   .card-flex-container {
