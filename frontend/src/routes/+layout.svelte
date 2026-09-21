@@ -7,6 +7,7 @@
   let showModal: boolean = $state(false);
 </script>
 
+
 <svelte:head>
   <link rel="icon" href={favicon} />
   <style>
@@ -14,18 +15,18 @@
   </style>
 </svelte:head>
 
-
 <header class='header-flex-container'>
   <h1>ETF Watchdog</h1>
   <button onclick={() => (showModal = true)}>+ Add Stock</button>
 </header>
-
-<ModalButton bind:showModal />
-
 <div>
   <p>Track and manage your investments</p>
   <hr />
 </div>
+
+<ModalButton bind:showModal />
+
+{@render children()}
 
 
 <style>
@@ -47,6 +48,3 @@
     margin-bottom: 15px;
   }
 </style>
-
-
-{@render children()}

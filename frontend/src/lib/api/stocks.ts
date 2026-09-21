@@ -98,8 +98,8 @@ export const getStocks = async (): Promise<string[]> => {
 
 
 export const getStockPrice = async (ticker_symbol: string): Promise<StockPrice> => {
-    const data = await getClient(`${ticker_symbol}/price`);
-    return data;
+   const data = await getClient(`${ticker_symbol}/price`);
+   return data;
 }
 
 
