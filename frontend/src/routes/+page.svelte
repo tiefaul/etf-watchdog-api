@@ -10,7 +10,6 @@
     <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
     <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
   </div>
-
   {#if card}
     <div class="card-flex-container">
       {#each data.stocks as { ticker_symbol, price, shares, company_name }}
