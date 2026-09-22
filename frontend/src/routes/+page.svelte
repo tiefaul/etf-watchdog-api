@@ -54,6 +54,7 @@
   }
 
   .switch-container {
+    border-radius: 12px;
     width: max-content;
     background-color: lightgray;
     margin-left: 10px;
