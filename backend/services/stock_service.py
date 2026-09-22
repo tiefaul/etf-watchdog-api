@@ -1,6 +1,7 @@
 import logging
 
 import aiohttp
+from pydantic import BaseModel
 
 from .logger_service import setup_logging
 
@@ -13,13 +14,24 @@ TWELVE_DATA_URL = "https://api.twelvedata.com"
 NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 
+class FetchQuoteModel(BaseModel):
+    price: float
+    close_price: float | None = None
+    date: str
+    name: str
+
+
+class FetchDatePriceModel(BaseModel):
+    price: float
+
+
 class StockService:
     async def fetch_quote_data(
         self,
         client: aiohttp.ClientSession,
         symbol: str,
         api_key: str | None,
-    ) -> dict[str, str | float | None]:
+    ) -> FetchQuoteModel:
         """
         Fetch current quote data for a symbol from Twelve Data.
 
@@ -29,20 +41,18 @@ class StockService:
             api_key (str | None): The API key for Twelve Data.
 
         Returns:
-            dict[str, str | float | None]: Quote fields with keys:
-                - "price": opening price as provided by Twelve Data.
-                - "close_price": closing price converted to ``float``.
-                - "date": quote timestamp.
-                - "name": company name.
+            FetchQuoteModel: Parsed quote payload with:
+                - ``price`` as ``float``.
+                - ``close_price`` as ``float | None``.
+                - ``date`` as quote timestamp.
+                - ``name`` as company name.
 
         Raises:
             aiohttp.ClientResponseError: If the upstream API returns a non-2xx status.
-            TypeError: If ``close`` is missing and cannot be converted to ``float``.
-            ValueError: If ``close`` is present but not numeric.
             KeyError: If the JSON response is empty.
+            pydantic.ValidationError: If required fields are missing or values are invalid.
         """
         parameters = {"symbol": symbol, "apikey": api_key}
-        output: dict[str, str | float | None] = {}
 
         async with client.get(f"{TWELVE_DATA_URL}/quote", params=parameters) as resp:
             logger.debug("Attempting to find %s current stock price.", symbol)
@@ -52,12 +62,11 @@ class StockService:
         if not response_data:
             raise KeyError("Error when fetching the price data.")
 
-        output["price"] = response_data.get("open")
-        output["close_price"] = float(response_data.get("close", None))
-        output["date"] = response_data.get("datetime")
-        output["name"] = response_data.get("name")
+        output = FetchQuoteModel(price=response_data.get("open"),
+                                 close_price=response_data.get("close"),
+                                 date=response_data.get("datetime"),
+                                 name=response_data.get("name"))
         logger.info("Successfully obtained %s stock price.", symbol)
-
         return output
 
 
@@ -67,7 +76,7 @@ class StockService:
         symbol: str,
         date: str,
         api_key: str | None,
-    ) -> dict[str, float]:
+    ) -> FetchDatePriceModel:
         """
         Fetch end-of-day closing price for a symbol on a specific date.
 
@@ -78,13 +87,12 @@ class StockService:
             api_key (str | None): The API key for Twelve Data.
 
         Returns:
-            dict[str, float]: A dictionary containing ``{"price": <float>}``.
+            FetchDatePriceModel: Parsed payload with ``price`` as ``float``.
 
         Raises:
             aiohttp.ClientResponseError: If the upstream API returns a non-2xx status.
-            TypeError: If ``close`` is missing and cannot be converted to ``float``.
-            ValueError: If ``close`` is present but not numeric.
             KeyError: If the JSON response is empty.
+            pydantic.ValidationError: If ``close`` is missing or not numeric.
         """
         logger.debug("Attempting to obtain %s price by date: %s.", symbol, date)
         parameters = {
@@ -92,7 +100,6 @@ class StockService:
             "date": date,
             "apikey": api_key,
         }
-        output: dict[str, float] = {}
 
         async with client.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             resp.raise_for_status()
@@ -102,7 +109,7 @@ class StockService:
             raise KeyError("Error when fetching the date.")
 
         logger.info("Successfully obtained %s price by date: %s", symbol, date)
-        output["price"] = float(response_data.get("close"))
+        output = FetchDatePriceModel(price=response_data.get("close"))
 
         return output
 
