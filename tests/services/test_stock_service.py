@@ -1,5 +1,7 @@
 import pytest
 
+from backend.services.stock_service import FetchDatePriceModel, FetchQuoteModel
+
 
 TWELVE_URL = "https://api.twelvedata.com"
 NEW_DATA_URL = "https://newsdata.io/api/1"
@@ -11,11 +13,11 @@ async def test_fetch_quote_data_success(mock_response, async_client, stock_servi
     response = {"open": "123", "close": "12343.0", "datetime": "2026-04-26", "name": "fake"}
     mock_response.get(f"{TWELVE_URL}/quote?symbol=FAKE&apikey=faketoken", status=200, payload=response)
     data = await func(client=async_client, symbol="FAKE", api_key="faketoken")
-    assert isinstance(data, dict)
-    assert data["price"] == "123" # NOTE something needs to be done with this.
-    assert data["close_price"] == 12343.0
-    assert data["date"] == "2026-04-26"
-    assert data["name"] == "fake"
+    assert isinstance(data, FetchQuoteModel)
+    assert data.price == 123.0
+    assert data.close_price == 12343.0
+    assert data.date == "2026-04-26"
+    assert data.name == "fake"
 
 
 @pytest.mark.asyncio
@@ -32,8 +34,8 @@ async def test_fetch_date_success(mock_response, async_client, stock_service):
     response = {"close": "123.34"}
     mock_response.get(f"{TWELVE_URL}/eod?symbol=fake&date=2026-03-18&apikey=faketoken", status=200, payload=response)
     data = await func(client=async_client, symbol="fake", date="2026-03-18", api_key="faketoken")
-    assert isinstance(data, dict)
-    assert data["price"] == 123.34
+    assert isinstance(data, FetchDatePriceModel)
+    assert data.price == 123.34
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,7 @@
 import logging
 
 import aiohttp
+from pydantic import BaseModel
 
 from .logger_service import setup_logging
 
@@ -13,10 +14,26 @@ TWELVE_DATA_URL = "https://api.twelvedata.com"
 NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 
+class FetchQuoteModel(BaseModel):
+    price: float
+    close_price: float | None = None
+    date: str
+    name: str
+
+
+class FetchDatePriceModel(BaseModel):
+    price: float
+
+
 class StockService:
-    async def fetch_quote_data(self, client: aiohttp.ClientSession, symbol: str, api_key: str | None) -> dict[str, str]:
+    async def fetch_quote_data(
+        self,
+        client: aiohttp.ClientSession,
+        symbol: str,
+        api_key: str | None,
+    ) -> FetchQuoteModel:
         """
-        Fetch quote data for a symbol from the Twelve Data API.
+        Fetch current quote data for a symbol from Twelve Data.
 
         Args:
             client (aiohttp.ClientSession): Reusable HTTP client session.
@@ -24,35 +41,42 @@ class StockService:
             api_key (str | None): The API key for Twelve Data.
 
         Returns:
-            dict: Quote fields with keys:
-                - "price": opening price from the API response.
-                - "close_price": closing price converted to ``float``.
-                - "date": quote timestamp.
-                - "name": company name.
+            FetchQuoteModel: Parsed quote payload with:
+                - ``price`` as ``float``.
+                - ``close_price`` as ``float | None``.
+                - ``date`` as quote timestamp.
+                - ``name`` as company name.
 
         Raises:
             aiohttp.ClientResponseError: If the upstream API returns a non-2xx status.
-            TypeError: If ``close`` is missing and cannot be converted to ``float``.
-            ValueError: If ``close`` is present but not numeric.
             KeyError: If the JSON response is empty.
+            pydantic.ValidationError: If required fields are missing or values are invalid.
         """
         parameters = {"symbol": symbol, "apikey": api_key}
-        output = {}
+
         async with client.get(f"{TWELVE_DATA_URL}/quote", params=parameters) as resp:
-            logger.debug(f"Attempting to find {symbol} current stock price.")
+            logger.debug("Attempting to find %s current stock price.", symbol)
             resp.raise_for_status()
-            response = await resp.json()
-            if response:
-                output["price"] = response.get("open", None) # NOTE need to do something with this.
-                output["close_price"] = float(response.get("close", None))
-                output["date"] = response.get("datetime", None)
-                output["name"] = response.get("name", None)
-                logger.info(f"Successfully obtained {symbol} stock price.")
-                return output
+            response_data = await resp.json()
+
+        if not response_data:
             raise KeyError("Error when fetching the price data.")
 
+        output = FetchQuoteModel(price=response_data.get("open"),
+                                 close_price=response_data.get("close"),
+                                 date=response_data.get("datetime"),
+                                 name=response_data.get("name"))
+        logger.info("Successfully obtained %s stock price.", symbol)
+        return output
 
-    async def fetch_date(self, client: aiohttp.ClientSession, symbol: str, date: str, api_key: str | None) -> dict[str, float]:
+
+    async def fetch_date(
+        self,
+        client: aiohttp.ClientSession,
+        symbol: str,
+        date: str,
+        api_key: str | None,
+    ) -> FetchDatePriceModel:
         """
         Fetch end-of-day closing price for a symbol on a specific date.
 
@@ -63,32 +87,39 @@ class StockService:
             api_key (str | None): The API key for Twelve Data.
 
         Returns:
-            dict: A dictionary containing ``{"price": <float>}``.
+            FetchDatePriceModel: Parsed payload with ``price`` as ``float``.
 
         Raises:
             aiohttp.ClientResponseError: If the upstream API returns a non-2xx status.
-            TypeError: If ``close`` is missing and cannot be converted to ``float``.
-            ValueError: If ``close`` is present but not numeric.
             KeyError: If the JSON response is empty.
+            pydantic.ValidationError: If ``close`` is missing or not numeric.
         """
-        logger.debug(f"Attempting to obtain {symbol} price by date: {date}.")
+        logger.debug("Attempting to obtain %s price by date: %s.", symbol, date)
         parameters = {
             "symbol": symbol,
             "date": date,
             "apikey": api_key,
         }
-        output: dict[str, float] = {}
+
         async with client.get(f"{TWELVE_DATA_URL}/eod", params=parameters) as resp:
             resp.raise_for_status()
-            response = await resp.json()
-            if response:
-                logger.info(f"Successfully obtained {symbol} price by date: {date}")
-                output["price"] = float(response.get("close"))
-                return output
+            response_data = await resp.json()
+
+        if not response_data:
             raise KeyError("Error when fetching the date.")
 
+        logger.info("Successfully obtained %s price by date: %s", symbol, date)
+        output = FetchDatePriceModel(price=response_data.get("close"))
 
-    async def fetch_news(self, client: aiohttp.ClientSession, symbol: str, api_key: str | None) -> dict | None:
+        return output
+
+
+    async def fetch_news(
+        self,
+        client: aiohttp.ClientSession,
+        symbol: str,
+        api_key: str | None,
+    ) -> dict | None:
         """
         Fetch latest market news for a symbol from the NewsData.io API.
 
@@ -108,21 +139,33 @@ class StockService:
             ValueError: If the API request succeeds but returns 0 news articles.
         """
         parameters = {"qInTitle": symbol, "apikey": api_key}
-        output = {"totalResults": 0, "articles": []}
+
         async with client.get(f"{NEWS_DATA_URL}/market", params=parameters) as resp:
             resp.raise_for_status()
-            response = await resp.json()
-            if response:
-                logger.debug(f"Attempting to obtain news about {symbol}.")
-                if response.get('totalResults') > 0:
-                    output['totalResults'] = response.get('totalResults', None)
-                    # Iterate through the results and extract only the relevant fields (link and description)
-                    for article in response.get('results', []):
-                        append_article = {"link": article.get('link', None), "description": article.get('description', None)}
-                        output["articles"].append(append_article)
-                    logger.info(f"Successfully obtained news about {symbol}.")
-                    return output
-                raise ValueError("News API returned 0 results.")
+            response_data = await resp.json()
+
+        if not response_data:
+            return None
+
+        logger.debug("Attempting to obtain news about %s.", symbol)
+        total_results = response_data.get("totalResults") or 0
+        if total_results <= 0:
+            raise ValueError("News API returned 0 results.")
+
+        articles = [
+            {
+                "link": article.get("link"),
+                "description": article.get("description"),
+            }
+            for article in response_data.get("results", [])
+        ]
+        output = {
+            "totalResults": total_results,
+            "articles": articles,
+        }
+        logger.info("Successfully obtained news about %s.", symbol)
+
+        return output
 
 
 if __name__ == "__main__":

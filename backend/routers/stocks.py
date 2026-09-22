@@ -87,7 +87,7 @@ async def post_stock(
                 )
         add_symbol = Stock(
                 ticker_symbol=symbol.ticker_symbol.upper(),
-                company_name=stock_info.get("name"),
+                company_name=stock_info.name,
                 currency="USD"
                 )
         db_session.add(add_symbol)
@@ -160,7 +160,7 @@ async def get_price(
                 add_latest_price_data = StockPrice(
                         stock_id=cast(int, symbol_id),
                         price_date=latest_trading_day,
-                        close_price=symbol_price["price"]
+                        close_price=symbol_price.price
                         )
                 db_session.add(add_latest_price_data)
                 db_session.commit()
@@ -181,7 +181,7 @@ async def get_price(
                 add_price_data = StockPrice(
                         stock_id=cast(int, symbol_id),
                         price_date=str(price_date.strftime("%Y-%m-%d")),
-                        close_price=symbol_date_price["price"]
+                        close_price=symbol_date_price.price
                         )
                 db_session.add(add_price_data)
                 db_session.commit()

@@ -9,6 +9,7 @@ from backend.internal.models import (
         StockNews,
         StockPrice
         )
+from backend.services.stock_service import FetchQuoteModel
 from datetime import datetime
 from backend.routers.stocks import get_latest_trading_day
 
@@ -39,12 +40,12 @@ def test_get_all_stocks_raises_http_404(client: TestClient):
 
 @patch("backend.routers.stocks.stock.fetch_quote_data", new_callable=AsyncMock)
 def test_post_stock_success(mock_fetch_quote_data, client: TestClient):
-    mock_fetch_quote_data.return_value = {
-        "name": "iShares US Technology ETF",
-        "price": "140.50",
-        "date": "2024-05-01 16:00:00",
-        "close_price": 140.00
-    }
+    mock_fetch_quote_data.return_value = FetchQuoteModel(
+        name="iShares US Technology ETF",
+        price="140.50",
+        date="2024-05-01 16:00:00",
+        close_price=140.00,
+    )
 
     response = client.post("/api/etfs", json={"ticker_symbol": "IYW"})
     assert response.status_code == 200
