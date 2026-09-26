@@ -15,6 +15,7 @@
 >
   <div>
     <form method="POST">
+      <h1>Add Stock</h1>
       <label for='ticker_symbol'>
         Ticker Symbol
         <input name='ticker_symbol' id='ticker_symbol' type='text'>
@@ -23,6 +24,6 @@
     </form>
   </div>
   <div>
-    <button onclick={() => dialog.close()}>close modal</button>
+    <button onclick={() => dialog.close()}>close</button>
   </div>
 </dialog>
