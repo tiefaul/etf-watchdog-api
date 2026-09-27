@@ -34,7 +34,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin: 20px 20px 0px 20px;
+    margin: 1.25rem 1.25rem 0px 1.25rem;
   }
 
   .header-flex-container h1 {
@@ -47,20 +47,20 @@
     background: black;
     color: white;
     font-weight: bold;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     height: calc(0.25rem * 9);
     cursor: pointer;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
 
   p {
     margin-top: 0px;
-    margin-left: 20px;
+    margin-left: 1.25rem;
   }
 
   hr {
-    margin-bottom: 15px;
+    margin-bottom: 0.938rem;
   }
 </style>

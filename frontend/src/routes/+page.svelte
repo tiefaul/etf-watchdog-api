@@ -46,18 +46,18 @@
 
 <style>
   .card-flex-container {
-    padding: 0px 10px 10px 10px;
+    padding: 0px 0.625rem 10px 0.625rem;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
-    gap: 20px;
+    gap: 1.25rem;
   }
 
   .switch-container {
-    border-radius: 10px;
+    border-radius: 0.625rem;
     width: max-content;
     background-color: lightgray;
-    margin-left: 10px;
+    margin-left: 0.625rem;
     display: flex;
     flex-wrap: wrap;
   }
@@ -65,12 +65,12 @@
   .switch-container-button {
     border: none;
     background: none;
-    padding: 5px 20px;
+    padding: 0.313rem 1.25rem;
     text-align: center;
     font-weight: bold;
     display: inline-block;
-    font-size: 12px;
-    margin: 4px 4px 4px 4px;
+    font-size: 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0.25rem;
     transition-duration: 0.4s;
     cursor: pointer;
   }
@@ -78,24 +78,24 @@
   .switch-container-button-active {
     border: none;
     background: none;
-    padding: 5px 20px;
+    padding: 0.313rem 1.25rem;
     text-align: center;
     font-weight: bold;
     display: inline-block;
-    font-size: 12px;
-    margin: 4px 4px 4px 4px;
+    font-size: 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0.25rem;
     transition-duration: 0.4s;
     cursor: pointer;
     background-color: white;
-    border-radius: 10px;
+    border-radius: 0.625rem;
   }
 
   .table-container {
-    padding: 10px 10px 10px 10px;
+    padding: 0.625rem 0.625rem 0.625rem 0.625rem ;
     border-style: outset inset inset outset;
-    border-radius: 15px;
-    margin-top: 20px;
-    border-width: 2px;
+    border-radius: 0.938rem;
+    margin-top: 1.25rem;
+    border-width: 0.125rem;
   }
 
   .table-container h3 {
@@ -114,7 +114,7 @@
     border: 1px solid #dddddd;
     border-left-style: hidden;
     text-align: left;
-    padding: 8px;
+    padding: 0.5rem;
   }
 
   .table-container tbody:nth-child(odd) {
