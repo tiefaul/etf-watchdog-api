@@ -28,7 +28,6 @@
   .card {
     box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.2);
     transition: 0.3s;
-    width: 19%;
     border-radius: 0.938rem;
     margin-top: 1.25rem;
     margin-bottom: 1.25rem;

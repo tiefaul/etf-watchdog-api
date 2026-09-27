@@ -47,9 +47,8 @@
 <style>
   .card-flex-container {
     padding: 0px 0.625rem 10px 0.625rem;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 25rem));
     gap: 1.25rem;
   }
 
