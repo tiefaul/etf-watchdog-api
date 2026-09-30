@@ -40,7 +40,7 @@ class Stock(StockBase, table=True):
 
     prices: list["StockPrice"] = Relationship(back_populates="stock", cascade_delete=True) # noqa
 
-# raises 422
+
 class StockCreate(StockBase):
     pass
 

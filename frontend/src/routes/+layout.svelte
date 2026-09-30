@@ -1,7 +1,7 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
-  import { ModalButton } from "$lib/components";
+  import { ModalDialog } from "$lib/components";
 
 	let { children } = $props();
   let showModal: boolean = $state(false);
@@ -24,7 +24,7 @@
   <hr />
 </div>
 
-<ModalButton bind:showModal />
+<ModalDialog bind:showModal />
 
 {@render children()}
 
