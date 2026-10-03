@@ -41,16 +41,34 @@
   }
 
   input[type=text] {
-    width: 100%;
+    width: 80%;
     display: inline-block;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: None;
+    background: #EEEEEE;
   }
 
   input[type=submit] {
     cursor: pointer;
+    background-color: black;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px;
+    font-weight: bold;
+    border-style: solid;
   }
+
 
   button {
     cursor: pointer;
+    color: black;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px;
+    font-weight: bold;
+    border-style: solid;
   }
 
   div {

@@ -54,7 +54,6 @@
     padding-right: 0.75rem;
   }
 
-
   p {
     margin-top: 0px;
     margin-left: 1.25rem;
