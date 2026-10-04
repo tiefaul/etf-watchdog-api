@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from pydantic import BaseModel
 from sqlmodel import (
     TIMESTAMP,
     Column,
@@ -12,6 +13,14 @@ from sqlmodel import (
 )
 
 from ..services.lifespan import DatabaseManager
+
+"""Pydantic response model for a list of available stocks"""
+class ListStocks(BaseModel):
+    id: int
+    ticker_symbol: str
+    company_name: str
+    close_price: float
+
 
 """Stock Models"""
 class StockBase(SQLModel):
@@ -47,7 +56,6 @@ class StockCreate(StockBase):
 
 class StockPublic(StockBase):
     id: int
-    ticker_symbol: str
     company_name: str | None = None
     currency: str | None = None
 

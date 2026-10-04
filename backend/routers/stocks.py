@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime, timedelta
 from typing import Annotated, cast
+from zoneinfo import ZoneInfo
 
 import aiohttp
 from dotenv import load_dotenv
@@ -13,9 +14,16 @@ from fastapi import (
     Query,
 )
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from sqlmodel import Session, col, select
+from sqlmodel import (
+    Session,
+    and_,
+    col,
+    func,
+    select,
+)
 
 from ..internal.models import (
+    ListStocks,
     Stock,
     StockCreate,
     StockPrice,
@@ -60,13 +68,24 @@ def get_latest_trading_day(current: datetime) -> str:
     return current.strftime("%Y-%m-%d")
 
 
-@router.get("/", description="List all available stocks to track.", response_model=list[str])
+@router.get("/", description="List all available stocks to track.", response_model=list[ListStocks])
 async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]):
-    statement = select(Stock.ticker_symbol)
-    stocks = db_session.exec(statement).all()
+    subq = (
+            select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(StockPrice.stock_id).subquery()
+            )
+    stocks = db_session.exec(
+            select(
+                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price
+                ).join(StockPrice).join(
+                    subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate)
+                    )
+            ).all()
+
     if not stocks:
         raise HTTPException(status_code=404, detail="No stocks found in the database.")
-    return stocks
+    return [
+            {'id': s[0], 'ticker_symbol': s[1], 'company_name': s[2], 'close_price': s[3]} for s in stocks
+            ]
 
 
 @router.post("/", description="Create a stock to track. Must be a real ticker symbol.", response_model=StockPublic)
@@ -152,7 +171,7 @@ async def get_price(
 
     # Get current closed price if date was not provided
     if not price_date:
-        latest_trading_day = get_latest_trading_day(datetime.now())
+        latest_trading_day = get_latest_trading_day(datetime.now(ZoneInfo("America/New_York")))
         data = db_session.exec(select(StockPrice).where(col(StockPrice.stock_id) == symbol_id, col(StockPrice.price_date) == latest_trading_day)).one_or_none()
         if not data:
             try:
@@ -216,7 +235,11 @@ if __name__ == "__main__":
     db_session = DatabaseManager.get_db_session()
 
     with db_session as session:
-        statement = select(StockPrice).where(StockPrice.stock_id == 1)
-        result = session.exec(statement)
-        spcx = result.all()
-        print("This is what I want to see: ", [i.stock.ticker_symbol if i else None for i in spcx])
+        subq = (
+                select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(StockPrice.stock_id).subquery()
+                )
+        statement = select(Stock.ticker_symbol, Stock.company_name, StockPrice.close_price).join(StockPrice).join(subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate))
+        query = session.exec(statement)
+        result = query.all()
+        output = [{'symbol': s[0], 'name': s[1], 'current_price': s[2]} for s in result]
+        print(output)
