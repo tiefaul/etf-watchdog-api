@@ -71,13 +71,13 @@ def get_latest_trading_day(current: datetime) -> str:
 @router.get("/", description="List all available stocks to track.", response_model=list[ListStocks])
 async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]):
     subq = (
-            select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(StockPrice.stock_id).subquery()
+            select(StockPrice.stock_id, func.max(StockPrice.price_date).label("maxdate")).group_by(StockPrice.stock_id).subquery()
             )
     stocks = db_session.exec(
             select(
                 Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price
                 ).join(StockPrice).join(
-                    subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate)
+                    subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.price_date == subq.c.maxdate)
                     )
             ).all()
 
@@ -131,7 +131,7 @@ async def get_stock(
         raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
 
 
-@router.delete("/{symbol}", description="Delete ticker symbol and all related information from the database.")
+@router.delete("/{symbol}", description="Delete ticker symbol and all related information from the database.") 
 async def delete_stock(
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: Annotated[str, Path(description="ETF ticker symbol.", min_length=1, max_length=5)],
