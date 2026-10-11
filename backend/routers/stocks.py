@@ -27,6 +27,7 @@ from ..internal.models import (
     Stock,
     StockCreate,
     StockPrice,
+    StockPriceBase,
     StockPricePublic,
     StockPublic,
 )
@@ -71,7 +72,7 @@ def get_latest_trading_day(current: datetime) -> str:
 @router.get("/", description="List all available stocks to track.", response_model=list[ListStocks])
 async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]):
     subq = (
-            select(StockPrice.stock_id, func.max(StockPrice.price_date).label("maxdate")).group_by(StockPrice.stock_id).subquery()
+            select(StockPrice.stock_id, func.max(StockPrice.price_date).label("maxdate")).group_by(col(StockPrice.stock_id)).subquery()
             )
     stocks = db_session.exec(
             select(
@@ -104,10 +105,15 @@ async def post_stock(
                 symbol.ticker_symbol.upper(),
                 TWELVE_DATA_API_KEY
                 )
+        add_close_price = StockPriceBase(
+                price_date=stock_info.date,
+                close_price=stock_info.close_price
+                )
         add_symbol = Stock(
                 ticker_symbol=symbol.ticker_symbol.upper(),
                 company_name=stock_info.name,
-                currency="USD"
+                currency="USD",
+                prices=[StockPrice(**add_close_price.model_dump())]
                 )
         db_session.add(add_symbol)
         db_session.commit()
@@ -236,7 +242,7 @@ if __name__ == "__main__":
 
     with db_session as session:
         subq = (
-                select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(StockPrice.stock_id).subquery()
+                select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(col(StockPrice.stock_id)).subquery()
                 )
         statement = select(Stock.ticker_symbol, Stock.company_name, StockPrice.close_price).join(StockPrice).join(subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate))
         query = session.exec(statement)
