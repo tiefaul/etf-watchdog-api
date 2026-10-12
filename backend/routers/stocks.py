@@ -27,7 +27,6 @@ from ..internal.models import (
     Stock,
     StockCreate,
     StockPrice,
-    StockPriceBase,
     StockPricePublic,
     StockPublic,
 )
@@ -95,7 +94,7 @@ async def post_stock(
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: StockCreate,
         ):
-    find_symbol = db_session.exec(select(Stock.ticker_symbol).where(col(Stock.ticker_symbol) == symbol.ticker_symbol.upper())).one_or_none()
+    find_symbol = db_session.exec(select(Stock.ticker_symbol).where(Stock.ticker_symbol == symbol.ticker_symbol.upper())).one_or_none()
     if find_symbol:
         raise HTTPException(status_code=409, detail="Ticker symbol already exists.")
 
@@ -105,15 +104,15 @@ async def post_stock(
                 symbol.ticker_symbol.upper(),
                 TWELVE_DATA_API_KEY
                 )
-        add_close_price = StockPriceBase(
-                price_date=stock_info.date,
-                close_price=stock_info.close_price
-                )
+        add_close_price = {
+                "price_date": stock_info.date,
+                "close_price": stock_info.close_price
+                }
         add_symbol = Stock(
                 ticker_symbol=symbol.ticker_symbol.upper(),
                 company_name=stock_info.name,
                 currency="USD",
-                prices=[StockPrice(**add_close_price.model_dump())]
+                prices=[StockPrice(**add_close_price)]
                 )
         db_session.add(add_symbol)
         db_session.commit()
@@ -131,7 +130,7 @@ async def get_stock(
     symbol = symbol.upper()
     try:
         # We use `one` here instead of `first` because we expect only one etf to return. Using `one` will return an MultipleResultsFound error if there is more than one result or NoResultFound.
-        output_symbol = db_session.exec(select(Stock).where(col(Stock.ticker_symbol) == symbol)).one()
+        output_symbol = db_session.exec(select(Stock).where(Stock.ticker_symbol == symbol)).one()
         return output_symbol
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
@@ -144,7 +143,7 @@ async def delete_stock(
         ):
     symbol = symbol.upper()
     try:
-        get_symbol = db_session.exec(select(Stock).where(col(Stock.ticker_symbol) == symbol)).one()
+        get_symbol = db_session.exec(select(Stock).where(Stock.ticker_symbol == symbol)).one()
         db_session.delete(get_symbol)
         db_session.commit()
         return {"success": "Stock deleted successfully"}
