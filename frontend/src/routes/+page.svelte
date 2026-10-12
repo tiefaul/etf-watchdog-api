@@ -1,7 +1,10 @@
 <script lang='ts'>
   import { Card } from '$lib/components';
+  import { SidebarModal } from '$lib/components';
+
   let { data } = $props();
   let card = $state(true);
+  let showSidebar: boolean = $state(false);
 </script>
 
 
@@ -10,6 +13,11 @@
     <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
     <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
   </div>
+
+  <button onclick={() => showSidebar = !showSidebar }>Toggle Sidebar</button>
+
+  <SidebarModal bind:showSidebar />
+
   {#if card}
     <div class="card-flex-container">
       {#each data.stocks as { ticker_symbol, price, shares, company_name }}
