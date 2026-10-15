@@ -8,7 +8,7 @@ from sqlalchemy.exc import MultipleResultsFound
 from sqlmodel import Session, select
 
 from backend.internal.models import Stock, StockPrice
-from backend.routers.stocks import get_latest_trading_day
+from backend.routers.helpers import get_latest_trading_day
 from backend.services.stock_service import FetchQuoteModel
 
 
@@ -21,14 +21,26 @@ def test_get_latest_trading_day_sunday_returns_friday():
 
 
 def test_get_all_stocks_success(client: TestClient, db_session: Session):
-    statement = Stock(ticker_symbol="IYW")
-    db_session.add(statement)
+    stock = Stock(ticker_symbol="IYW", company_name="iShares US Technology ETF")
+    db_session.add(stock)
     db_session.commit()
+
+    stock_price = StockPrice(
+        price_date="2026-01-02",
+        close_price=100.12,
+        stock_id=cast(int, stock.id),
+    )
+    db_session.add(stock_price)
+    db_session.commit()
+
     response = client.get("/api/etfs")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
-    assert "IYW" in data
+    assert len(data) == 1
+    assert data[0]["ticker_symbol"] == "IYW"
+    assert data[0]["company_name"] == "iShares US Technology ETF"
+    assert data[0]["close_price"] == 100.12
 
 
 def test_get_all_stocks_raises_http_404(client: TestClient):
@@ -150,25 +162,25 @@ def test_delete_stock_cascade_deletes_related_prices(client: TestClient, db_sess
 
 
 def test_get_symbol_price_success(client: TestClient, db_session: Session):
-    latest_trading_day = get_latest_trading_day(datetime.now())
+    price_date = "2025-10-13"
     add_stock_statement = Stock(ticker_symbol="AAPL")
     db_session.add(add_stock_statement)
     db_session.commit()
-    add_stock_price_statement = StockPrice(price_date=latest_trading_day, close_price=200.10, stock_id=cast(int, add_stock_statement.id))
+    add_stock_price_statement = StockPrice(price_date=price_date, close_price=200.10, stock_id=cast(int, add_stock_statement.id))
     db_session.add(add_stock_price_statement)
     db_session.commit()
 
-    response = client.get("/api/etfs/AAPL/price")
+    response = client.get(f"/api/etfs/AAPL/price?price_date={price_date}")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, dict)
     assert data["ticker_symbol"] == "AAPL"
-    assert data["price_date"] == latest_trading_day
+    assert data["price_date"] == price_date
     assert data["close_price"] == 200.10
 
 
 def test_get_symbol_price_raises_http_404(client: TestClient):
-    response = client.get("/api/etfs/AAPL/price")
+    response = client.get("/api/etfs/AAPL/price?price_date=2025-10-13")
     assert response.status_code == 404
     assert response.json() == {"detail": "Ticker symbol not found in the database."}
 
@@ -176,15 +188,15 @@ def test_get_symbol_price_raises_http_404(client: TestClient):
 @patch("backend.routers.stocks.stock.fetch_date", new_callable=AsyncMock)
 def test_get_symbol_price_raises_http_404_on_fetch_date(mock_fetch_date, client: TestClient, db_session: Session):
     mock_fetch_date.side_effect = aiohttp.ClientResponseError(history=(), request_info=None) # type: ignore
+    price_date = "2025-10-13"
 
     add_stock_statement = Stock(ticker_symbol="AAPL")
     db_session.add(add_stock_statement)
     db_session.commit()
 
-    response = client.get("/api/etfs/AAPL/price")
+    response = client.get(f"/api/etfs/AAPL/price?price_date={price_date}")
     assert response.status_code == 404
-    latest_trading_day = get_latest_trading_day(datetime.now())
-    assert response.json() == {"detail": f"Could not find a price on {latest_trading_day}. This could have been a holiday, or sometime in the future."}
+    assert response.json() == {"detail": f"Could not find a price on {price_date}. This could have been a weekend, holiday, sometime in the future, or the stock wasn't listed at the time."}
 
 
 def test_get_symbol_price_by_date_success(client: TestClient, db_session: Session):
