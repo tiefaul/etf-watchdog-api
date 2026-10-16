@@ -13,13 +13,18 @@
 
 <div class='card'>
   <div class='container'>
-    <h3><b>{ticker_symbol}</b></h3>
+    <div class='justify-between'>
+      <h3><b>{ticker_symbol}</b></h3>
+      <button>test</button>
+    </div>
     <p>{company_name}</p>
     <div class='justify-between'>
-      <span>Current price</span><span style:--color={ displayRed(price) }>${price}</span>
+      <span>Current price</span>
+      <span style:--color={ displayRed(price) }>${price}</span>
     </div>
     <div class='justify-between'>
-      <span>Shares</span><span>{shares}</span>
+      <span>Shares</span>
+      <span>{shares}</span>
     </div>
   </div>
 </div>
@@ -42,7 +47,7 @@
     overflow-wrap: break-word;
   }
 
-  .container > h3 {
+  h3 {
     margin-bottom: 0px;
     margin-top: 0.625rem;
   }
