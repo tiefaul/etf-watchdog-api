@@ -8,7 +8,7 @@ A full-stack ETF tracker with a high-performance **FastAPI** backend and a new *
 
 - **FastAPI Powered:** Built on Python 3.14+ for high performance and strict typing.
 - **Asynchronous:** Uses `aiohttp` for non-blocking external API requests.
-- **Svelte Frontend:** Includes a SvelteKit + Tailwind CSS client app under `frontend/`.
+- **Svelte Frontend:** Includes a SvelteKit client app under `frontend/`.
 - **Test Coverage:** Includes both synchronous and asynchronous tests for services and routers.
 - **Modern Tooling:** Managed by `uv` for lightning-fast dependency resolution.
 - **Docker Ready:** Includes a multi-stage Dockerfile for easy containerization.
@@ -17,7 +17,7 @@ A full-stack ETF tracker with a high-performance **FastAPI** backend and a new *
 ## Tech Stack
 
 - **Backend Framework:** FastAPI, Pydantic, SQLModel
-- **Frontend Framework:** SvelteKit (Svelte 5), Tailwind CSS
+- **Frontend Framework:** SvelteKit (Svelte 5)
 - **Languages:** Python 3.14+, TypeScript/JavaScript
 - **Package Managers:** uv (backend), npm/pnpm (frontend)
 - **Data Sources:** Twelve Data API, Newsdata.io
