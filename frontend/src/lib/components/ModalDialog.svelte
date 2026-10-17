@@ -13,13 +13,13 @@
   onclose={() => (showModal = false)}
   onclick={(e) => { if (e.target === dialog) dialog.close(); }}
 >
-    <form method="POST">
+    <form method="POST" id="stock-creation-form">
       <h2>Add Stock</h2>
       <label for='ticker_symbol'>Ticker Symbol</label>
       <input name='ticker_symbol' id='ticker_symbol' type='text' placeholder='e.g AAPL'>
       <div>
         <input type='submit' value='Add Stock'>
-        <button onclick={() => dialog.close()}>Cancel</button>
+        <button form="stock-creation-form" onclick={() => dialog.close()}>Cancel</button>
       </div>
     </form>
 </dialog>

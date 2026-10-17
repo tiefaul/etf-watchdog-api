@@ -19,7 +19,14 @@
   <div class='container'>
     <div class='justify-between'>
       <h3><b>{ticker_symbol}</b></h3>
-      <button>test</button>
+      <button
+        class="fa-solid fa-trash"
+        title="remove"
+        onclick={ async () => {
+          await deleteStock(ticker_symbol);
+          window.location.reload();
+          }}>
+      </button>
     </div>
     <p>{company_name}</p>
     <div class='justify-between'>
@@ -34,6 +41,12 @@
 </div>
 
 <style>
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #b91c1c;
+  }
   .card {
     box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.2);
     transition: 0.3s;
