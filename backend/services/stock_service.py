@@ -16,7 +16,7 @@ NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 class FetchQuoteModel(BaseModel):
     price: float
-    close_price: float | None = None
+    close_price: float
     date: str
     name: str
 

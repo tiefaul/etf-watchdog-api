@@ -1,15 +1,27 @@
 <script lang='ts'>
   import { Card } from '$lib/components';
+  import { SidebarModal } from '$lib/components';
+
   let { data } = $props();
   let card = $state(true);
+  let showSidebar: boolean = $state(false);
 </script>
 
 
 <main>
   <div class="switch-container">
-    <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
-    <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
+    <button class={card ? 'switch-container-button-active' : 'switch-container-button'} onclick={() => card = !card}>
+      Card View
+    </button>
+    <button class={card ? 'switch-container-button' : 'switch-container-button-active'} onclick={() => card = !card}>
+      Table View
+    </button>
   </div>
+
+  <button onclick={() => showSidebar = !showSidebar }>Toggle Sidebar</button>
+
+  <SidebarModal bind:showSidebar />
+
   {#if card}
     <div class="card-flex-container">
       {#each data.stocks as { ticker_symbol, price, shares, company_name }}
@@ -46,18 +58,17 @@
 
 <style>
   .card-flex-container {
-    padding: 0px 10px 10px 10px;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    gap: 20px;
+    padding: 0px 0.625rem 10px 0.625rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 25rem));
+    gap: 1.25rem;
   }
 
   .switch-container {
-    border-radius: 12px;
+    border-radius: 0.625rem;
     width: max-content;
     background-color: lightgray;
-    margin-left: 10px;
+    margin-left: 0.625rem;
     display: flex;
     flex-wrap: wrap;
   }
@@ -65,12 +76,12 @@
   .switch-container-button {
     border: none;
     background: none;
-    padding: 5px 20px;
+    padding: 0.313rem 1.25rem;
     text-align: center;
     font-weight: bold;
     display: inline-block;
-    font-size: 12px;
-    margin: 4px 4px 4px 4px;
+    font-size: 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0.25rem;
     transition-duration: 0.4s;
     cursor: pointer;
   }
@@ -78,24 +89,24 @@
   .switch-container-button-active {
     border: none;
     background: none;
-    padding: 5px 20px;
+    padding: 0.313rem 1.25rem;
     text-align: center;
     font-weight: bold;
     display: inline-block;
-    font-size: 12px;
-    margin: 4px 4px 4px 4px;
+    font-size: 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0.25rem;
     transition-duration: 0.4s;
     cursor: pointer;
     background-color: white;
-    border-radius: 10px;
+    border-radius: 0.625rem;
   }
 
   .table-container {
-    padding: 10px 10px 10px 10px;
+    padding: 0.625rem 0.625rem 0.625rem 0.625rem ;
     border-style: outset inset inset outset;
-    border-radius: 15px;
-    margin-top: 20px;
-    border-width: 2px;
+    border-radius: 0.938rem;
+    margin-top: 1.25rem;
+    border-width: 0.125rem;
   }
 
   .table-container h3 {
@@ -112,10 +123,9 @@
 
   .table-container td, th {
     border: 1px solid #dddddd;
-    border-right-style: hidden;
     border-left-style: hidden;
     text-align: left;
-    padding: 8px;
+    padding: 0.5rem;
   }
 
   .table-container tbody:nth-child(odd) {

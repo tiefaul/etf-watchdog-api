@@ -4,7 +4,7 @@ from backend.services.stock_service import FetchDatePriceModel, FetchQuoteModel
 
 
 TWELVE_URL = "https://api.twelvedata.com"
-NEW_DATA_URL = "https://newsdata.io/api/1"
+NEWS_DATA_URL = "https://newsdata.io/api/1"
 
 
 @pytest.mark.asyncio
@@ -58,7 +58,7 @@ async def test_fetch_news_success(mock_response, async_client, stock_service):
                     ]
                 }
 
-    mock_response.get(f"{NEW_DATA_URL}/market?qInTitle=FAKE&apikey=fakeapikey", status=200, payload=response)
+    mock_response.get(f"{NEWS_DATA_URL}/market?qInTitle=FAKE&apikey=fakeapikey", status=200, payload=response)
     data = await func(client=async_client, symbol="FAKE", api_key="fakeapikey")
     assert isinstance(data, dict)
     assert isinstance(data["totalResults"], int)
@@ -76,6 +76,6 @@ async def test_fetch_news_raises_value_error(mock_response, async_client, stock_
                     }
                 ]
             }
-    mock_response.get(f"{NEW_DATA_URL}/market?qInTitle=FAKE&apikey=fakeapikey", status=200, payload=response)
+    mock_response.get(f"{NEWS_DATA_URL}/market?qInTitle=FAKE&apikey=fakeapikey", status=200, payload=response)
     with pytest.raises(ValueError, match="News API returned 0 results."):
         await func(client=async_client, symbol="FAKE", api_key="fakeapikey")

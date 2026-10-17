@@ -1,7 +1,8 @@
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Annotated, cast
+from zoneinfo import ZoneInfo
 
 import aiohttp
 from dotenv import load_dotenv
@@ -13,9 +14,16 @@ from fastapi import (
     Query,
 )
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from sqlmodel import Session, col, select
+from sqlmodel import (
+    Session,
+    and_,
+    col,
+    func,
+    select,
+)
 
 from ..internal.models import (
+    ListStocks,
     Stock,
     StockCreate,
     StockPrice,
@@ -48,25 +56,24 @@ router = APIRouter(
         )
 
 
-def get_latest_trading_day(current: datetime) -> str:
-    if current.weekday() >= 5:
-        while current.weekday() >= 5:
-            current -= timedelta(days=1)
-        return current.strftime("%Y-%m-%d")
-    elif current.weekday() == 0:
-        current -= timedelta(days=3)
-        return current.strftime("%Y-%m-%d")
-    current -= timedelta(days=1)
-    return current.strftime("%Y-%m-%d")
-
-
-@router.get("/", description="List all available stocks to track.", response_model=list[str])
+@router.get("/", description="List all available stocks to track.", response_model=list[ListStocks])
 async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]):
-    statement = select(Stock.ticker_symbol)
-    stocks = db_session.exec(statement).all()
+    subq = (
+            select(StockPrice.stock_id, func.max(StockPrice.price_date).label("maxdate")).group_by(col(StockPrice.stock_id)).subquery()
+            )
+    stocks = db_session.exec(
+            select(
+                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price
+                ).join(StockPrice).join(
+                    subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.price_date == subq.c.maxdate)
+                    )
+            ).all()
+
     if not stocks:
         raise HTTPException(status_code=404, detail="No stocks found in the database.")
-    return stocks
+    return [
+            {'id': s[0], 'ticker_symbol': s[1], 'company_name': s[2], 'close_price': s[3]} for s in stocks
+            ]
 
 
 @router.post("/", description="Create a stock to track. Must be a real ticker symbol.", response_model=StockPublic)
@@ -75,7 +82,7 @@ async def post_stock(
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: StockCreate,
         ):
-    find_symbol = db_session.exec(select(Stock.ticker_symbol).where(col(Stock.ticker_symbol) == symbol.ticker_symbol.upper())).one_or_none()
+    find_symbol = db_session.exec(select(Stock.ticker_symbol).where(Stock.ticker_symbol == symbol.ticker_symbol.upper())).one_or_none()
     if find_symbol:
         raise HTTPException(status_code=409, detail="Ticker symbol already exists.")
 
@@ -85,10 +92,15 @@ async def post_stock(
                 symbol.ticker_symbol.upper(),
                 TWELVE_DATA_API_KEY
                 )
+        add_close_price = {
+                "price_date": stock_info.date,
+                "close_price": stock_info.close_price
+                }
         add_symbol = Stock(
                 ticker_symbol=symbol.ticker_symbol.upper(),
                 company_name=stock_info.name,
-                currency="USD"
+                currency="USD",
+                prices=[StockPrice(**add_close_price)]
                 )
         db_session.add(add_symbol)
         db_session.commit()
@@ -106,20 +118,20 @@ async def get_stock(
     symbol = symbol.upper()
     try:
         # We use `one` here instead of `first` because we expect only one etf to return. Using `one` will return an MultipleResultsFound error if there is more than one result or NoResultFound.
-        output_symbol = db_session.exec(select(Stock).where(col(Stock.ticker_symbol) == symbol)).one()
+        output_symbol = db_session.exec(select(Stock).where(Stock.ticker_symbol == symbol)).one()
         return output_symbol
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
 
 
-@router.delete("/{symbol}", description="Delete ticker symbol and all related information from the database.")
+@router.delete("/{symbol}", description="Delete ticker symbol and all related information from the database.") 
 async def delete_stock(
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: Annotated[str, Path(description="ETF ticker symbol.", min_length=1, max_length=5)],
         ):
     symbol = symbol.upper()
     try:
-        get_symbol = db_session.exec(select(Stock).where(col(Stock.ticker_symbol) == symbol)).one()
+        get_symbol = db_session.exec(select(Stock).where(Stock.ticker_symbol == symbol)).one()
         db_session.delete(get_symbol)
         db_session.commit()
         return {"success": "Stock deleted successfully"}
@@ -140,43 +152,16 @@ async def get_price(
         client: Annotated[aiohttp.ClientSession, Depends(get_session)],
         db_session: Annotated[Session, Depends(get_db_session)],
         symbol: Annotated[str, Path(description="ETF ticker symbol.", min_length=1, max_length=5)],
-        price_date: Annotated[datetime | None, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")] = None
+        price_date: Annotated[datetime, Query(description="Retrieve price by a certain date. Must be YYYY-MM-DD formatted.")]
         ):
     symbol = symbol.upper()
     output: dict[str, str|float|None]= {"ticker_symbol": symbol, "price_date": None, "close_price": None}
 
     try:
         symbol_id = db_session.exec(select(Stock.id).where(col(Stock.ticker_symbol) == symbol)).one()
-    except NoResultFound:
-        raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
-
-    # Get current closed price if date was not provided
-    if not price_date:
-        latest_trading_day = get_latest_trading_day(datetime.now())
-        data = db_session.exec(select(StockPrice).where(col(StockPrice.stock_id) == symbol_id, col(StockPrice.price_date) == latest_trading_day)).one_or_none()
-        if not data:
-            try:
-                symbol_price = await stock.fetch_date(client, symbol, latest_trading_day, TWELVE_DATA_API_KEY)
-                add_latest_price_data = StockPrice(
-                        stock_id=cast(int, symbol_id),
-                        price_date=latest_trading_day,
-                        close_price=symbol_price.price
-                        )
-                db_session.add(add_latest_price_data)
-                db_session.commit()
-                output["price_date"], output["close_price"] = add_latest_price_data.price_date, add_latest_price_data.close_price
-                return output
-            except aiohttp.ClientResponseError:
-                raise HTTPException(status_code=404, detail=f"Could not find a price on {latest_trading_day}. This could have been a holiday, or sometime in the future.")
-
-        output["price_date"], output["close_price"] = data.price_date, data.close_price
-        return output
-
-    # If date was provided, then get the closed price on that date if possible
-    if price_date:
-        get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date.strftime("%Y-%m-%d"), col(StockPrice.stock_id) == symbol_id)).one_or_none()
-        if not get_price_by_date:
-            try:
+        if price_date.strftime('%Y-%m-%d') != datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d'):
+            get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date.strftime("%Y-%m-%d"), col(StockPrice.stock_id) == symbol_id)).one_or_none()
+            if not get_price_by_date:
                 symbol_date_price = await stock.fetch_date(client, symbol, price_date.strftime("%Y-%m-%d"), TWELVE_DATA_API_KEY)
                 add_price_data = StockPrice(
                         stock_id=cast(int, symbol_id),
@@ -187,11 +172,14 @@ async def get_price(
                 db_session.commit()
                 output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
                 return output
-            except aiohttp.ClientResponseError:
-                raise HTTPException(status_code=404, detail=f"Could not find a price on {price_date.strftime("%Y-%m-%d")}. This could have been a weekend, holiday, sometime in the future, or the stock wasn't listed at the time.")
-
-        output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
-        return output
+            output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
+            return output
+        else:
+            raise HTTPException(status_code=422, detail="The date must not be today. Please select a different date.")
+    except aiohttp.ClientResponseError:
+        raise HTTPException(status_code=404, detail=f"Could not find a price on {price_date.strftime("%Y-%m-%d")}. This could have been a weekend, holiday, sometime in the future, or the stock wasn't listed at the time.")
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="Ticker symbol not found in the database.")
 
 
 @router.get("/{symbol}/news", description="Retrieve news articles on specific ticker symbol.")
@@ -216,7 +204,11 @@ if __name__ == "__main__":
     db_session = DatabaseManager.get_db_session()
 
     with db_session as session:
-        statement = select(StockPrice).where(StockPrice.stock_id == 1)
-        result = session.exec(statement)
-        spcx = result.all()
-        print("This is what I want to see: ", [i.stock.ticker_symbol if i else None for i in spcx])
+        subq = (
+                select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(col(StockPrice.stock_id)).subquery()
+                )
+        statement = select(Stock.ticker_symbol, Stock.company_name, StockPrice.close_price).join(StockPrice).join(subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate))
+        query = session.exec(statement)
+        result = query.all()
+        output = [{'symbol': s[0], 'name': s[1], 'current_price': s[2]} for s in result]
+        print(output)

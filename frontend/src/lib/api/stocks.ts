@@ -1,6 +1,13 @@
 const base_url = 'http://127.0.0.1:8000/api/etfs/'
 
 
+interface GetStock {
+  ticker_symbol: string;
+  company_name: string;
+  close_price: number;
+}
+
+
 interface StockPrice {
   price_date: string;
   close_price: number;
@@ -91,7 +98,7 @@ const deleteClient = async (path: string = '') => {
 }
 
 
-export const getStocks = async (): Promise<string[]> => {
+export const getStocks = async (): Promise<GetStock[]> => {
   const data = await getClient();
   return data;
 }
