@@ -10,8 +10,12 @@
 
 <main>
   <div class="switch-container">
-    <button class="switch-container-button {card ? 'switch-container-button-active' : 'switch-container-button'}" onclick={() => card = true}>Card View</button>
-    <button class="switch-container-button {card ? 'switch-container-button' : 'switch-container-button-active'}" onclick={() => card = false}>Table View</button>
+    <button class={card ? 'switch-container-button-active' : 'switch-container-button'} onclick={() => card = !card}>
+      Card View
+    </button>
+    <button class={card ? 'switch-container-button' : 'switch-container-button-active'} onclick={() => card = !card}>
+      Table View
+    </button>
   </div>
 
   <button onclick={() => showSidebar = !showSidebar }>Toggle Sidebar</button>
