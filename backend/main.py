@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.logger import logger as fastAPI_logger
+from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import stocks
 from .services.lifespan import DatabaseManager, HttpClient
@@ -27,6 +28,18 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(stocks.router)
+
+
+origins = [
+        "http://localhost:5173",
+        ]
+
+
+app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_methods=["*"],
+        )
 
 
 @app.get("/api", description="This does nothing at the moment")
