@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { deleteStock } from '$lib/api/stocks';
+
   let {
     ticker_symbol = 'Placeholder',
     company_name = 'Placeholder',
@@ -6,9 +8,11 @@
     shares = '0'
     } = $props()
 
+
   const displayRed = (number: string): string => {
     return parseInt(number) >= 0 ? 'green': 'red';
     }
+
 </script>
 
 <div class='card'>
@@ -52,7 +56,7 @@
     margin-top: 0.625rem;
   }
 
-  .container > p {
+  p {
     font-size: 0.75rem;
     margin-top: 0px;
   }
@@ -62,7 +66,7 @@
     justify-content: space-between;
   }
 
-  .justify-between > span {
+  span {
     color: var(--color);
     font-size: 0.938rem;
     margin-bottom: 0.5rem;
