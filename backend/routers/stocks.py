@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from typing import Annotated, cast
@@ -13,6 +12,7 @@ from fastapi import (
     Path,
     Query,
 )
+from fastapi.logger import logger as fastapi_logger
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlmodel import (
     Session,
@@ -31,7 +31,6 @@ from ..internal.models import (
     StockPublic,
 )
 from ..services.app_state import get_db_session, get_session
-from ..services.logger_service import setup_logging
 from ..services.stock_service import StockService
 
 load_dotenv()
@@ -44,8 +43,6 @@ NEWS_DATA_API_KEY = os.getenv("NEWS_DATA_API_KEY")
 if not NEWS_DATA_API_KEY:
     raise RuntimeError("The NEWS_DATA_API_KEY environment variable was not set in the .env")
 
-logger = logging.getLogger(__name__)
-setup_logging()
 stock = StockService()
 
 
@@ -193,7 +190,7 @@ async def get_news(client: Annotated[aiohttp.ClientSession, Depends(get_session)
         # Handles the case where the API returns 0 results by returning a structured error message
         raise HTTPException(status_code=404, detail=f"Failed to find any news for {symbol}.")
     except aiohttp.ClientError as e:
-        logger.error(f"Network error fetching news for {symbol}: {e}")
+        fastapi_logger.error("Network error fetching news for %s: %s", symbol, e)
         raise HTTPException(status_code=502, detail="Failed to connect to the external news API.")
 
 
