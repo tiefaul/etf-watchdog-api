@@ -14,8 +14,8 @@ etf-watchdog-api/
 |   `-- services/
 |       |-- __init__.py
 |       |-- app_state.py         # Shared application state
+|       |-- helpers.py           # Utility helpers (includes legacy logging helper)
 |       |-- lifespan.py          # Startup/shutdown lifecycle handlers
-|       |-- logger_service.py    # Logging service layer
 |       `-- stock_service.py     # Market data service layer
 |-- frontend/                    # SvelteKit frontend client
 |   |-- src/
@@ -42,7 +42,7 @@ etf-watchdog-api/
 |-- docs/
 |   |-- architecture/
 |   |   |-- DESIGN.md            # High-level repository structure
-|   |   `-- LOGGER.md            # Logger service and configuration details
+|   |   `-- LOGGER.md            # Backend logging notes and migration details
 |   |-- deployment/
 |   |   `-- DOCKER.md            # Docker build/run instructions
 |   `-- learning/
@@ -52,7 +52,7 @@ etf-watchdog-api/
 |           |-- README.md
 |           `-- basics/
 |-- logs/                        # Runtime log files
-|-- logging_config.json          # Logging configuration
+|-- logging_config.json          # Legacy logging configuration
 |-- pyproject.toml
 |-- pytest.toml
 `-- README.md
