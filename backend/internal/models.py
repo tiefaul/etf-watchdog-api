@@ -16,7 +16,7 @@ from ..services.lifespan import DatabaseManager
 
 """Pydantic response model for a list of available stocks"""
 class ListStocks(BaseModel):
-    id: int | None
+    id: int
     ticker_symbol: str
     company_name: str
     close_price: float
