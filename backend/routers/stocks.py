@@ -159,23 +159,24 @@ async def get_price(
 
     try:
         symbol_id = db_session.exec(select(Stock.id).where(col(Stock.ticker_symbol) == symbol)).one()
-        if price_date.strftime('%Y-%m-%d') != datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d'):
-            get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date.strftime("%Y-%m-%d"), col(StockPrice.stock_id) == symbol_id)).one_or_none()
-            if not get_price_by_date:
-                symbol_date_price = await stock.fetch_date(client, symbol, price_date.strftime("%Y-%m-%d"), TWELVE_DATA_API_KEY)
-                add_price_data = StockPrice(
-                        stock_id=cast(int, symbol_id),
-                        price_date=str(price_date.strftime("%Y-%m-%d")),
-                        close_price=symbol_date_price.price
-                        )
-                db_session.add(add_price_data)
-                db_session.commit()
-                output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
-                return output
-            output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
-            return output
-        else:
+        if price_date.strftime('%Y-%m-%d') == datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d'):
             raise HTTPException(status_code=422, detail="The date must not be today. Please select a different date.")
+
+        get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date.strftime("%Y-%m-%d"), col(StockPrice.stock_id) == symbol_id)).one_or_none()
+        if not get_price_by_date:
+            symbol_date_price = await stock.fetch_date(client, symbol, price_date.strftime("%Y-%m-%d"), TWELVE_DATA_API_KEY)
+            add_price_data = StockPrice(
+                    stock_id=cast(int, symbol_id),
+                    price_date=str(price_date.strftime("%Y-%m-%d")),
+                    close_price=symbol_date_price.price
+                    )
+            db_session.add(add_price_data)
+            db_session.commit()
+            output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
+            return output
+        output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
+        return output
+
     except aiohttp.ClientResponseError:
         raise HTTPException(status_code=404, detail=f"Could not find a price on {price_date.strftime("%Y-%m-%d")}. This could have been a weekend, holiday, sometime in the future, or the stock wasn't listed at the time.")
     except NoResultFound:
