@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 from typing import Annotated, cast
@@ -12,7 +13,6 @@ from fastapi import (
     Path,
     Query,
 )
-from fastapi.logger import logger as fastapi_logger
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlmodel import (
     Session,
@@ -31,6 +31,7 @@ from ..internal.models import (
     StockPublic,
 )
 from ..services.app_state import get_db_session, get_session
+from ..services.logger_service import setup_logging
 from ..services.stock_service import StockService
 
 load_dotenv()
@@ -43,6 +44,8 @@ NEWS_DATA_API_KEY = os.getenv("NEWS_DATA_API_KEY")
 if not NEWS_DATA_API_KEY:
     raise RuntimeError("The NEWS_DATA_API_KEY environment variable was not set in the .env")
 
+setup_logging()
+logger = logging.getLogger(__name__)
 stock = StockService()
 
 
@@ -60,7 +63,7 @@ async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]
             )
     stocks = db_session.exec(
             select(
-                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price
+                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price, StockPrice.price_date,
                 ).join(StockPrice).join(
                     subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.price_date == subq.c.maxdate)
                     )
@@ -69,7 +72,7 @@ async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]
     if not stocks:
         raise HTTPException(status_code=404, detail="No stocks found in the database.")
     return [
-            {'id': s[0], 'ticker_symbol': s[1], 'company_name': s[2], 'close_price': s[3]} for s in stocks
+            {'id': s[0], 'ticker_symbol': s[1], 'company_name': s[2], 'close_price': s[3], 'price_date': s[4]} for s in stocks
             ]
 
 
@@ -190,7 +193,7 @@ async def get_news(client: Annotated[aiohttp.ClientSession, Depends(get_session)
         # Handles the case where the API returns 0 results by returning a structured error message
         raise HTTPException(status_code=404, detail=f"Failed to find any news for {symbol}.")
     except aiohttp.ClientError as e:
-        fastapi_logger.error("Network error fetching news for %s: %s", symbol, e)
+        logger.error("Network error fetching news for %s: %s", symbol, e)
         raise HTTPException(status_code=502, detail="Failed to connect to the external news API.")
 
 
@@ -204,8 +207,9 @@ if __name__ == "__main__":
         subq = (
                 select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(col(StockPrice.stock_id)).subquery()
                 )
-        statement = select(Stock.ticker_symbol, Stock.company_name, StockPrice.close_price).join(StockPrice).join(subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate))
+        statement = select(Stock.ticker_symbol, Stock.company_name, StockPrice.close_price, StockPrice.price_date).join(StockPrice).join(subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate))
+        print(statement)
         query = session.exec(statement)
         result = query.all()
-        output = [{'symbol': s[0], 'name': s[1], 'current_price': s[2]} for s in result]
+        output = [{'symbol': s[0], 'name': s[1], 'current_price': s[2], 'price_date': s[3]} for s in result]
         print(output)

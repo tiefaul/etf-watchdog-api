@@ -1,6 +1,12 @@
+import logging
+
 import aiohttp
-from fastapi.logger import logger as fastapi_logger
 from pydantic import BaseModel
+
+from .logger_service import setup_logging
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 SIZE_POOL_AIOHTTP = 100
 TWELVE_DATA_URL = "https://api.twelvedata.com"
@@ -48,7 +54,7 @@ class StockService:
         parameters = {"symbol": symbol, "apikey": api_key}
 
         async with client.get(f"{TWELVE_DATA_URL}/quote", params=parameters) as resp:
-            fastapi_logger.debug("Attempting to find %s current stock price.", symbol)
+            logger.debug("Attempting to find %s current stock price.", symbol)
             resp.raise_for_status()
             response_data = await resp.json()
 
@@ -59,7 +65,7 @@ class StockService:
                                  close_price=response_data.get("close"),
                                  date=response_data.get("datetime"),
                                  name=response_data.get("name"))
-        fastapi_logger.info("Successfully obtained %s stock price.", symbol)
+        logger.info("Successfully obtained %s stock price.", symbol)
         return output
 
 
@@ -87,7 +93,7 @@ class StockService:
             KeyError: If the JSON response is empty.
             pydantic.ValidationError: If ``close`` is missing or not numeric.
         """
-        fastapi_logger.debug("Attempting to obtain %s price by date: %s.", symbol, date)
+        logger.debug("Attempting to obtain %s price by date: %s.", symbol, date)
         parameters = {
             "symbol": symbol,
             "date": date,
@@ -101,7 +107,7 @@ class StockService:
         if not response_data:
             raise KeyError("Error when fetching the date.")
 
-        fastapi_logger.info("Successfully obtained %s price by date: %s", symbol, date)
+        logger.info("Successfully obtained %s price by date: %s", symbol, date)
         output = FetchDatePriceModel(price=response_data.get("close"))
 
         return output
@@ -140,7 +146,7 @@ class StockService:
         if not response_data:
             return None
 
-        fastapi_logger.debug("Attempting to obtain news about %s.", symbol)
+        logger.debug("Attempting to obtain news about %s.", symbol)
         total_results = response_data.get("totalResults") or 0
         if total_results <= 0:
             raise ValueError("News API returned 0 results.")
@@ -156,7 +162,7 @@ class StockService:
             "totalResults": total_results,
             "articles": articles,
         }
-        fastapi_logger.info("Successfully obtained news about %s.", symbol)
+        logger.info("Successfully obtained news about %s.", symbol)
 
         return output
 

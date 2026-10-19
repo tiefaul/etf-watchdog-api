@@ -1,30 +1,33 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.logger import logger as fastAPI_logger
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import stocks
 from .services.lifespan import DatabaseManager, HttpClient
+from .services.logger_service import setup_logging
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize the database
-    fastAPI_logger.info("Initializing the database.")
+    logger.info("Initializing the database.")
     DatabaseManager.init_db()
 
     # Load aiohttp ClientSession
-    fastAPI_logger.info("Starting aiohttp client.")
+    logger.info("Starting aiohttp client.")
     http_client = HttpClient()
     http_client.start_http_client()
 
     yield {"http_client": http_client.get_session(), "db_session": DatabaseManager.get_db_session()}
 
     # Shutdown aiohttp ClientSession
-    fastAPI_logger.info("Closing aiohttp client for Stock router.")
+    logger.info("Closing aiohttp client for Stock router.")
     await http_client.stop_http_client()
-
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(stocks.router)

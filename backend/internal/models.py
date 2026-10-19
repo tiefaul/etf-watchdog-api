@@ -16,10 +16,11 @@ from ..services.lifespan import DatabaseManager
 
 """Pydantic response model for a list of available stocks"""
 class ListStocks(BaseModel):
-    id: int
+    id: int | None
     ticker_symbol: str
     company_name: str
     close_price: float
+    price_date: str
 
 
 """Stock Models"""

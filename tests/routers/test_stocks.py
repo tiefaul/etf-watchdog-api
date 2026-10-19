@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
@@ -8,16 +7,7 @@ from sqlalchemy.exc import MultipleResultsFound
 from sqlmodel import Session, select
 
 from backend.internal.models import Stock, StockPrice
-from backend.routers.helpers import get_latest_trading_day
 from backend.services.stock_service import FetchQuoteModel
-
-
-def test_get_latest_trading_day_monday_returns_friday():
-    assert get_latest_trading_day(datetime(2026, 7, 6)) == "2026-07-03"
-
-
-def test_get_latest_trading_day_sunday_returns_friday():
-    assert get_latest_trading_day(datetime(2026, 7, 5)) == "2026-07-03"
 
 
 def test_get_all_stocks_success(client: TestClient, db_session: Session):

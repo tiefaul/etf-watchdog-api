@@ -40,7 +40,7 @@ class DatabaseManager:
     connect_args: ClassVar[dict[str, bool]] = {"check_same_thread": False}
     engine = create_engine(
             DATABASE_URL,
-            echo=True, # remove True for prod
+            echo=False,
             connect_args=connect_args
             )
 
@@ -51,5 +51,5 @@ class DatabaseManager:
 
     @classmethod
     def get_db_session(cls):
-        session = Session(cls.engine)
-        return session
+        with Session(cls.engine) as session:
+            return session
