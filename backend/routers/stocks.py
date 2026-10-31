@@ -63,7 +63,7 @@ async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]
             )
     stocks = db_session.exec(
             select(
-                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price, StockPrice.price_date,
+                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price, StockPrice.price_date, # type: ignore
                 ).join(StockPrice).join(
                     subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.price_date == subq.c.maxdate)
                     )
