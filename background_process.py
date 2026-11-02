@@ -76,7 +76,7 @@ def compare_datetime(date: str, current_date: date_cls) -> bool:
     return _convert_str_datetime(date) == current_date
 
 
-def main(args=None):
+def main():
     args = parse_arguments()
     host = args.protocol + f'://{args.host}:{args.port}/api/etfs/'
     client = session()
