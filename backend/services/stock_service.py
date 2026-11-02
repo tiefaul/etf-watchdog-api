@@ -5,9 +5,8 @@ from pydantic import BaseModel
 
 from .logger_service import setup_logging
 
-# Logger setup
-logger = logging.getLogger(__name__)
 setup_logging()
+logger = logging.getLogger(__name__)
 
 SIZE_POOL_AIOHTTP = 100
 TWELVE_DATA_URL = "https://api.twelvedata.com"

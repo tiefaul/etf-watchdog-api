@@ -44,8 +44,8 @@ NEWS_DATA_API_KEY = os.getenv("NEWS_DATA_API_KEY")
 if not NEWS_DATA_API_KEY:
     raise RuntimeError("The NEWS_DATA_API_KEY environment variable was not set in the .env")
 
-logger = logging.getLogger(__name__)
 setup_logging()
+logger = logging.getLogger(__name__)
 stock = StockService()
 
 
@@ -63,7 +63,7 @@ async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]
             )
     stocks = db_session.exec(
             select(
-                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price
+                Stock.id, Stock.ticker_symbol, Stock.company_name, StockPrice.close_price, StockPrice.price_date, # type: ignore
                 ).join(StockPrice).join(
                     subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.price_date == subq.c.maxdate)
                     )
@@ -72,7 +72,7 @@ async def get_all_stocks(db_session: Annotated[Session, Depends(get_db_session)]
     if not stocks:
         raise HTTPException(status_code=404, detail="No stocks found in the database.")
     return [
-            {'id': s[0], 'ticker_symbol': s[1], 'company_name': s[2], 'close_price': s[3]} for s in stocks
+            {'id': s[0], 'ticker_symbol': s[1], 'company_name': s[2], 'close_price': s[3], 'price_date': s[4]} for s in stocks
             ]
 
 
@@ -159,23 +159,24 @@ async def get_price(
 
     try:
         symbol_id = db_session.exec(select(Stock.id).where(col(Stock.ticker_symbol) == symbol)).one()
-        if price_date.strftime('%Y-%m-%d') != datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d'):
-            get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date.strftime("%Y-%m-%d"), col(StockPrice.stock_id) == symbol_id)).one_or_none()
-            if not get_price_by_date:
-                symbol_date_price = await stock.fetch_date(client, symbol, price_date.strftime("%Y-%m-%d"), TWELVE_DATA_API_KEY)
-                add_price_data = StockPrice(
-                        stock_id=cast(int, symbol_id),
-                        price_date=str(price_date.strftime("%Y-%m-%d")),
-                        close_price=symbol_date_price.price
-                        )
-                db_session.add(add_price_data)
-                db_session.commit()
-                output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
-                return output
-            output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
-            return output
-        else:
+        if price_date.strftime('%Y-%m-%d') == datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d'):
             raise HTTPException(status_code=422, detail="The date must not be today. Please select a different date.")
+
+        get_price_by_date = db_session.exec(select(StockPrice).where(col(StockPrice.price_date) == price_date.strftime("%Y-%m-%d"), col(StockPrice.stock_id) == symbol_id)).one_or_none()
+        if not get_price_by_date:
+            symbol_date_price = await stock.fetch_date(client, symbol, price_date.strftime("%Y-%m-%d"), TWELVE_DATA_API_KEY)
+            add_price_data = StockPrice(
+                    stock_id=cast(int, symbol_id),
+                    price_date=str(price_date.strftime("%Y-%m-%d")),
+                    close_price=symbol_date_price.price
+                    )
+            db_session.add(add_price_data)
+            db_session.commit()
+            output["price_date"], output["close_price"] = add_price_data.price_date, add_price_data.close_price
+            return output
+        output["price_date"], output["close_price"] = get_price_by_date.price_date, get_price_by_date.close_price
+        return output
+
     except aiohttp.ClientResponseError:
         raise HTTPException(status_code=404, detail=f"Could not find a price on {price_date.strftime("%Y-%m-%d")}. This could have been a weekend, holiday, sometime in the future, or the stock wasn't listed at the time.")
     except NoResultFound:
@@ -193,7 +194,7 @@ async def get_news(client: Annotated[aiohttp.ClientSession, Depends(get_session)
         # Handles the case where the API returns 0 results by returning a structured error message
         raise HTTPException(status_code=404, detail=f"Failed to find any news for {symbol}.")
     except aiohttp.ClientError as e:
-        logger.error(f"Network error fetching news for {symbol}: {e}")
+        logger.error("Network error fetching news for %s: %s", symbol, e)
         raise HTTPException(status_code=502, detail="Failed to connect to the external news API.")
 
 
@@ -207,8 +208,9 @@ if __name__ == "__main__":
         subq = (
                 select(StockPrice.stock_id, func.max(StockPrice.created_at).label("maxdate")).group_by(col(StockPrice.stock_id)).subquery()
                 )
-        statement = select(Stock.ticker_symbol, Stock.company_name, StockPrice.close_price).join(StockPrice).join(subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate))
+        statement = select(Stock.ticker_symbol, Stock.company_name, StockPrice.close_price, StockPrice.price_date).join(StockPrice).join(subq, and_(StockPrice.stock_id == subq.c.stock_id, StockPrice.created_at == subq.c.maxdate))
+        print(statement)
         query = session.exec(statement)
         result = query.all()
-        output = [{'symbol': s[0], 'name': s[1], 'current_price': s[2]} for s in result]
+        output = [{'symbol': s[0], 'name': s[1], 'current_price': s[2], 'price_date': s[3]} for s in result]
         print(output)

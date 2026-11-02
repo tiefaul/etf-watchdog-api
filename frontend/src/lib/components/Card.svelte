@@ -16,27 +16,25 @@
 </script>
 
 <div class='card'>
-  <div class='container'>
-    <div class='justify-between'>
-      <h3><b>{ticker_symbol}</b></h3>
-      <button
-        class="fa-solid fa-trash"
-        title="remove"
-        onclick={ async () => {
-          await deleteStock(ticker_symbol);
-          window.location.reload();
-          }}>
-      </button>
-    </div>
-    <p>{company_name}</p>
-    <div class='justify-between'>
-      <span>Current price</span>
-      <span style:--color={ displayRed(price) }>${price}</span>
-    </div>
-    <div class='justify-between'>
-      <span>Shares</span>
-      <span>{shares}</span>
-    </div>
+  <div class='justify-between'>
+    <h3><b>{ticker_symbol}</b></h3>
+    <button
+      class="fa-solid fa-trash"
+      title="remove"
+      onclick={ async () => {
+        await deleteStock(ticker_symbol);
+        window.location.reload();
+        }}>
+    </button>
+  </div>
+  <p>{company_name}</p>
+  <div class='justify-between'>
+    <span>Current price</span>
+    <span style:--color={ displayRed(price) }>${price}</span>
+  </div>
+  <div class='justify-between'>
+    <span>Shares</span>
+    <span>{shares}</span>
   </div>
 </div>
 
@@ -53,15 +51,12 @@
     border-radius: 0.938rem;
     margin-top: 1.25rem;
     margin-bottom: 1.25rem;
+    padding: 0.125rem 1rem;
+    overflow-wrap: break-word;
   }
 
   .card:hover {
     box-shadow: 0 0.5rem 1rem 0 rgba(0,0,0,0.2);
-  }
-
-  .container {
-    padding: 0.125rem 1rem;
-    overflow-wrap: break-word;
   }
 
   h3 {

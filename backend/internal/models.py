@@ -20,6 +20,7 @@ class ListStocks(BaseModel):
     ticker_symbol: str
     company_name: str
     close_price: float
+    price_date: str
 
 
 """Stock Models"""
