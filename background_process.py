@@ -22,7 +22,7 @@ class BackgroundProcessError(Exception):
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Background process script for ETF Watchdog. This script will update the price of currently tracked stocks.")
     parser.add_argument("host", help="The domain or IP of the host for ETF Watchdog API.")
-    parser.add_argument("--port", help="The port of the host", default="8000")
+    parser.add_argument("-p", "--port", help="The port of the host", default="8000")
     parser.add_argument("--protocol", help="Network protocol. Must be https or http.", choices=["http", "https"], default="https")
     return parser.parse_args()
 
