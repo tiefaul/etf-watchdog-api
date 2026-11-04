@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from requests import Session
+from requests.exceptions import ConnectionError
 
 
 class BackgroundProcessError(Exception):
@@ -80,19 +81,23 @@ def main():
     args = parse_arguments()
     host = args.protocol + f'://{args.host}:{args.port}/api/etfs/'
     client = session()
-    stocks = get_stocks(client, host)
-    current_date = datetime.now(ZoneInfo("America/New_York"))
-    target_closing_day = get_latest_closing_day(current_date)
-    target_date = date_cls.fromisoformat(target_closing_day)
-    for stock in stocks:
-        try:
-            symbol, date = get_data(stock)
-            if compare_datetime(date, target_date):
+    try:
+        stocks = get_stocks(client, host)
+        current_date = datetime.now(ZoneInfo("America/New_York"))
+        target_closing_day = get_latest_closing_day(current_date)
+        target_date = date_cls.fromisoformat(target_closing_day)
+        for stock in stocks:
+            try:
+                symbol, date = get_data(stock)
+                if compare_datetime(date, target_date):
+                    continue
+                update_price(client, host, target_closing_day, symbol)
+            except (BackgroundProcessError, ValueError) as error:
+                print(error)
                 continue
-            update_price(client, host, target_closing_day, symbol)
-        except (BackgroundProcessError, ValueError) as error:
-            print(error)
-            continue
+    except ConnectionError as error:
+        print(f'Failed to establish a connection. Make sure the API is running: {error}')
+        return 1
     client.close()
     return 0
 
