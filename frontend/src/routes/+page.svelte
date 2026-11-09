@@ -1,25 +1,49 @@
 <script lang='ts'>
   import { Card } from '$lib/components';
   import { SidebarModal } from '$lib/components';
+  import { onMount } from 'svelte'
 
   let { data } = $props();
-  let card = $state(true);
+  let card: boolean = $state(true);
   let showSidebar: boolean = $state(false);
+
+
+  // Get session data for button display type.
+  // This will help displaying the same layout
+  // on a page refresh.
+  onMount (() => {
+    if (sessionStorage.getItem('active')) {
+      card = true;
+    }
+    else if (sessionStorage.getItem('deactive')) {
+      card = false;
+    }
+    else {
+      card = true;
+    }
+  });
 </script>
 
 
 <main>
   <div class="switch-container">
-    <button  id='switch-button' class={card ? 'switch-container-button-active' : 'switch-container-button'} onclick={() => card = true}>
+    <button class={card ? 'switch-container-button-active' : 'switch-container-button'} onclick={() => {
+      card = true;
+      sessionStorage.removeItem('deactive');
+      sessionStorage.setItem('active', 'true');
+    }}>
       Card View
     </button>
-    <button  class={card ? 'switch-container-button' : 'switch-container-button-active'} onclick={() => card = false}>
+    <button class={card ? 'switch-container-button' : 'switch-container-button-active'} onclick={() => {
+      card = false;
+      sessionStorage.removeItem('active');
+      sessionStorage.setItem('deactive', 'true');
+    }}>
       Table View
     </button>
   </div>
 
   <button onclick={() => showSidebar = !showSidebar }>Toggle Sidebar</button>
-
   <SidebarModal bind:showSidebar />
 
   {#if card}

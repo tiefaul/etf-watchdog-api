@@ -12,7 +12,6 @@
   const displayRed = (number: string): string => {
     return parseInt(number) >= 0 ? 'green': 'red';
     }
-
 </script>
 
 <div class='card'>
