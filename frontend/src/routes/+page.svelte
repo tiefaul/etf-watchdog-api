@@ -1,12 +1,9 @@
 <script lang='ts'>
   import { Card } from '$lib/components';
-  import { SidebarModal } from '$lib/components';
   import { onMount } from 'svelte'
 
   let { data } = $props();
   let card: boolean = $state(true);
-  let showSidebar: boolean = $state(false);
-
 
   // Get session data for button display type.
   // This will help displaying the same layout
@@ -43,11 +40,9 @@
     </button>
   </div>
 
-  <button onclick={() => showSidebar = !showSidebar }>Toggle Sidebar</button>
-  <SidebarModal bind:showSidebar />
 
   {#if card}
-    <div class="card-flex-container">
+    <div class="card-flex-container" >
       {#each data.stocks as { ticker_symbol, price, shares, company_name }}
         <Card {ticker_symbol} {price} {shares} {company_name} />
       {/each}

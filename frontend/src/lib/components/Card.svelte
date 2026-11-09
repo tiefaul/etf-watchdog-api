@@ -1,5 +1,7 @@
 <script lang="ts">
   import { deleteStock } from '$lib/api/stocks';
+  // import { SidebarModal } from '$lib/components';
+  // let showSidebar: boolean = $state(false);
 
   let {
     ticker_symbol = 'Placeholder',
@@ -14,10 +16,15 @@
     }
 </script>
 
+
+<!-- <SidebarModal bind:showSidebar /> -->
+<!-- <button onclick={() => showSidebar = !showSidebar }>Toggle Sidebar</button> -->
+
 <div class='card'>
   <div class='justify-between'>
     <h3><b>{ticker_symbol}</b></h3>
     <button
+      id="trash"
       class="fa-solid fa-trash"
       title="remove"
       onclick={ async () => {
@@ -38,7 +45,7 @@
 </div>
 
 <style>
-  button {
+  #trash {
     background: none;
     border: none;
     cursor: pointer;

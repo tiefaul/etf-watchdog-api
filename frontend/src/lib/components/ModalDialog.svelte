@@ -1,6 +1,6 @@
 <script lang="ts">
   let { showModal = $bindable() }: { showModal: boolean }  = $props();
-  let dialog = $state() as HTMLDialogElement;
+  let dialog: HTMLDialogElement;
 
   $effect(() => {
     if (showModal) dialog.showModal();
