@@ -1,26 +1,40 @@
 <script lang="ts">
   import { deleteStock } from '$lib/api/stocks';
-  // import { SidebarModal } from '$lib/components';
-  // let showSidebar: boolean = $state(false);
+  import { SidebarModal } from '$lib/components';
+
+  interface CardProps {
+    ticker_symbol: string,
+    company_name: string,
+    price: string,
+    shares: string
+  };
 
   let {
     ticker_symbol = 'Placeholder',
     company_name = 'Placeholder',
     price = '0',
     shares = '0'
-    } = $props()
+    }: CardProps = $props()
+
+  let showSidebar: boolean = $state(false);
 
 
   const displayRed = (number: string): string => {
     return parseInt(number) >= 0 ? 'green': 'red';
     }
+
+
+  const onkeydown = (event: KeyboardEvent): boolean | null => {
+    console.log(event.key);
+    if (event.key === "Enter" || event.key === "Spacebar" || event.key === " ") {
+      return showSidebar = !showSidebar;
+    }
+    return null
+  }
 </script>
 
 
-<!-- <SidebarModal bind:showSidebar /> -->
-<!-- <button onclick={() => showSidebar = !showSidebar }>Toggle Sidebar</button> -->
-
-<div class='card'>
+<div class='card' role="button" onclick={()=> showSidebar = !showSidebar} onkeydown={onkeydown} tabindex="0">
   <div class='justify-between'>
     <h3><b>{ticker_symbol}</b></h3>
     <button
@@ -43,6 +57,9 @@
     <span>{shares}</span>
   </div>
 </div>
+
+<SidebarModal bind:showSidebar bind:ticker_symbol/>
+
 
 <style>
   #trash {
