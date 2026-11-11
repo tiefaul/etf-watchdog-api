@@ -5,6 +5,7 @@
   let { data } = $props();
   let card: boolean = $state(true);
 
+
   // Get session data for button display type.
   // This will help displaying the same layout
   // on a page refresh.
