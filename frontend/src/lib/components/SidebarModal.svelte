@@ -1,13 +1,21 @@
 <script lang='ts'>
   import { fly } from 'svelte/transition';
 
-  let { showSidebar = $bindable() }: { showSidebar: boolean } = $props();
+  interface SidebarProps {
+    showSidebar: boolean,
+    ticker_symbol: string
+  }
+
+  let {
+    showSidebar = $bindable(),
+    ticker_symbol = $bindable()
+    }: SidebarProps = $props();
 </script>
 
 
 {#if showSidebar}
   <nav transition:fly={{x:250, opacity:1}}>
-    <h1>This is a test</h1>
+    <h1>This is a test: { ticker_symbol }</h1>
   </nav>
 {/if}
 
