@@ -7,8 +7,8 @@
   }
 
   let {
-    showSidebar = $bindable(),
-    ticker_symbol = $bindable()
+    showSidebar,
+    ticker_symbol
     }: SidebarProps = $props();
 </script>
 
@@ -18,6 +18,7 @@
     <h1>This is a test: { ticker_symbol }</h1>
   </nav>
 {/if}
+
 
 <style>
   nav {

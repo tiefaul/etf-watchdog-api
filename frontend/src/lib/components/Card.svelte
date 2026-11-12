@@ -18,11 +18,9 @@
 
   let showSidebar: boolean = $state(false);
 
-
   const displayRed = (number: string): string => {
     return parseInt(number) >= 0 ? 'green': 'red';
     }
-
 
   const onkeydown = (event: KeyboardEvent): boolean | null => {
     console.log(event.key);
@@ -34,7 +32,7 @@
 </script>
 
 
-<div class='card' role="button" onclick={()=> showSidebar = !showSidebar} onkeydown={onkeydown} tabindex="0">
+<div class='card' role="button" onclick={()=> showSidebar = !showSidebar} onkeydown={onkeydown} tabindex='0'>
   <div class='justify-between'>
     <h3><b>{ticker_symbol}</b></h3>
     <button
@@ -58,7 +56,7 @@
   </div>
 </div>
 
-<SidebarModal bind:showSidebar bind:ticker_symbol/>
+<SidebarModal {showSidebar} {ticker_symbol} />
 
 
 <style>
