@@ -8,6 +8,7 @@
 </script>
 
 
+<!-- Bind is needed here because we are sending the falsy value of showModal up to the parent. -->
 <dialog
   bind:this={dialog}
   onclose={() => (showModal = false)}
