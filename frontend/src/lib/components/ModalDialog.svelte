@@ -16,10 +16,17 @@
     <form method="POST" id="stock-creation-form">
       <h2>Add Stock</h2>
       <label for='ticker_symbol'>Ticker Symbol</label>
-      <input name='ticker_symbol' id='ticker_symbol' type='text' placeholder='e.g AAPL'>
+      <input 
+        name='ticker_symbol'
+        id='ticker_symbol'
+        type='text'
+        placeholder='e.g AAPL'
+        minlength='1'
+        maxlength='5'
+      />
       <div>
-        <input type='submit' value='Add Stock'>
-        <button form="stock-creation-form" onclick={() => dialog.close()}>Cancel</button>
+        <button type='submit'>Add Stock</button>
+        <button type='button' onclick={() => dialog.close()}>Cancel</button>
       </div>
     </form>
 </dialog>
@@ -49,7 +56,7 @@
     background: #EEEEEE;
   }
 
-  input[type=submit] {
+  button[type=submit] {
     cursor: pointer;
     background-color: black;
     color: white;
@@ -60,8 +67,7 @@
     border-style: solid;
   }
 
-
-  button {
+  button[type=button] {
     cursor: pointer;
     color: black;
     border-radius: 0.5rem;
