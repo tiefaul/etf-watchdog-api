@@ -16,7 +16,7 @@
     <form method="POST" id="stock-creation-form">
       <h2>Add Stock</h2>
       <label for='ticker_symbol'>Ticker Symbol</label>
-      <input 
+      <input
         name='ticker_symbol'
         id='ticker_symbol'
         type='text'
@@ -59,7 +59,7 @@
   button[type=submit] {
     cursor: pointer;
     background-color: black;
-    color: white;
+    color: var(--primary-color);
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
     border: 1px;
@@ -75,6 +75,7 @@
     border: 1px;
     font-weight: bold;
     border-style: solid;
+    background-color: var(--primary-color)
   }
 
   div {

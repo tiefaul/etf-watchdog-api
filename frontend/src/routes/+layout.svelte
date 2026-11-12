@@ -55,7 +55,7 @@
   .header-flex-container button {
     border: none;
     background: black;
-    color: white;
+    color: var(--primary-color);
     font-weight: bold;
     border-radius: 0.625rem;
     height: calc(0.25rem * 9);

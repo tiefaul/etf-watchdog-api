@@ -117,7 +117,7 @@
     margin: 0.25rem 0.25rem 0.25rem 0.25rem;
     transition-duration: 0.4s;
     cursor: pointer;
-    background-color: white;
+    background-color: var(--primary-color);
     border-radius: 0.625rem;
   }
 
