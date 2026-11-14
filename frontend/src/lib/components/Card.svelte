@@ -18,9 +18,10 @@
 
   let showSidebar: boolean = $state(false);
 
-  const displayRed = (number: string): string => {
-    return parseInt(number) >= 0 ? 'green': 'red';
-    }
+  // Example of what you can do with a function and CSS.
+  // const displayRed = (number: string): string => {
+  //   return parseInt(number) >= 0 ? 'green': 'red';
+  //   }
 
   const onkeydown = (event: KeyboardEvent): boolean | null => {
     console.log(event.key);
@@ -48,7 +49,8 @@
   <p>{company_name}</p>
   <div class='justify-between'>
     <span>Current price</span>
-    <span style:--color={ displayRed(price) }>${price}</span>
+    <span style:color=#118C4F>${price}</span>
+    <!-- <span style:--color={ displayRed(price) }>${price}</span> -->
   </div>
   <div class='justify-between'>
     <span>Shares</span>
@@ -96,7 +98,7 @@
   }
 
   span {
-    color: var(--color);
+    /* color: var(--color); */
     font-size: 0.938rem;
     margin-bottom: 0.5rem;
   }
