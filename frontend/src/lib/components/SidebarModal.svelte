@@ -15,7 +15,7 @@
 
 {#if showSidebar}
   <nav transition:fly={{x:250, opacity:1}}>
-    <h1>This is a test: { ticker_symbol }</h1>
+    <h1>This is a test: {ticker_symbol}</h1>
   </nav>
 {/if}
 

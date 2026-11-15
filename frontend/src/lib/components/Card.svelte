@@ -24,7 +24,6 @@
   //   }
 
   const onkeydown = (event: KeyboardEvent): boolean | null => {
-    console.log(event.key);
     if (event.key === "Enter" || event.key === "Spacebar" || event.key === " ") {
       return showSidebar = !showSidebar;
     }
@@ -33,7 +32,7 @@
 </script>
 
 
-<div class='card' role="button" onclick={()=> showSidebar = !showSidebar} onkeydown={onkeydown} tabindex='0'>
+<div class='card' role="button" onclick={()=> showSidebar = !showSidebar} {onkeydown} tabindex='0'>
   <div class='justify-between'>
     <h3><b>{ticker_symbol}</b></h3>
     <button
@@ -68,6 +67,7 @@
     cursor: pointer;
     color: #b91c1c;
   }
+
   .card {
     box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.2);
     transition: 0.3s;
