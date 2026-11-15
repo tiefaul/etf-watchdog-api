@@ -1,8 +1,8 @@
 <script lang='ts'>
-  import { Card } from '$lib/components';
-  import { onMount } from 'svelte'
+  import {Card} from '$lib/components';
+  import {onMount} from 'svelte'
 
-  let { data } = $props();
+  let {data} = $props();
   let card: boolean = $state(true);
 
 
@@ -43,8 +43,8 @@
 
 
   {#if card}
-    <div class="card-flex-container" >
-      {#each data.stocks as { ticker_symbol, price, shares, company_name }}
+    <div class="card-flex-container">
+      {#each data.stocks as {ticker_symbol, price, shares, company_name}}
         <Card {ticker_symbol} {price} {shares} {company_name} />
       {/each}
     </div>
@@ -60,7 +60,7 @@
               <th>Shares</th>
             </tr>
           </thead>
-          {#each data.stocks as { ticker_symbol, price, shares, company_name }}
+          {#each data.stocks as {ticker_symbol, price, shares, company_name}}
             <tbody>
               <tr>
                 <td>{ticker_symbol}</td>
