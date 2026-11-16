@@ -1,8 +1,8 @@
 <script lang='ts'>
-  import {Card} from '$lib/components';
-  import {onMount} from 'svelte'
+  import { Card } from '$lib/components';
+  import { onMount } from 'svelte'
 
-  let {data} = $props();
+  let { data } = $props();
   let card: boolean = $state(true);
 
 

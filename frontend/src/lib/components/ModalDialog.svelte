@@ -12,7 +12,7 @@
 <dialog
   bind:this={dialog}
   onclose={() => (showModal = false)}
-  onclick={(e) => { if (e.target === dialog) dialog.close(); }}
+  onclick={(e) => {if (e.target === dialog) dialog.close()}}
 >
     <form method="POST" id="stock-creation-form">
       <h2>Add Stock</h2>

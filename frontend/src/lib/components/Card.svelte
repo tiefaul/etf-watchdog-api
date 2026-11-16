@@ -1,6 +1,6 @@
 <script lang="ts">
   import { deleteStock } from '$lib/api/stocks';
-  import { SidebarModal } from '$lib/components';
+  import { SidebarDialog } from '$lib/components';
 
   interface CardProps {
     ticker_symbol: string,
@@ -57,7 +57,7 @@
   </div>
 </div>
 
-<SidebarModal {showSidebar} {ticker_symbol} />
+<SidebarDialog bind:showSidebar {ticker_symbol} />
 
 
 <style>
