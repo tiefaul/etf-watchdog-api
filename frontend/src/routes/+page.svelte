@@ -1,9 +1,26 @@
 <script lang='ts'>
   import { Card } from '$lib/components';
+  import { SidebarDialog } from '$lib/components';
   import { onMount } from 'svelte'
 
   let { data } = $props();
   let card: boolean = $state(true);
+  let showSidebar: boolean = $state(false);
+  let sidebarSymbol: string = $state('')
+
+
+  const onkeydown = (event: KeyboardEvent): boolean | null => {
+    if (event.key === "Enter" || event.key === "Spacebar" || event.key === " ") {
+      return showSidebar = !showSidebar;
+    }
+    return null
+  }
+
+
+  const onclick = (e: MouseEvent) => {
+    showSidebar = !showSidebar;
+    sidebarSymbol = (e.currentTarget as HTMLElement).querySelector('#ticker')?.textContent.trim() ?? '';
+  }
 
 
   // Get session data for button display type.
@@ -45,7 +62,9 @@
   {#if card}
     <div class="card-flex-container">
       {#each data.stocks as {ticker_symbol, price, shares, company_name}}
-        <Card {ticker_symbol} {price} {shares} {company_name} />
+        <div class='card' role="button" {onclick} {onkeydown} tabindex='0'>
+          <Card {ticker_symbol} {price} {shares} {company_name} />
+        </div>
       {/each}
     </div>
   {:else}
@@ -73,10 +92,27 @@
       </table>
     </div>
   {/if}
+  {#if showSidebar}
+    <SidebarDialog bind:showSidebar {sidebarSymbol} />
+  {/if}
 </main>
 
 
 <style>
+  .card {
+    box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    border-radius: 0.938rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    padding: 0.125rem 1rem;
+    overflow-wrap: break-word;
+  }
+
+  .card:hover {
+    box-shadow: 0 0.5rem 1rem 0 rgba(0,0,0,0.2);
+  }
+
   .card-flex-container {
     padding: 0px 0.625rem 10px 0.625rem;
     display: grid;

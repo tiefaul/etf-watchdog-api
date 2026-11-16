@@ -1,6 +1,5 @@
 <script lang="ts">
   import { deleteStock } from '$lib/api/stocks';
-  import { SidebarDialog } from '$lib/components';
 
   interface CardProps {
     ticker_symbol: string,
@@ -16,25 +15,16 @@
     shares = '0'
     }: CardProps = $props()
 
-  let showSidebar: boolean = $state(false);
 
   // Example of what you can do with a function and CSS.
   // const displayRed = (number: string): string => {
   //   return parseInt(number) >= 0 ? 'green': 'red';
   //   }
-
-  const onkeydown = (event: KeyboardEvent): boolean | null => {
-    if (event.key === "Enter" || event.key === "Spacebar" || event.key === " ") {
-      return showSidebar = !showSidebar;
-    }
-    return null
-  }
 </script>
 
-
-<div class='card' role="button" onclick={()=> showSidebar = !showSidebar} {onkeydown} tabindex='0'>
+<!-- <div class='card' role="button" onclick={()=> showSidebar = !showSidebar} {onkeydown} tabindex='0'> -->
   <div class='justify-between'>
-    <h3><b>{ticker_symbol}</b></h3>
+    <h3><b id='ticker'>{ticker_symbol}</b></h3>
     <button
       id="trash"
       class="fa-solid fa-trash"
@@ -55,9 +45,9 @@
     <span>Shares</span>
     <span>{shares}</span>
   </div>
-</div>
+<!-- </div> -->
 
-<SidebarDialog bind:showSidebar {ticker_symbol} />
+<!-- <SidebarDialog bind:showSidebar {ticker_symbol} /> -->
 
 
 <style>
@@ -66,20 +56,6 @@
     border: none;
     cursor: pointer;
     color: #b91c1c;
-  }
-
-  .card {
-    box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
-    border-radius: 0.938rem;
-    margin-top: 1.25rem;
-    margin-bottom: 1.25rem;
-    padding: 0.125rem 1rem;
-    overflow-wrap: break-word;
-  }
-
-  .card:hover {
-    box-shadow: 0 0.5rem 1rem 0 rgba(0,0,0,0.2);
   }
 
   h3 {

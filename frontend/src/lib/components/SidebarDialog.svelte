@@ -1,12 +1,12 @@
 <script lang='ts'>
   interface SidebarDialogProps {
     showSidebar: boolean,
-    ticker_symbol: string
+    sidebarSymbol: string
   }
 
   let {
     showSidebar = $bindable(),
-    ticker_symbol = 'Placeholder'
+    sidebarSymbol = ''
     }: SidebarDialogProps = $props();
 
   let dialog: HTMLDialogElement;
@@ -22,8 +22,9 @@
   onclose={() => (showSidebar = false)}
   onclick={(e) => {if (e.target === dialog) dialog.close()}}
   >
-  <h1>This is a test: {ticker_symbol}</h1>
+  <h1>This is a test: {sidebarSymbol}</h1>
 </dialog>
+
 
 <style>
   dialog {
