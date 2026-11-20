@@ -70,6 +70,27 @@ For code changes, explicit approval and all referenced companion standards are m
 
 <CRITICAL_INSTRUCTION>
 
+# CODE REVIEW DELEGATION PROTOCOL (MANDATORY)
+
+If the user asks for a code review, agents MUST:
+
+1. Spawn the `code-reviewer` subagent.
+2. Collaborate with the subagent and incorporate its findings into the response.
+3. If findings require code changes, follow the PRE-TASK APPROVAL PROTOCOL before implementation.
+4. Implement approved fixes for confirmed findings and summarize what was changed.
+
+If the `code-reviewer` subagent is unavailable, agents MUST:
+
+1. Inform the user that the `code-reviewer` subagent could not be found.
+2. Ask whether the user approves proceeding with a self-review.
+3. STOP and report if that approval is not granted.
+
+</CRITICAL_INSTRUCTION>
+
+---
+
+<CRITICAL_INSTRUCTION>
+
 # PRE-TASK APPROVAL PROTOCOL (MANDATORY)
 
 Before starting implementation work for any task, agents MUST:
