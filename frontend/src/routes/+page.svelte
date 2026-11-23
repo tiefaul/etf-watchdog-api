@@ -16,7 +16,7 @@
     return null
   }
 
-
+  // Grab ticker symbol from the selected card element
   const onclick = (e: MouseEvent) => {
     showSidebar = !showSidebar;
     sidebarSymbol = (e.currentTarget as HTMLElement).querySelector('#ticker')?.textContent.trim() ?? '';
