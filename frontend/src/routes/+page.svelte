@@ -22,7 +22,6 @@
     sidebarSymbol = (e.currentTarget as HTMLElement).querySelector('#ticker')?.textContent.trim() ?? '';
   }
 
-
   // Get session data for button display type.
   // This will help displaying the same layout
   // on a page refresh.

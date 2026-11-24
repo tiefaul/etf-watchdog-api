@@ -17,10 +17,8 @@
   <h1>ETF Watchdog</h1>
   <button onclick={() => (showModal = true)}>+ Add Stock</button>
 </header>
-<div>
-  <p>Track and manage your investments</p>
-  <hr />
-</div>
+<p>Track and manage your investments</p>
+<hr />
 
 <ModalDialog bind:showModal />
 

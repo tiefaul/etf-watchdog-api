@@ -17,16 +17,20 @@
 </script>
 
 
-<dialog
-  bind:this={dialog}
-  onclose={() => (showSidebar = false)}
-  onclick={(e) => {if (e.target === dialog) dialog.close()}}
-  >
+<dialog bind:this={dialog} onclose={() => (showSidebar = false)}>
+  <button aria-label="close sidebar" class="fa-solid fa-x" onclick={() => dialog.close()}></button>
   <h1>This is a test: {sidebarSymbol}</h1>
 </dialog>
 
 
 <style>
+  button {
+    cursor: pointer;
+    float: right;
+    border: none;
+    background: none;
+  }
+
   dialog {
     left: auto;
     height: 100%;
