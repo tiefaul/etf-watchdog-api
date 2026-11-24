@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   interface SidebarDialogProps {
     showSidebar: boolean,
     sidebarSymbol: string
@@ -10,6 +10,17 @@
     }: SidebarDialogProps = $props();
 
   let dialog: HTMLDialogElement;
+  let timeout: number;
+
+
+  // Set a timeout for dialog close animation
+  const onclick = () => {
+    dialog.close();
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      showSidebar = false;
+      }, 200);
+  }
 
   $effect(() => {
     if (showSidebar) dialog.showModal();
@@ -17,8 +28,8 @@
 </script>
 
 
-<dialog bind:this={dialog} onclose={() => (showSidebar = false)}>
-  <button aria-label="close sidebar" class="fa-solid fa-x" onclick={() => dialog.close()}></button>
+<dialog bind:this={dialog}>
+  <button aria-label="close sidebar" class="fa-solid fa-x" {onclick}></button>
   <h1>This is a test: {sidebarSymbol}</h1>
 </dialog>
 
